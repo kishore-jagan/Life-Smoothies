@@ -1,0 +1,14 @@
+<div class="sidebar">
+    <div class="navigators">
+        <i class="fa-solid fa-dashboard" [ngClass]="{'selected': selectedIndex === 0}" (click)="selectOption(0)"></i>
+        <i class="fa-solid fa-square-poll-vertical" [ngClass]="{'selected': selectedIndex === 1}"
+            (click)="selectOption(1)"></i>
+        <i class="fa-solid fa-chart-line" [ngClass]="{'selected': selectedIndex === 2}" (click)="selectOption(2)"></i>
+        <i class="fa-regular fa-rectangle-list" [ngClass]="{'selected': selectedIndex === 3}"
+            (click)="selectOption(3)"></i>
+        <i class="fa-solid fa-users" [ngClass]="{'selected': selectedIndex === 4}" (click)="selectOption(4)"></i>
+        <i class="fa-solid fa-gears" [ngClass]="{'selected': selectedIndex === 5}" (click)="selectOption(5)"></i>
+        <i class="fa-solid fa-right-from-bracket" [ngClass]="{'selected': selectedIndex === 6}"
+            (click)="selectOption(6)"></i>
+    </div>
+</div>

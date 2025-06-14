@@ -1,0 +1,222 @@
+<div class="smoothiemain">
+    <div class="topnav">
+        <h2 class="logo">WM</h2>
+        <h2>Warehouse Manager</h2>
+    </div>
+
+    <div class="body">
+        <div class="smoothicontainer">
+            <div class="left-container">
+                <div class="row-item">
+                    <div class="title">
+                        <p>Smoothies</p>
+                        <span>Own your unique flavour</span>
+                    </div>
+                    <img src="../../assets/Energy-Booster.jpg" alt="Energy Booster" class="row-img">
+                </div>
+
+                <div class="tabs">
+                    <div class="tab-header">
+
+                        <div [class.active]="activeTab === 'choose'" (click)="activeTab = 'choose'">Choose Smoothie
+                        </div>
+                        <div [class.active]="activeTab === 'production'" (click)="activeTab = 'production'">Smoothie
+                            Production</div>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Tab 1: Smoothie Production -->
+                        <div *ngIf="activeTab === 'choose'" class="tab-panel">
+                            <div class="title2">
+                                <p>Choose a Smoothie</p>
+                            </div>
+                            <div class="row2">
+                                <div class="card-style" *ngFor="let smoothie of smoothies"
+                                    (click)="selectSmoothie(smoothie)">
+                                    <img src="../../assets/Energy-Booster.jpg" alt="Smoothie" class="card-image">
+                                    <div class="card-content">
+                                        <h4>{{ smoothie.itemname }}</h4>
+                                        <p>{{ smoothie.ingredients.length }} ingredients</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Choose Smoothie -->
+                        <div *ngIf="activeTab === 'production'" class="tab-panel">
+                            <div class="title2">
+                                <p>INGREDIENTS</p>
+                            </div>
+                            <div class="row2">
+                                <div class="card-style" *ngFor="let item of ingredients">
+                                    <img src="../../assets/Energy-Booster.jpg" alt="Ingredients" class="card-image">
+                                    <div class="card-content">
+                                        <h4>{{ item.name }}</h4>
+                                        <p>{{ item.qty }} g</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Smoothie Name:</label>
+                                <input type="text" [(ngModel)]="smoothieName" placeholder="Enter smoothie name" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Item:</label>
+                                <!-- 
+                                <p-autocomplete [(ngModel)]="value" [suggestions]="items"
+                                    (completeMethod)="search($event)" /> -->
+                                <p-autoComplete [(ngModel)]="newItem.name" [suggestions]="filteredItemNames"
+                                    (completeMethod)="filterItemNames($event)"
+                                    placeholder="Enter or select item"></p-autoComplete>
+
+
+
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity (g):</label>
+                                <input type="number" [(ngModel)]="newItem.qty" />
+                            </div>
+
+                            <div class="button-row">
+                                <button class="icon-btn" (click)="addIngredient()">Add Ingredient</button>
+                                <button class="icon-btn" (click)="resetForm()">Reset</button>
+                                <button class="icon-btn" (click)="saveSmoothie()">Add Smoothie</button>
+                                <!-- <p-toast></p-toast> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-container">
+                <div *ngIf="selectedSmoothie" class="card-style2">
+                    <p class="title2">{{ selectedSmoothie.itemname }}</p>
+                    <!-- <p>Ingredients ({{ selectedSmoothie.ingredients.length }})</p> -->
+
+                    <div *ngFor="let detail of ingredientDetails; let i = index" class="ingredient-card">
+                        <input type="checkbox" [(ngModel)]="detail.selected" />
+
+                        <h4>{{ detail.item_name }}</h4>
+                        <p><strong>Description:</strong> {{ detail.description }}</p>
+                        <p><strong>Qty (cotton):</strong> {{ detail.qty_cotton }}</p>
+                        <p><strong>Qty (kg):</strong> {{ detail.qty_kg }}</p>
+                        <p><strong>Qty (g):</strong> {{ detail.qty_g }}</p>
+                        <p><strong>Lot No:</strong> {{ detail.lot_no }}</p>
+                        <p><strong>Location:</strong> {{ detail.location }}</p>
+                    </div>
+                </div>
+                <div class="form-group2">
+                    <label>Qty(g):</label>
+                    <input type="number" [(ngModel)]="commonQty" />
+                </div>
+
+                <div class="form-group2">
+                    <label>Rack:</label>
+                    <input type="text" [(ngModel)]="commonRack" />
+                </div>
+                <div class="button-row">
+                    <button class="icon-btn" (click)="saveSmoothieProduction()">Save</button>
+                    <button class="icon-btn" type="button">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="editcontainer">
+            <div *ngIf="selectedSmoothie" class="basic-table">
+                <h3>Edit Quantities for: {{ selectedSmoothie.itemname }}</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ingredient</th>
+                            <th>Quantity (g)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ing of selectedIngredients">
+                            <td>{{ ing.item_name }}</td>
+                            <td>
+                                <input type="number" [(ngModel)]="ing.qty" (ngModelChange)="updateIngredientQty(ing)" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="button-row">
+                    <button class="icon-btn" (click)="calculateSmoothieProductionFromRawStock()">calculate</button>
+                    <!-- <button class="icon-btn" (click)="cancel()">Cancel</button> -->
+                </div>
+            </div>
+
+
+
+            <!-- <div *ngIf="hasSelectedIngredients()" class="editable-table">
+        <h3>Edit Selected Ingredients</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Description</th>
+                    <th>Qty (cotton)</th>
+                    <th>Qty (kg)</th>
+                    <th>Qty (g)</th>
+                    <th>Lot No</th>
+                    <th>Location</th>
+                    <th>Rack</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let detail of ingredientDetails" [hidden]="!detail.selected">
+                    <td>{{ detail.item_name }}</td>
+                    <td><input [(ngModel)]="detail.description" /></td>
+                    <td><input type="number" [(ngModel)]="detail.qty_cotton" /></td>
+                    <td><input type="number" [(ngModel)]="detail.qty_kg" /></td>
+                    <td><input type="number" [(ngModel)]="detail.qty_g" /></td>
+                    <td><input [(ngModel)]="detail.lot_no" /></td>
+                    <td><input [(ngModel)]="detail.location" /></td>
+                    <td><input [(ngModel)]="detail.rack" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </div> -->
+
+            <div class="calculateContainer success-message">
+                <div class="icon">🎉</div>
+                <div class="content">
+                    <h3>Success!</h3>
+                    <p>You can produce <strong>{{ calculateMessage }}</strong> smoothies with the current stock.</p>
+                </div>
+            </div>
+
+
+            <div class="createsmoothie">
+                <div class="rowform">
+                    <div class="edit-group">
+                        <label>Qty(g):</label>
+                        <input type="number" [(ngModel)]="commonQty" />
+                    </div>
+                    <div class="edit-group">
+                        <label>wastage(g):</label>
+                        <input type="number" [(ngModel)]="commonWastage" />
+                    </div>
+                </div>
+
+                <div class="edit-group">
+                    <label>Rack:</label>
+                    <input type="text" [(ngModel)]="commonRack" />
+                </div>
+
+                <div class="button-row">
+                    <button class="icon-btn" (click)="saveSmoothieProduction()">Save</button>
+                    <button class="icon-btn" type="button">Cancel</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

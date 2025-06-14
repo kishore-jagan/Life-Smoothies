@@ -1,0 +1,215 @@
+<div class="storagemain">
+    <div class="topnav">
+        <h2 class="logo">WM</h2>
+        <h2>Warehouse Manager</h2>
+    </div>
+
+    <div class="body">
+        <div class="classbutton">
+            <p class="text1"><i class="fas fa-box-open"></i> Storage House 2</p>
+            <button class="icon-btn" type="button" (click)="toggleForm()">
+                <i class="fas fa-add"></i>
+                <span class="btn-text">Add Item</span>
+            </button>
+        </div>
+
+        <div class="overviewbox">
+            <div class="overviewbox-item box-blue">
+                <p class="view1">Total Stock Items</p>
+                <p class="view2">2,378</p>
+                <p class="view3">12% from last month</p>
+                <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
+            </div>
+            <div class="overviewbox-item box-green">
+                <p class="view1">Total Stock Items</p>
+                <p class="view2">2,378</p>
+                <p class="view3">12% from last month</p>
+                <div class="view-icon icon-green"><i class="fas fa-box"></i></div>
+            </div>
+            <div class="overviewbox-item box-yellow">
+                <p class="view1">Total Stock Items</p>
+                <p class="view2">2,378</p>
+                <p class="view3">12% from last month</p>
+                <div class="view-icon icon-yellow"><i class="fas fa-box"></i></div>
+            </div>
+            <div class="overviewbox-item box-blue">
+                <p class="view1">Total Stock Items</p>
+                <p class="view2">2,378</p>
+                <p class="view3">12% from last month</p>
+                <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
+            </div>
+        </div>
+
+
+        <div *ngIf="showForm" class="form-container">
+            <h3>Add New Item</h3>
+            <form (ngSubmit)="addStorageItem()" #formRef="ngForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Item</label>
+                        <input type="text" [(ngModel)]="newItem.itemname" name="Item" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Item Description</label>
+                        <input type="text" [(ngModel)]="newItem.description" name="Item Description" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Lot No</label>
+                        <input type="text" [(ngModel)]="newItem.lotno" name="lotNo" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Production Date</label>
+                        <input type="date" [(ngModel)]="newItem.productiondate" name="productionDate" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" [(ngModel)]="newItem.expirydate" name="expiryDate" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity in Cotton</label>
+                        <input type="number" [(ngModel)]="newItem.qtycotton" name="quantity" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Supplier Name</label>
+                        <input type="text" [(ngModel)]="newItem.supplier" name="supplier" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Container No</label>
+                        <input type="text" [(ngModel)]="newItem.truckno" name="truckNo" required />
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" (click)="toggleForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <p-toast />
+
+        <!-- <p-button (onClick)="show()" label="Show" />    -->
+
+
+        <div class="tablecontainer">
+            <p-table #dt [value]="storageList" [columns]="selectedColumns" [tableStyle]="{ 'min-width': '50rem' }"
+                [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="5" responsiveLayout="scroll"
+                [rowsPerPageOptions]="[5,10,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
+                [exportHeader]="'customExportHeader'" selectionMode="multiple"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
+                [tableStyle]="{'min-width': '50rem'}" responsiveLayout="stack" [breakpoint]="'960px'" stripedRows="true"
+                rowHover="true" showCurrentPageReport="true">
+                <ng-template #caption>
+                    <div class="caption">
+                        <div class="captionrow">
+                            <div class="captionrowinrow">
+                                <div id="search">
+                                    <input type="search" placeholder="Search"
+                                        (input)="onSearch($any($event).target.value, dt)" />
+                                </div>
+
+                                <!-- <p-button icon="pi pi-external-link" label="Export" (click)="dt.exportCSV()" /> -->
+                                <button class="export" label="Export" (click)="dt.exportCSV()"> <i
+                                        class="fas fa-external-link"></i> Export</button>
+                            </div>
+
+                            <div class="date-range-selector">
+                                <p-selectButton [options]="periodOptions" [(ngModel)]="selectedPeriod"
+                                    (onChange)="setView(selectedPeriod)">
+                                </p-selectButton>
+                            </div>
+                        </div>
+
+                        <div class="captionrow">
+                            <div class="filter">
+                                <p-multiselect display="chip" [options]="cols" [(ngModel)]="selectedColumns"
+                                    optionLabel="header" selectedItemsLabel="{0} columns selected"
+                                    [style]="{ 'min-width': '200px' }" placeholder="Choose Columns" [filter]="true"
+                                    [showToggleAll]="true" [maxSelectedLabels]="9" />
+                            </div>
+
+
+                            <div class="date-picker" *ngIf="selectedPeriod === 'date'">
+                                <p-datepicker class="custom-date-input" [(ngModel)]="rangeDates" selectionMode="range"
+                                    [showIcon]="true" (onSelect)="setView('date')"
+                                    [ngClass]="{ 'custom-date-input': selectedPeriod === 'date' }">
+                                </p-datepicker>
+                            </div>
+
+                            <!-- Weekly -->
+                            <div class="date-picker" *ngIf="selectedPeriod === 'week'">
+                                <!-- <label>Select Week:</label> -->
+                                <p-datepicker class="custom-date-input" [(ngModel)]="selectedDate" [showIcon]="true"
+                                    (onSelect)="setView('week')"></p-datepicker>
+                            </div>
+
+                            <!-- Monthly -->
+                            <div class="date-picker" *ngIf="selectedPeriod === 'month'">
+                                <!-- <label>Select Month:</label> -->
+                                <p-datepicker class="custom-date-input" [(ngModel)]="selectedDate" view="month"
+                                    dateFormat="MM yy" [showIcon]="true" (onSelect)="setView('month')">
+                                </p-datepicker>
+                            </div>
+
+                            <!-- Yearly -->
+                            <div class="date-picker" *ngIf="selectedPeriod === 'year'">
+                                <!-- <label>Select Year:</label> -->
+                                <p-datepicker class="custom-date-input" [(ngModel)]="selectedDate" view="year"
+                                    dateFormat="yy" [showIcon]="true" (onSelect)="setView('year')">
+                                </p-datepicker>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template #header let-columns>
+                    <tr>
+                        <th class="centered-cell">ID <p-sortIcon></p-sortIcon></th>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="centered-cell">
+                            {{ col.header }} <p-sortIcon [field]="col.field"></p-sortIcon>
+                        </th>
+                        <th class="centered-cell">Status</th>
+                        <th class="centered-cell">Move to Life Smoothie</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-row let-columns="columns" let-i="rowIndex">
+                    <tr [ngClass]="{ 'highlight-row': rowMatchesSearch(row, columns) }">
+                        <td class="centered-cell">{{ i + 1 }}</td>
+                        <td *ngFor="let col of columns" class="centered-cell">
+                            <ng-container [ngSwitch]="col.type">
+                                <span *ngSwitchCase="'shortDate'">{{ row[col.field] | date:'short' }}</span>
+                                <span *ngSwitchCase="'date'">{{ row[col.field] | date }}</span>
+                                <span *ngSwitchDefault [innerHTML]="highlightSearchText(row[col.field])">
+                                </span>
+                            </ng-container>
+                        </td>
+                        <td class="centered-cell">
+                            <span *ngIf="row.qtycotton < 5" class="low-stock">
+                                Low Stock
+                            </span>
+                            <span *ngIf="row.qtycotton >= 5" class="in-stock">
+                                In Stock
+                            </span>
+                            <span *ngIf="row.qtycotton == 0" class="out-stock">
+                                Out Of Stock
+                            </span>
+                        </td>
+                        <td class="centered-cell">
+                            <input type="number" [(ngModel)]="row.transferQty" min="0" [max]="newItem.qtycotton" />
+                            <input type="text" [(ngModel)]="row.location" placeholder="Location" />
+                            <button class="save-btn" (click)="transferItem(row)">Transfer</button>
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </div>
+    </div>
+</div>

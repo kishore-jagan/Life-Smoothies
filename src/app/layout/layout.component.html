@@ -1,0 +1,19 @@
+<div class="layout">
+    <app-sidebar></app-sidebar>
+    <div class="basee">
+        @if (selectedIndex === 0) {
+        <app-dashboard></app-dashboard>
+        }@else if(selectedIndex === 1){
+        <app-storagehouse></app-storagehouse>
+        }@else if(selectedIndex === 2){
+        <app-storagehouse2></app-storagehouse2>
+        }@else if(selectedIndex === 3){
+        <app-mainhouse></app-mainhouse>
+        }@else if(selectedIndex === 4){
+        <app-production></app-production>
+        }@else if(selectedIndex === 5){
+        <app-dispatch></app-dispatch>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,16 @@
+.layout {
+    /* margin: 0; */
+    height: 100vh;
+    width: 100%;
+    /* background-color: #e8f0f9; */
+    background-color: #F9FAFB;
+    display: flex;
+    flex-direction: row;
+}
+
+.basee {
+    width: 96.6%;
+    height: 100vh;
+    /* background-color: aqua; */
+    margin-left: 3.4%;
+}
