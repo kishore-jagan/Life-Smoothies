@@ -244,7 +244,6 @@ export class MainhouseComponent implements OnInit {
   highlightSearchText(value: any): string {
     if (!this.searchQuery) return value;
 
-    // Ensure the value is treated as a string
     const stringValue =
       value !== null && value !== undefined ? String(value) : '';
     const escapedSearchQuery = this.searchQuery.replace(
