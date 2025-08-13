@@ -29,6 +29,24 @@ interface ExportColumn {
   dataKey: string;
 }
 
+interface ProductData {
+  name: string;
+  monthlySold: number;
+  dailySold: number;
+  dailyBoxes: number;
+  boxesLeft: number;
+  daysRemaining: number | string;
+}
+
+interface IngredientData {
+  name: string;
+  color: string;
+  kgPerDay: number;
+  stock: number;
+  daysLeft: number | string;
+}
+
+
 @Component({
   selector: 'app-dispatch',
   standalone: true,
@@ -90,6 +108,44 @@ export class DispatchComponent implements OnInit {
   exportColumns!: ExportColumn[];
 
   return: number = 0;
+
+
+
+  smoothiesData: ProductData[] = [
+    { name: 'Smoothie 1', monthlySold: 43000, dailySold: 1433, dailyBoxes: 96, boxesLeft: 4288, daysRemaining: 45 },
+    { name: 'Smoothie 2', monthlySold: 8000, dailySold: 267, dailyBoxes: 18, boxesLeft: 392, daysRemaining: 22 },
+    { name: 'Smoothie 2 BATEEL 140G', monthlySold: 0, dailySold: 0, dailyBoxes: 0, boxesLeft: 51, daysRemaining: 8 },
+    { name: 'Smoothie 3', monthlySold: 26000, dailySold: 867, dailyBoxes: 58, boxesLeft: 962, daysRemaining: 17 },
+    // ... add all other smoothie rows
+  ];
+
+  shakesData: ProductData[] = [
+    { name: 'Vanilla', monthlySold: 12200, dailySold: 407, dailyBoxes: 27, boxesLeft: 466, daysRemaining: 17 },
+    { name: 'Vegan Vanilla', monthlySold: 300, dailySold: 10, dailyBoxes: 1, boxesLeft: 0, daysRemaining: 0 },
+    { name: 'Vegan Banana', monthlySold: 500, dailySold: 17, dailyBoxes: 1, boxesLeft: 74, daysRemaining: 67 },
+    // ... add all other shake rows
+  ];
+
+  bowlsData: ProductData[] = [
+    { name: 'Dragon Fruit and Banana', monthlySold: 130, dailySold: 4, dailyBoxes: 0, boxesLeft: 105, daysRemaining: 363 },
+    { name: 'Acai Berry and Banana', monthlySold: 900, dailySold: 30, dailyBoxes: 2, boxesLeft: 15, daysRemaining: 12 },
+    { name: 'Mango and Banana', monthlySold: 160, dailySold: 5, dailyBoxes: 0, boxesLeft: 45, daysRemaining: 0 }
+  ];
+
+   ingredientData: IngredientData[] = [
+    { name: 'Acai', color: '#8b5cf6', kgPerDay: 32.2, stock: 3550, daysLeft: 110 },
+    { name: 'Acai with Guarana', color: '#ef4444', kgPerDay: 0, stock: 0, daysLeft: 8  },
+    { name: 'Aloe vera', color: '#a3e635', kgPerDay: 2.7, stock: 0, daysLeft: 0 },
+    { name: 'Avocado', color: '#15803d', kgPerDay: 11.1, stock: 390, daysLeft: 35 },
+    { name: 'Banana', color: '#fde047', kgPerDay: 313.5, stock: 48250, daysLeft: 154 },
+    { name: 'Baobab', color: '#f9a8d4', kgPerDay: 0.7, stock: 670, daysLeft: 985 },
+    { name: 'Beetroot', color: '#ec4899', kgPerDay: 7.6, stock: 620, daysLeft: 82 },
+    { name: 'Blackberry', color: '#000000', kgPerDay: 6.1, stock: 5282, daysLeft: 861 },
+    { name: 'Blackcurant', color: '#4b5563', kgPerDay: 5.3, stock: 786, daysLeft: 147 }
+  ];
+
+
+  
 
   constructor(
     private messageService: MessageService,
