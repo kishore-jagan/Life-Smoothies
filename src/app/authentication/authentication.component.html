@@ -1,1 +1,209 @@
-<p>authentication works!</p>
+<!-- <main class="page-container">
+  <div class="background-container">
+   <div class="hero-image"></div>
+
+    <div class="gradient-overlay"></div>
+    <div class="glass-overlay"></div>
+
+    <div class="float-circle circle1"></div>
+    <div class="float-circle circle2"></div>
+    <div class="float-circle circle3"></div>
+
+    <div class="pattern-overlay">
+      <svg width="60" height="60" viewBox="0 0 60 60" class="pattern-svg">
+        <defs>
+          <pattern id="dots" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+            <circle cx="30" cy="30" r="2" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#dots)" />
+      </svg>
+    </div>
+  </div>
+
+
+  <div class="content-wrapper">
+    <div class="grid-container">
+      <div class="brand-section">
+        <div class="brand-header">
+          <div class="brand-icon">🥤</div>
+          <h1 class="brand-title">SmoothieBlend</h1>
+        </div>
+        <p class="brand-subtitle">
+          Craft the perfect blend for your healthy lifestyle
+        </p>
+        <div class="brand-features">
+          <span>100% Natural</span>
+          <span>Fresh Daily</span>
+          <span>Nutrient Rich</span>
+        </div>
+
+        <div class="features-card">
+          <h3>🌟 Premium Ingredients</h3>
+          <p>We source only the finest organic fruits and superfoods...</p>
+        </div>
+        <div class="features-card">
+          <h3>🎯 Personalized Nutrition</h3>
+          <p>Our smart recommendations adapt to your health goals...</p>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="login-card">
+          <h2>{{ isSignUp ? 'Sign Up' : 'Login' }}</h2>
+          <form>
+            <input type="text" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <button type="submit">{{ isSignUp ? 'Create Account' : 'Login' }}</button>
+          </form>
+          <p>
+            <a href="#" (click)="toggleSignUp(); $event.preventDefault()">
+              {{ isSignUp ? 'Already have an account? Login' : 'Don’t have an account? Sign Up' }}
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    © 2024 SmoothieBlend. Crafted with 💚 for your wellness journey.
+  </footer>
+</main> -->
+
+
+
+
+
+
+
+
+
+
+
+<!-- <div class="page-container">
+  <div class="left-panel">
+    <div class="logo">
+      <i class="pi pi-apple smoothie-icon"></i>
+      <span class="brand">Smoothie<span class="highlight">Blend</span></span>
+    </div>
+    <h2 class="tagline">Craft the perfect blend for your healthy lifestyle</h2>
+
+    <div class="features">
+      <span class="feature"><i class="pi pi-check-circle green"></i> 100% Natural</span>
+      <span class="feature"><i class="pi pi-check-circle orange"></i> Fresh Daily</span>
+      <span class="feature"><i class="pi pi-check-circle purple"></i> Nutrient Rich</span>
+    </div>
+
+    <p-card class="feature-card premium">
+      <div class="feature-title">
+        <i class="pi pi-star-fill"></i> Premium Ingredients
+      </div>
+      <p>
+        We source only the finest organic fruits and superfoods to create smoothies
+        that nourish your body and delight your taste buds.
+      </p>
+    </p-card>
+
+    <p-card class="feature-card personalized">
+      <div class="feature-title">
+        <i class="pi pi-bullseye"></i> Personalized Nutrition
+      </div>
+      <p>
+        Our smart recommendations adapt to your health goals, dietary preferences, 
+        and nutritional needs for the perfect blend every time.
+      </p>
+    </p-card>
+
+    <div class="footer">
+      © 2024 SmoothieBlend. Crafted with 💚 for your wellness journey.
+    </div>
+  </div>
+
+
+  <div class="right-panel">
+    <p-card class="login-card">
+      <div class="login-icon">
+        <i class="pi pi-apple smoothie-icon"></i>
+      </div>
+      <h2 class="welcome">Welcome Back</h2>
+      <p class="subtext">Sign in to access your personalized smoothie experience</p>
+
+      <div class="form-field">
+        <span class="p-input-icon-left">
+          <i class="pi pi-envelope"></i>
+          <input pInputText placeholder="Enter your email" />
+        </span>
+      </div>
+
+      <div class="form-field">
+        <span class="p-input-icon-left">
+          <i class="pi pi-lock"></i>
+          <input pPassword [feedback]="false" placeholder="Enter your password" />
+        </span>
+      </div>
+
+      <p-button label="Sign In" icon="pi pi-arrow-right" styleClass="sign-in-btn"></p-button>
+
+      <div class="links">
+        <a href="#">Don't have an account? Sign up</a>
+        <a href="#">Forgot your password?</a>
+      </div>
+    </p-card>
+  </div>
+</div> -->
+
+
+
+
+
+
+<div class="background">
+  <div class="container">
+    <div class="left-section">
+      <div class="logo">
+        <img src="../../assets/smoothie-hero.jpg" alt="SmoothieBlend Logo" />
+        <h1>SmoothieBlend</h1>
+      </div>
+      <p class="slogan">Craft the perfect blend for your healthy lifestyle</p>
+      <ul class="features">
+        <li><span class="dot green"></span> 100% Natural</li>
+        <li><span class="dot orange"></span> Fresh Daily</li>
+        <li><span class="dot purple"></span> Nutrient Rich</li>
+      </ul>
+      <div class="info-box">
+        <h2><span class="icon">⭐</span> Premium Ingredients</h2>
+        <p>We source only the finest organic fruits and superfoods to create smoothies that nourish your body and delight your taste buds.</p>
+      </div>
+      <div class="info-box">
+        <h2><span class="icon">🎯</span> Personalized Nutrition</h2>
+        <p>Our smart recommendations adapt to your health goals, dietary preferences, and nutritional needs for the perfect blend every time.</p>
+      </div>
+    </div>
+    <div class="right-section">
+      <div class="login-card">
+        <div class="logo-small">
+          <img src="assets/logo.png" alt="SmoothieBlend Logo" />
+        </div>
+        <h2>Welcome Back</h2>
+        <p class="subtext">Sign in to access your personalized smoothie experience</p>
+        <form>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required />
+          </div>
+          <button type="submit" class="sign-in-btn">Sign In →</button>
+          <p class="signup-link">Don't have an account? <a href="#">Sign up</a></p>
+          <p class="forgot-password"><a href="#">Forgot your password?</a></p>
+        </form>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p>© 2024 SmoothieBlend. Crafted with <span class="heart">❤️</span> for your wellness journey</p>
+  </footer>
+</div>

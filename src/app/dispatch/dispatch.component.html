@@ -251,4 +251,131 @@
 
 
     </div>
+
+
+    <p-table [value]="smoothiesData" [paginator]="false"  responsiveLayout="scroll">
+  <ng-template pTemplate="header">
+    <tr style="background-color:#dbeafe;">
+      <th> Smoothies </th>
+      <th> Monthly sold </th>
+      <th> Daily sold </th>
+      <th> Daily boxes </th>
+      <th> Boxes left </th>
+      <th> Days remaining </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      <td>{{ row.name }}</td>
+      <td class="num">{{ row.monthlySold }}</td>
+      <td class="num">{{ row.dailySold }}</td>
+      <td class="num">{{ row.dailyBoxes }}</td>
+      <td class="num">{{ row.boxesLeft }}</td>
+      <td class="num">{{ row.daysRemaining }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-table [value]="shakesData" responsiveLayout="scroll">
+  <ng-template pTemplate="header">
+    <tr style="background-color:#fff7ed;">
+      <th> Shakes </th>
+      <th> Monthly sold </th>
+      <th> Daily sold </th>
+      <th> Daily boxes </th>
+      <th> Boxes left </th>
+      <th> Days remaining </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      <td>{{ row.name }}</td>
+      <td class="num">{{ row.monthlySold }}</td>
+      <td class="num">{{ row.dailySold }}</td>
+      <td class="num">{{ row.dailyBoxes }}</td>
+      <td class="num">{{ row.boxesLeft }}</td>
+      <td class="num">{{ row.daysRemaining }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-table [value]="bowlsData" responsiveLayout="scroll">
+  <ng-template pTemplate="header">
+    <tr style="background-color:#fdf2f8;">
+      <th> Bowls </th>
+      <th> Monthly sold </th>
+      <th> Daily sold </th>
+      <th> Daily boxes </th>
+      <th> Boxes left </th>
+      <th> Days remaining </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      <td>{{ row.name }}</td>
+      <td class="num">{{ row.monthlySold }}</td>
+      <td class="num">{{ row.dailySold }}</td>
+      <td class="num">{{ row.dailyBoxes }}</td>
+      <td class="num">{{ row.boxesLeft }}</td>
+      <td class="num">{{ row.daysRemaining }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+
 </div>
+
+
+
+
+
+
+
+
+
+<table class="p-datatable p-component custom-table">
+  <thead>
+    <tr>
+      <th *ngFor="let item of ingredientData" [style.background-color]="item.color" style="color:white;">
+        {{ item.name }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td *ngFor="let item of ingredientData">{{ item.kgPerDay }}</td>
+    </tr>
+    <tr>
+      <td *ngFor="let item of ingredientData" style="color:orange;">{{ item.stock }}</td>
+    </tr>
+    <tr>
+      <td *ngFor="let item of ingredientData" [class.red-cell]="item.daysLeft === 0 || item.daysLeft === '#DIV/0!'">
+        {{ item.daysLeft }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+<p-table [value]="ingredientData" responsiveLayout="scroll">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>Kg per day</th>
+      <th>Stock</th>
+      <th>Days left</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      <td [style.background-color]="row.color" style="color:white;">{{ row.name }}</td>
+      <td>{{ row.kgPerDay }}</td>
+      <td style="color:orange;">{{ row.stock }}</td>
+      <td [class.red-cell]="row.daysLeft === 0 || row.daysLeft === '#DIV/0!'">
+        {{ row.daysLeft }}
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
