@@ -17,6 +17,7 @@ export interface Item {
   one_qty_g: number;
   totalShases: number;
   location: string;
+  returns?: number;
 }
 
 @Injectable({
@@ -37,4 +38,5 @@ export class DispatchService {
   completeDispatch(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}completeDispatch`, payload);
   }
+
 }

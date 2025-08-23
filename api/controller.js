@@ -39,6 +39,7 @@ const postStorage = async (req, res) => {
     }
 };
 
+
 const postStorage2 = async (req, res) => {
     const {
         itemname, description, lotno,
@@ -432,27 +433,71 @@ const getPreDispatches = async (req, res) => {
     }
 }
 
+
+// Finalize a pre-dispatch: create a dispatch record, mark predispatch as completed,
+// and update smoothie_production cotton (deduct net transferred = transfer_qty - returns)
 const completeDispatch = async (req, res) => {
-    const { dispatch_id, driver_name, completed_date, items } = req.body;
+    try {
+        const { pre_dispatch_id, driver_name, truck_no, items } = req.body;
 
-    const result = await db.query(
-        'INSERT INTO complete_dispatch (dispatch_id, driver_name, completed_date) VALUES ($1, $2, $3) RETURNING id',
-        [dispatch_id, driver_name, completed_date]
-    );
+        if (!pre_dispatch_id || !driver_name || !truck_no || !Array.isArray(items)) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
 
-    const completed_dispatch_id = result.rows[0].id;
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
 
-    const itemPromises = items.map(item => {
-        return db.query(
-            'INSERT INTO completed_dispatch_items (completed_dispatch_id, item_id, smoothie_name, transfer_qty, return, location) VALUES ($1, $2, $3, $4, $5, $6)',
-            [completed_dispatch_id, item.item_id, item.smoothie_name, item.transfer_qty, item.return, item.location]
-        );
-    });
+            // Insert into dispatches table
+            const insertQuery = `
+                INSERT INTO dispatches (driver_name, truck_no, creation_date, item_details)
+                VALUES ($1, $2, NOW(), $3::jsonb)
+                RETURNING id
+            `;
+            const inserted = await client.query(insertQuery, [
+                driver_name,
+                truck_no,
+                JSON.stringify(items)
+            ]);
 
-    await Promise.all(itemPromises);
+            // Update predispatch status to Completed
+            await client.query(
+                `UPDATE predispatches SET status = 'Completed' WHERE id = $1`,
+                [pre_dispatch_id]
+            );
 
-    res.json({ message: 'Dispatch completed successfully' });
-}
+            // For each item, deduct cotton from smoothie_production by net transfer
+            for (const item of items) {
+                const itemId = item.item_id;
+                const qty = Number(item.transfer_qty) || 0;
+                const ret = Number(item.returns) || 0;
+                const net = qty - ret;
+                if (!itemId || net <= 0) continue;
+
+                await client.query(
+                    `UPDATE smoothie_production
+                     SET cotton = GREATEST((cotton::numeric - $1), 0)
+                     WHERE id = $2`,
+                    [net, itemId]
+                );
+            }
+
+            await client.query('COMMIT');
+            res.status(200).json({ message: 'Dispatch completed', dispatch_id: inserted.rows[0].id });
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('Complete dispatch failed:', err);
+            res.status(500).json({ message: 'Complete dispatch failed' });
+        } finally {
+            client.release();
+        }
+    } catch (error) {
+        console.error('Error connecting to DB:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 
 
 

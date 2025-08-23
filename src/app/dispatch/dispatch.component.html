@@ -189,13 +189,13 @@
                                     <td>{{ item.transfer_qty }}</td>
                                     <td>{{ item.location }}</td>
                                     <td>
-                                        <input type="number" [(ngModel)]="return" placeholder="Enter returned Qty" />
+                                        <input type="number" [(ngModel)]="item.returns" min="0" [max]="item.transfer_qty" placeholder="Enter returned Qty" />
                                     </td>
-                                    <td><button (click)="completeDispatch(dispatch)">Complete Dispatch</button></td>
                                 </tr>
                             </tbody>
                         </table>
 
+                        <button class="icon-btn" (click)="completePreDispatch(dispatch)">Complete Dispatch</button>
                         <hr />
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Smoothie</th>
-                            <th>Qty Cotton (kg)</th>
+                            <th>Qty Cotton</th>
                             <th>Location</th>
                             <th>Action</th>
                         </tr>
@@ -243,17 +243,14 @@
                     <button class="icon-btn" (click)="preDispatch()">Dispatch All</button>
                 </div>
             </div>
-            <div class="dispatch-col3">
+            <!-- <div class="dispatch-col3">
 
-            </div>
+            </div> -->
         </div>
-
-
-
     </div>
 
 
-    <p-table [value]="smoothiesData" [paginator]="false"  responsiveLayout="scroll">
+    <!-- <p-table [value]="smoothiesData" [paginator]="false"  responsiveLayout="scroll">
   <ng-template pTemplate="header">
     <tr style="background-color:#dbeafe;">
       <th> Smoothies </th>
@@ -377,5 +374,5 @@
       </td>
     </tr>
   </ng-template>
-</p-table>
+</p-table> -->
 

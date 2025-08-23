@@ -29,22 +29,22 @@ interface ExportColumn {
   dataKey: string;
 }
 
-interface ProductData {
-  name: string;
-  monthlySold: number;
-  dailySold: number;
-  dailyBoxes: number;
-  boxesLeft: number;
-  daysRemaining: number | string;
-}
+// interface ProductData {
+//   name: string;
+//   monthlySold: number;
+//   dailySold: number;
+//   dailyBoxes: number;
+//   boxesLeft: number;
+//   daysRemaining: number | string;
+// }
 
-interface IngredientData {
-  name: string;
-  color: string;
-  kgPerDay: number;
-  stock: number;
-  daysLeft: number | string;
-}
+// interface IngredientData {
+//   name: string;
+//   color: string;
+//   kgPerDay: number;
+//   stock: number;
+//   daysLeft: number | string;
+// }
 
 
 @Component({
@@ -111,38 +111,38 @@ export class DispatchComponent implements OnInit {
 
 
 
-  smoothiesData: ProductData[] = [
-    { name: 'Smoothie 1', monthlySold: 43000, dailySold: 1433, dailyBoxes: 96, boxesLeft: 4288, daysRemaining: 45 },
-    { name: 'Smoothie 2', monthlySold: 8000, dailySold: 267, dailyBoxes: 18, boxesLeft: 392, daysRemaining: 22 },
-    { name: 'Smoothie 2 BATEEL 140G', monthlySold: 0, dailySold: 0, dailyBoxes: 0, boxesLeft: 51, daysRemaining: 8 },
-    { name: 'Smoothie 3', monthlySold: 26000, dailySold: 867, dailyBoxes: 58, boxesLeft: 962, daysRemaining: 17 },
-    // ... add all other smoothie rows
-  ];
+  // smoothiesData: ProductData[] = [
+  //   { name: 'Smoothie 1', monthlySold: 43000, dailySold: 1433, dailyBoxes: 96, boxesLeft: 4288, daysRemaining: 45 },
+  //   { name: 'Smoothie 2', monthlySold: 8000, dailySold: 267, dailyBoxes: 18, boxesLeft: 392, daysRemaining: 22 },
+  //   { name: 'Smoothie 2 BATEEL 140G', monthlySold: 0, dailySold: 0, dailyBoxes: 0, boxesLeft: 51, daysRemaining: 8 },
+  //   { name: 'Smoothie 3', monthlySold: 26000, dailySold: 867, dailyBoxes: 58, boxesLeft: 962, daysRemaining: 17 },
+  //   // ... add all other smoothie rows
+  // ];
 
-  shakesData: ProductData[] = [
-    { name: 'Vanilla', monthlySold: 12200, dailySold: 407, dailyBoxes: 27, boxesLeft: 466, daysRemaining: 17 },
-    { name: 'Vegan Vanilla', monthlySold: 300, dailySold: 10, dailyBoxes: 1, boxesLeft: 0, daysRemaining: 0 },
-    { name: 'Vegan Banana', monthlySold: 500, dailySold: 17, dailyBoxes: 1, boxesLeft: 74, daysRemaining: 67 },
-    // ... add all other shake rows
-  ];
+  // shakesData: ProductData[] = [
+  //   { name: 'Vanilla', monthlySold: 12200, dailySold: 407, dailyBoxes: 27, boxesLeft: 466, daysRemaining: 17 },
+  //   { name: 'Vegan Vanilla', monthlySold: 300, dailySold: 10, dailyBoxes: 1, boxesLeft: 0, daysRemaining: 0 },
+  //   { name: 'Vegan Banana', monthlySold: 500, dailySold: 17, dailyBoxes: 1, boxesLeft: 74, daysRemaining: 67 },
+  //   // ... add all other shake rows
+  // ];
 
-  bowlsData: ProductData[] = [
-    { name: 'Dragon Fruit and Banana', monthlySold: 130, dailySold: 4, dailyBoxes: 0, boxesLeft: 105, daysRemaining: 363 },
-    { name: 'Acai Berry and Banana', monthlySold: 900, dailySold: 30, dailyBoxes: 2, boxesLeft: 15, daysRemaining: 12 },
-    { name: 'Mango and Banana', monthlySold: 160, dailySold: 5, dailyBoxes: 0, boxesLeft: 45, daysRemaining: 0 }
-  ];
+  // bowlsData: ProductData[] = [
+  //   { name: 'Dragon Fruit and Banana', monthlySold: 130, dailySold: 4, dailyBoxes: 0, boxesLeft: 105, daysRemaining: 363 },
+  //   { name: 'Acai Berry and Banana', monthlySold: 900, dailySold: 30, dailyBoxes: 2, boxesLeft: 15, daysRemaining: 12 },
+  //   { name: 'Mango and Banana', monthlySold: 160, dailySold: 5, dailyBoxes: 0, boxesLeft: 45, daysRemaining: 0 }
+  // ];
 
-   ingredientData: IngredientData[] = [
-    { name: 'Acai', color: '#8b5cf6', kgPerDay: 32.2, stock: 3550, daysLeft: 110 },
-    { name: 'Acai with Guarana', color: '#ef4444', kgPerDay: 0, stock: 0, daysLeft: 8  },
-    { name: 'Aloe vera', color: '#a3e635', kgPerDay: 2.7, stock: 0, daysLeft: 0 },
-    { name: 'Avocado', color: '#15803d', kgPerDay: 11.1, stock: 390, daysLeft: 35 },
-    { name: 'Banana', color: '#fde047', kgPerDay: 313.5, stock: 48250, daysLeft: 154 },
-    { name: 'Baobab', color: '#f9a8d4', kgPerDay: 0.7, stock: 670, daysLeft: 985 },
-    { name: 'Beetroot', color: '#ec4899', kgPerDay: 7.6, stock: 620, daysLeft: 82 },
-    { name: 'Blackberry', color: '#000000', kgPerDay: 6.1, stock: 5282, daysLeft: 861 },
-    { name: 'Blackcurant', color: '#4b5563', kgPerDay: 5.3, stock: 786, daysLeft: 147 }
-  ];
+  //  ingredientData: IngredientData[] = [
+  //   { name: 'Acai', color: '#8b5cf6', kgPerDay: 32.2, stock: 3550, daysLeft: 110 },
+  //   { name: 'Acai with Guarana', color: '#ef4444', kgPerDay: 0, stock: 0, daysLeft: 8  },
+  //   { name: 'Aloe vera', color: '#a3e635', kgPerDay: 2.7, stock: 0, daysLeft: 0 },
+  //   { name: 'Avocado', color: '#15803d', kgPerDay: 11.1, stock: 390, daysLeft: 35 },
+  //   { name: 'Banana', color: '#fde047', kgPerDay: 313.5, stock: 48250, daysLeft: 154 },
+  //   { name: 'Baobab', color: '#f9a8d4', kgPerDay: 0.7, stock: 670, daysLeft: 985 },
+  //   { name: 'Beetroot', color: '#ec4899', kgPerDay: 7.6, stock: 620, daysLeft: 82 },
+  //   { name: 'Blackberry', color: '#000000', kgPerDay: 6.1, stock: 5282, daysLeft: 861 },
+  //   { name: 'Blackcurant', color: '#4b5563', kgPerDay: 5.3, stock: 786, daysLeft: 147 }
+  // ];
 
 
   
@@ -449,33 +449,52 @@ export class DispatchComponent implements OnInit {
     );
   }
 
-  completeDispatch(dispatch: any) {
-    const completedItems = dispatch.items.map((item: any) => ({
-      item_id: item.item_id,
-      smoothie_name: item.smoothie_name,
-      transfer_qty: item.transfer_qty,
-      return: this.return || 0,
-      location: item.location,
-    }));
+  getTruckNoByDriverName(name: string): string {
+    const driver = this.driversList.find(d => d.driver_name === name);
+    return driver?.truck_no || '';
+  }
+
+  completePreDispatch(record: preDispatchRecord) {
+    const truckNo = this.getTruckNoByDriverName(record.driver_name);
+    if (!truckNo) {
+      alert('Truck number not found for driver.');
+      return;
+    }
+
+    // Ensure returns exist on each item and are not greater than transfer_qty
+    const itemsWithReturns = record.items.map((it: any) => {
+      const ret = Number(it.returns) || 0;
+      if (ret > it.transfer_qty) {
+        throw new Error(`Returns cannot exceed transferred qty for item ${it.item_id}`);
+      }
+      return { ...it, returns: ret };
+    });
 
     const payload = {
-      dispatch_id: dispatch.id,
-      driver_name: dispatch.driver_name,
-      completed_date: new Date(),
-      items: completedItems,
+      pre_dispatch_id: record.id,
+      driver_name: record.driver_name,
+      truck_no: truckNo,
+      items: itemsWithReturns,
     };
 
     this.dispatchService.completeDispatch(payload).subscribe(
-      (response) => {
-        alert('Dispatch marked as completed');
-        // Optionally remove this dispatch from UI
-        this.preDispatchRecords = this.preDispatchRecords.filter(
-          (d) => d.id !== dispatch.id
-        );
+      (res) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Dispatch Completed',
+          detail: 'Dispatch recorded and inventory updated.',
+          life: 3000,
+        });
+        this.getPreDispatches();
       },
-      (error) => {
-        console.error('Error completing dispatch:', error);
-        alert('Failed to complete dispatch');
+      (err) => {
+        console.error('Complete dispatch error:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to complete dispatch.',
+          life: 3000,
+        });
       }
     );
   }
