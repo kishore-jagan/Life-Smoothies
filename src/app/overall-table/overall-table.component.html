@@ -1,0 +1,242 @@
+<div class="product-dashboard">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">
+                <span class="title-icon">{{ getActiveTabIcon() }}</span>
+                Product Sales & Inventory
+            </h1>
+            <p class="dashboard-subtitle">Real-time monitoring of products, sales, and raw materials</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ currentProducts.length }}</div>
+                <div class="stat-label">Active Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ getTotalMonthlySales() | number }}</div>
+                <div class="stat-label">Monthly Sales</div>
+            </div>
+            <div class="stat-card critical" *ngIf="getCriticalProducts() > 0">
+                <div class="stat-value">{{ getCriticalProducts() }}</div>
+                <div class="stat-label">Low Stock</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs-container">
+        <mat-tab-group selectedIndex="0" (selectedTabChange)="switchTab(tabs[$event.index].value)"
+            animationDuration="300ms" class="category-tabs">
+            <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
+                <ng-template mat-tab-label>
+                    <span class="tab-icon">{{ tab.icon }}</span>
+                    <span class="tab-text">{{ tab.label }}</span>
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-wrapper">
+        <div class="table-container">
+            <p-table [value]="currentProducts" [scrollable]="true" scrollHeight="600px"
+                [tableStyle]="{ 'min-width': '120rem' }" styleClass="p-datatable-sm" [resizableColumns]="true"
+                [loading]="false">
+
+                <!-- Enhanced Header -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <!-- Fixed Columns -->
+                        <th class="sticky-col col-product" pSortableColumn="product">
+                            <div class="header-cell">
+                                <span class="header-icon">🏷️</span>
+                                <span>Product</span>
+                                <p-sortIcon field="product"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-monthly" pSortableColumn="monthlySold">
+                            <div class="header-cell">
+                                <span class="header-icon">📈</span>
+                                <span>Monthly</span>
+                                <p-sortIcon field="monthlySold"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-daily" pSortableColumn="dailySold">
+                            <div class="header-cell">
+                                <span class="header-icon">📅</span>
+                                <span>Daily</span>
+                                <p-sortIcon field="dailySold"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-daily-boxes" pSortableColumn="dailyBoxes">
+                            <div class="header-cell">
+                                <span class="header-icon">📦</span>
+                                <span>Daily Boxes</span>
+                                <p-sortIcon field="dailyBoxes"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-boxes-left" pSortableColumn="boxesLeft">
+                            <div class="header-cell">
+                                <span class="header-icon">📋</span>
+                                <span>Stock</span>
+                                <p-sortIcon field="boxesLeft"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-days-remaining" pSortableColumn="daysRemaining">
+                            <div class="header-cell">
+                                <span class="header-icon">⏰</span>
+                                <span>Days Left</span>
+                                <p-sortIcon field="daysRemaining"></p-sortIcon>
+                            </div>
+                        </th>
+
+                        <!-- Raw Material Columns -->
+                        <th *ngFor="let material of materialColumns" class="material-col">
+                            <div class="header-cell material-header">
+                                <span class="material-icon">🧪</span>
+                                <span>{{ material }}</span>
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <!-- Enhanced Table Body -->
+                <ng-template pTemplate="body" let-product let-rowIndex="rowIndex">
+                    <tr [ngClass]="getRowClass(product)">
+                        <!-- Fixed Columns -->
+                        <td class="sticky-col col-product">
+                            <div class="product-cell">
+                                <div class="product-name">{{ product.product }}</div>
+                                <div class="product-status" [ngClass]="getStatusClass(product)">
+                                    {{ getStatusText(product) }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-monthly">
+                            <div class="metric-cell">
+                                <span class="metric-value">{{ product.monthlySold | number }}</span>
+                                <span class="metric-unit">units</span>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-daily">
+                            <div class="metric-cell">
+                                <span class="metric-value">{{ product.dailySold | number }}</span>
+                                <span class="metric-unit">units</span>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-daily-boxes">
+                            <div class="metric-cell">
+                                <span class="metric-value">{{ product.dailyBoxes | number }}</span>
+                                <span class="metric-unit">boxes</span>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-boxes-left"
+                            [ngClass]="getBoxesLeftClass(product.boxesLeft, product.dailyBoxes)">
+                            <div class="stock-cell">
+                                <div class="stock-value">{{ product.boxesLeft | number }}</div>
+                                <div class="stock-indicator"
+                                    [ngClass]="getStockIndicatorClass(product.boxesLeft, product.dailyBoxes)">
+                                    {{ getStockStatus(product.boxesLeft, product.dailyBoxes) }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-days-remaining"
+                            [ngClass]="getDaysRemainingClass(product.daysRemaining)">
+                            <div class="days-cell">
+                                <div class="days-value">{{ product.daysRemaining | number }}</div>
+                                <div class="days-label">days</div>
+                                <div class="urgency-indicator" [ngClass]="getUrgencyClass(product.daysRemaining)"></div>
+                            </div>
+                        </td>
+
+                        <!-- Raw Material Columns with Triple Data -->
+                        <td *ngFor="let material of materialColumns" class="material-col">
+                            <div class="material-cell-complex">
+                                <div class="material-row kg-row"
+                                    [ngClass]="getMaterialKgClass(getMaterialData(product, material).used)">
+                                    <span class="material-label">Used:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).used |
+                                        number:'1.1-1' }}</span>
+                                </div>
+                                <div class="material-row kg-row"
+                                    [ngClass]="getMaterialKgClass(getMaterialData(product, material).kgPerDay)">
+                                    <span class="material-label">Kg/day:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).kgPerDay |
+                                        number:'1.1-1' }}</span>
+                                </div>
+                                <div class="material-row stock-row"
+                                    [ngClass]="getMaterialStockClass(getMaterialData(product, material).stock)">
+                                    <span class="material-label">Stock:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).stock | number
+                                        }}</span>
+                                </div>
+                                <div class="material-row days-row"
+                                    [ngClass]="getMaterialDaysClass(getMaterialData(product, material).daysLeft)">
+                                    <span class="material-label">Days left:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).daysLeft | number
+                                        }}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Empty Message -->
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="100%" class="empty-message">
+                            <div class="empty-content">
+                                <span class="empty-icon">📋</span>
+                                <h3>No products found in {{ activeTab }}</h3>
+                                <p>Switch to another category or add products</p>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- Enhanced Legend -->
+    <div class="legend-section">
+        <h3 class="legend-title">Status Indicators</h3>
+        <div class="legend-grid">
+            <div class="legend-item">
+                <div class="legend-indicator critical-indicator"></div>
+                <div class="legend-content">
+                    <div class="legend-label">Critical Stock</div>
+                    <div class="legend-desc">Less than 10 days remaining</div>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-indicator warning-indicator"></div>
+                <div class="legend-content">
+                    <div class="legend-label">Low Stock</div>
+                    <div class="legend-desc">Boxes left < daily usage</div>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-indicator material-critical"></div>
+                    <div class="legend-content">
+                        <div class="legend-label">Raw Material Critical</div>
+                        <div class="legend-desc">Days left < 10 (red text)</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-indicator material-zero"></div>
+                        <div class="legend-content">
+                            <div class="legend-label">Out of Stock</div>
+                            <div class="legend-desc">Stock = 0 (gray text)</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-indicator material-inactive"></div>
+                        <div class="legend-content">
+                            <div class="legend-label">Inactive Material</div>
+                            <div class="legend-desc">Kg/day = 0 (faded text)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

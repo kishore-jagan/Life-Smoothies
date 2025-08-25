@@ -1,378 +1,265 @@
-<div class="dispatch-main">
-    <div class="topnav">
-        <h2 class="logo">WM</h2>
-        <h2>Warehouse Manager</h2>
+<div class="dispatch-container">
+  <!-- Header Section -->
+  <header class="dispatch-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="logo-icon">
+          <i class="fas fa-truck"></i>
+        </div>
+        <h1>Dispatch Management</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn-primary">
+          <i class="fas fa-plus"></i>
+          New Dispatch
+        </button>
+      </div>
     </div>
+  </header>
 
-    <div class="body">
-        <div class="classbutton">
-            <p class="text1"><i class="fas fa-box-open"></i> Dispatch</p>
-            <button class="icon-btn" type="button">
-                <i class="fas fa-add"></i>
-                <span class="btn-text">Add Dispatch</span>
-            </button>
+  <!-- Stats Cards Section -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-boxes"></i>
         </div>
-
-        <div class="overviewbox">
-            <div class="overviewbox-item box-blue">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
-            </div>
-            <div class="overviewbox-item box-green">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-green"><i class="fas fa-box"></i></div>
-            </div>
-            <div class="overviewbox-item box-yellow">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-yellow"><i class="fas fa-box"></i></div>
-            </div>
-            <div class="overviewbox-item box-blue">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
-            </div>
+        <div class="stat-content">
+          <h3>{{ SmoothieProduction.length }}</h3>
+          <p>Available Items</p>
         </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-truck-loading"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ dispatchList.length }}</h3>
+          <p>Ready to Dispatch</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ driversList.length }}</h3>
+          <p>Active Drivers</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ preDispatchRecords.length }}</h3>
+          <p>Pending Deliveries</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Main Content Section -->
+  <section class="main-content">
+    <div class="content-grid">
+      <!-- Left Column: Inventory Table -->
+      <div class="content-column">
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-inventory"></i> Inventory Items</h2>
+            <div class="card-actions">
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search items..." (input)="onSearch($any($event).target.value, dt)"
+                  class="search-input" />
+              </div>
+              <div class="filter-controls">
+                <p-selectButton [options]="periodOptions" [(ngModel)]="selectedPeriod"
+                  (onChange)="setView(selectedPeriod)" class="period-selector"></p-selectButton>
+                <button class="btn-secondary" (click)="dt.exportCSV()">
+                  <i class="fas fa-download"></i>
+                  Export
+                </button>
+              </div>
+            </div>
+          </div>
 
+          <!-- Date Range Controls -->
+          <div class="date-controls" *ngIf="selectedPeriod === 'date'">
+            <p-datepicker [(ngModel)]="rangeDates" selectionMode="range" [showIcon]="true"
+              placeholder="Select date range" class="date-picker"></p-datepicker>
+          </div>
 
+          <div class="date-controls" *ngIf="selectedPeriod === 'week'">
+            <p-datepicker [(ngModel)]="selectedDate" [showIcon]="true" placeholder="Select week"
+              class="date-picker"></p-datepicker>
+          </div>
 
+          <div class="date-controls" *ngIf="selectedPeriod === 'month'">
+            <p-datepicker [(ngModel)]="selectedDate" view="month" dateFormat="MM yy" [showIcon]="true"
+              placeholder="Select month" class="date-picker"></p-datepicker>
+          </div>
 
-        <!-- <div class="tablecontainer"> -->
-        <p-table class="tablecontainer" #dt [value]="SmoothieProduction" [columns]="selectedColumns"
-            [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]"
-            [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
-            [exportHeader]="'customExportHeader'" selectionMode="multiple"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
-            [tableStyle]="{'min-width': '50rem'}" [responsiveLayout]="'scroll'" [breakpoint]="'600px'"
-            stripedRows="true" rowHover="true" showCurrentPageReport="true">
-            <ng-template #caption>
-                <div class="caption">
-                    <div class="captionrow">
-                        <div class="captionrowinrow">
-                            <div id="search">
-                                <input type="search" placeholder="Search"
-                                    (input)="onSearch($any($event).target.value, dt)" />
-                            </div>
+          <div class="date-controls" *ngIf="selectedPeriod === 'year'">
+            <p-datepicker [(ngModel)]="selectedDate" view="year" dateFormat="yy" [showIcon]="true"
+              placeholder="Select year" class="date-picker"></p-datepicker>
+          </div>
 
-                            <!-- <p-button icon="pi pi-external-link" label="Export" (click)="dt.exportCSV()" /> -->
-                            <button class="export" label="Export" (click)="dt.exportCSV()"> <i
-                                    class="fas fa-external-link"></i> Export</button>
-                        </div>
-
-                        <div class="date-range-selector">
-                            <p-selectButton [options]="periodOptions" [(ngModel)]="selectedPeriod"
-                                (onChange)="setView(selectedPeriod)">
-                            </p-selectButton>
-                        </div>
-                    </div>
-
-                    <div class="captionrow">
-                        <div class="filter">
-                            <p-multiselect display="chip" [options]="cols" [(ngModel)]="selectedColumns"
-                                optionLabel="header" selectedItemsLabel="{0} columns selected"
-                                [style]="{ 'min-width': '200px' }" placeholder="Choose Columns" [filter]="true"
-                                [showToggleAll]="true" [maxSelectedLabels]="9" />
-                        </div>
-
-
-                        <div class="date-picker" *ngIf="selectedPeriod === 'date'">
-                            <p-datepicker class="custom-date-input" [(ngModel)]="rangeDates" selectionMode="range"
-                                [showIcon]="true">
-                            </p-datepicker>
-                        </div>
-
-                        <!-- Weekly -->
-                        <div class="date-picker" *ngIf="selectedPeriod === 'week'">
-                            <!-- <label>Select Week:</label> -->
-                            <p-datepicker class="custom-date-input" [(ngModel)]="selectedDate"
-                                [showIcon]="true"></p-datepicker>
-                        </div>
-
-                        <!-- Monthly -->
-                        <div class="date-picker" *ngIf="selectedPeriod === 'month'">
-                            <!-- <label>Select Month:</label> -->
-                            <p-datepicker class="custom-date-input" [(ngModel)]="selectedDate" view="month"
-                                dateFormat="MM yy" [showIcon]="true">
-                            </p-datepicker>
-                        </div>
-
-                        <!-- Yearly -->
-                        <div class="date-picker" *ngIf="selectedPeriod === 'year'">
-                            <!-- <label>Select Year:</label> -->
-                            <p-datepicker class="custom-date-input" [(ngModel)]="selectedDate" view="year"
-                                dateFormat="yy" [showIcon]="true">
-                            </p-datepicker>
-                        </div>
-                    </div>
-                </div>
-            </ng-template>
-
-            <ng-template #header let-columns>
+          <div class="table-container">
+            <p-table #dt [value]="SmoothieProduction" [columns]="selectedColumns"
+              [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="10"
+              [rowsPerPageOptions]="[5,10,20,50]" [scrollable]="true" [resizableColumns]="true"
+              columnResizeMode="expand" [exportHeader]="'customExportHeader'" selectionMode="multiple"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
+              [tableStyle]="{'min-width': '50rem'}" [responsiveLayout]="'scroll'" [breakpoint]="'600px'"
+              stripedRows="true" rowHover="true" showCurrentPageReport="true" class="inventory-table">
+              <ng-template pTemplate="header" let-columns>
                 <tr>
-                    <th class="centered-cell">ID <p-sortIcon></p-sortIcon></th>
-                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="centered-cell">
-                        {{ col.header }} <p-sortIcon [field]="col.field"></p-sortIcon>
-                    </th>
-                    <th class="centered-cell">Move to Life Smoothie</th>
+                  <th class="table-header">ID</th>
+                  <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="table-header">
+                    {{ col.header }} <p-sortIcon [field]="col.field"></p-sortIcon>
+                  </th>
+                  <th class="table-header">Actions</th>
                 </tr>
-            </ng-template>
+              </ng-template>
 
-            <ng-template pTemplate="body" let-row let-columns="columns" let-i="rowIndex">
-                <tr [ngClass]="{ 'highlight-row': rowMatchesSearch(row, columns) }">
-                    <td class="centered-cell">{{ i + 1 }}</td>
-                    <td *ngFor="let col of columns" class="centered-cell">
-                        <ng-container [ngSwitch]="col.type">
-                            <span *ngSwitchCase="'shortDate'">{{ row[col.field] | date:'short' }}</span>
-                            <span *ngSwitchCase="'date'">{{ row[col.field] | date }}</span>
-                            <span *ngSwitchDefault [innerHTML]="highlightSearchText(row[col.field])">
-                            </span>
-                        </ng-container>
-
-                    </td>
-
-                    <td class="centered-cell">
-                        <input type="number" [(ngModel)]="row.transferQty" min="0" [max]="newDispatch.qtycotton" />
-                        <input type="text" [(ngModel)]="row.location" placeholder="Location" />
-                        <button class="icon-btn" (click)="addToDispatchList(row)">Transfer</button>
-                        <p-toast></p-toast>
-
-                    </td>
-
+              <ng-template pTemplate="body" let-row let-columns="columns" let-i="rowIndex">
+                <tr [ngClass]="{ 'highlight-row': rowMatchesSearch(row, columns) }" class="table-row">
+                  <td class="table-cell">{{ i + 1 }}</td>
+                  <td *ngFor="let col of columns" class="table-cell">
+                    <ng-container [ngSwitch]="col.type">
+                      <span *ngSwitchCase="'shortDate'">{{ row[col.field] | date:'short' }}</span>
+                      <span *ngSwitchCase="'date'">{{ row[col.field] | date }}</span>
+                      <span *ngSwitchDefault [innerHTML]="highlightSearchText(row[col.field])"></span>
+                    </ng-container>
+                  </td>
+                  <td class="table-cell actions-cell">
+                    <div class="action-inputs">
+                      <div class="input-group">
+                        <label>Qty:</label>
+                        <input type="number" [(ngModel)]="row.transferQty" min="0" [max]="row.cotton"
+                          class="quantity-input" placeholder="0" />
+                      </div>
+                      <div class="input-group">
+                        <label>Location:</label>
+                        <input type="text" [(ngModel)]="row.location" placeholder="Enter location"
+                          class="location-input" />
+                      </div>
+                      <button class="btn-success" (click)="addToDispatchList(row)"
+                        [disabled]="!row.transferQty || !row.location">
+                        <i class="fas fa-plus"></i>
+                        Add
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-            </ng-template>
-
-        </p-table>
-        <!-- </div> -->
-
-
-
-
-        <div class="dispatch-form">
-
-            <div class="dispatch-col1" *ngIf="driversList.length > 0">
-                <h3>Driver & Truck Details</h3>
-                <div class="driver-cards">
-                    <div class="driver-card" *ngFor="let driver of driversList">
-                        <h4>{{ driver.driver_name }} - {{driver.driver_id}}</h4>
-                        <p><strong>Truck No:</strong> {{ driver.truck_no }}</p>
-                    </div>
-                </div>
-                <h3>Pending Deliveries</h3>
-
-                <div *ngIf="preDispatchRecords.length > 0; else noDispatches">
-                    <div *ngFor="let dispatch of preDispatchRecords">
-                        <h3>Driver: {{ dispatch.driver_name }}</h3>
-                        <p>Status: {{ dispatch.status }}</p>
-                        <p>Dispatch Date: {{ dispatch.dispatch_date | date }}</p>
-
-                        <table class="dispatch-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Smoothie</th>
-                                    <th>Qty Cotton (kg)</th>
-                                    <th>Location</th>
-                                    <th>Returns</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of dispatch.items">
-                                    <td>{{ item.item_id }}</td>
-                                    <td>{{ item.smoothie_name }}</td>
-                                    <td>{{ item.transfer_qty }}</td>
-                                    <td>{{ item.location }}</td>
-                                    <td>
-                                        <input type="number" [(ngModel)]="item.returns" min="0" [max]="item.transfer_qty" placeholder="Enter returned Qty" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <button class="icon-btn" (click)="completePreDispatch(dispatch)">Complete Dispatch</button>
-                        <hr />
-                    </div>
-                </div>
-
-                <ng-template #noDispatches>
-                    <p>No dispatches found.</p>
-                </ng-template>
-
-            </div>
-
-
-            <div class="dispatch-col2" *ngIf="dispatchList.length > 0">
-                <h3>Dispatch Ready Items</h3>
-
-                <table class="dispatch-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Smoothie</th>
-                            <th>Qty Cotton</th>
-                            <th>Location</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of dispatchList; let i = index">
-                            <td>{{ item.id }}</td>
-                            <td>{{ item.smoothie_name }}</td>
-                            <td>{{ item.transferQty }}</td>
-                            <td>{{ item.location }}</td>
-                            <td>
-                                <button class="remove-btn" (click)="removeRow(i)">❌</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="driver-dispatch-form">
-                    <label for="driverName">Driver Name:</label>
-                    <!-- <input type="text" id="driverName" [(ngModel)]="driver.driver_name"
-                        placeholder="Enter Driver Name" /> -->
-                    <p-autoComplete [(ngModel)]="driverName" [suggestions]="filteredDriverNames"
-                        (completeMethod)="filterDriverNames($event)"
-                        placeholder="Enter or select item"></p-autoComplete>
-                    <button class="icon-btn" (click)="preDispatch()">Dispatch All</button>
-                </div>
-            </div>
-            <!-- <div class="dispatch-col3">
-
-            </div> -->
+              </ng-template>
+            </p-table>
+          </div>
         </div>
+      </div>
+
+      <!-- Right Column: Dispatch Management -->
+      <div class="content-column">
+        <!-- Driver Information -->
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-users"></i> Driver Information</h2>
+          </div>
+          <div class="driver-grid">
+            <div class="driver-card" *ngFor="let driver of driversList">
+              <div class="driver-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="driver-info">
+                <h4>{{ driver.driver_name }}</h4>
+                <p class="driver-id">ID: {{ driver.driver_id }}</p>
+                <p class="truck-info">
+                  <i class="fas fa-truck"></i>
+                  {{ driver.truck_no }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dispatch Ready Items -->
+        <div class="card" *ngIf="dispatchList.length > 0">
+          <div class="card-header">
+            <h2><i class="fas fa-check-circle"></i> Ready to Dispatch</h2>
+            <span class="badge">{{ dispatchList.length }} items</span>
+          </div>
+          <div class="dispatch-items">
+            <div class="dispatch-item" *ngFor="let item of dispatchList; let i = index">
+              <div class="item-info">
+                <h4>{{ item.smoothie_name }}</h4>
+                <p>Qty: {{ item.transferQty }} | Location: {{ item.location }}</p>
+              </div>
+              <button class="btn-danger" (click)="removeRow(i)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="dispatch-form">
+            <div class="form-group">
+              <label for="driverName">Select Driver:</label>
+              <p-autoComplete [(ngModel)]="driverName" [suggestions]="filteredDriverNames"
+                (completeMethod)="filterDriverNames($event)" placeholder="Search driver..."
+                class="driver-autocomplete"></p-autoComplete>
+            </div>
+            <button class="btn-primary btn-full" (click)="preDispatch()"
+              [disabled]="!driverName || dispatchList.length === 0">
+              <i class="fas fa-paper-plane"></i>
+              Dispatch All Items
+            </button>
+          </div>
+        </div>
+
+        <!-- Pending Deliveries -->
+        <div class="card" *ngIf="preDispatchRecords.length > 0">
+          <div class="card-header">
+            <h2><i class="fas fa-clock"></i> Pending Deliveries</h2>
+          </div>
+          <div class="pending-deliveries">
+            <div class="delivery-item" *ngFor="let dispatch of preDispatchRecords">
+              <div class="delivery-header">
+                <h4>{{ dispatch.driver_name }}</h4>
+                <span class="status-badge status-{{ dispatch.status.toLowerCase() }}">
+                  {{ dispatch.status }}
+                </span>
+              </div>
+              <p class="delivery-date">
+                <i class="fas fa-calendar"></i>
+                {{ dispatch.dispatch_date | date:'medium' }}
+              </p>
+
+              <div class="delivery-items">
+                <div class="delivery-item-row" *ngFor="let item of dispatch.items">
+                  <div class="item-details">
+                    <span class="item-name">{{ item.smoothie_name }}</span>
+                    <span class="item-qty">Qty: {{ item.transfer_qty }}</span>
+                    <span class="item-location">{{ item.location }}</span>
+                  </div>
+                  <div class="returns-input">
+                    <label>Returns:</label>
+                    <input type="number" [(ngModel)]="item.returns" min="0" [max]="item.transfer_qty" placeholder="0"
+                      class="returns-field" />
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-success btn-full" (click)="completePreDispatch(dispatch)">
+                <i class="fas fa-check"></i>
+                Complete Delivery
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
-
-    <!-- <p-table [value]="smoothiesData" [paginator]="false"  responsiveLayout="scroll">
-  <ng-template pTemplate="header">
-    <tr style="background-color:#dbeafe;">
-      <th> Smoothies </th>
-      <th> Monthly sold </th>
-      <th> Daily sold </th>
-      <th> Daily boxes </th>
-      <th> Boxes left </th>
-      <th> Days remaining </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-row>
-    <tr>
-      <td>{{ row.name }}</td>
-      <td class="num">{{ row.monthlySold }}</td>
-      <td class="num">{{ row.dailySold }}</td>
-      <td class="num">{{ row.dailyBoxes }}</td>
-      <td class="num">{{ row.boxesLeft }}</td>
-      <td class="num">{{ row.daysRemaining }}</td>
-    </tr>
-  </ng-template>
-</p-table>
-
-<p-table [value]="shakesData" responsiveLayout="scroll">
-  <ng-template pTemplate="header">
-    <tr style="background-color:#fff7ed;">
-      <th> Shakes </th>
-      <th> Monthly sold </th>
-      <th> Daily sold </th>
-      <th> Daily boxes </th>
-      <th> Boxes left </th>
-      <th> Days remaining </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-row>
-    <tr>
-      <td>{{ row.name }}</td>
-      <td class="num">{{ row.monthlySold }}</td>
-      <td class="num">{{ row.dailySold }}</td>
-      <td class="num">{{ row.dailyBoxes }}</td>
-      <td class="num">{{ row.boxesLeft }}</td>
-      <td class="num">{{ row.daysRemaining }}</td>
-    </tr>
-  </ng-template>
-</p-table>
-
-<p-table [value]="bowlsData" responsiveLayout="scroll">
-  <ng-template pTemplate="header">
-    <tr style="background-color:#fdf2f8;">
-      <th> Bowls </th>
-      <th> Monthly sold </th>
-      <th> Daily sold </th>
-      <th> Daily boxes </th>
-      <th> Boxes left </th>
-      <th> Days remaining </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-row>
-    <tr>
-      <td>{{ row.name }}</td>
-      <td class="num">{{ row.monthlySold }}</td>
-      <td class="num">{{ row.dailySold }}</td>
-      <td class="num">{{ row.dailyBoxes }}</td>
-      <td class="num">{{ row.boxesLeft }}</td>
-      <td class="num">{{ row.daysRemaining }}</td>
-    </tr>
-  </ng-template>
-</p-table>
-
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
 </div>
-
-
-
-
-
-
-
-
-
-<table class="p-datatable p-component custom-table">
-  <thead>
-    <tr>
-      <th *ngFor="let item of ingredientData" [style.background-color]="item.color" style="color:white;">
-        {{ item.name }}
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td *ngFor="let item of ingredientData">{{ item.kgPerDay }}</td>
-    </tr>
-    <tr>
-      <td *ngFor="let item of ingredientData" style="color:orange;">{{ item.stock }}</td>
-    </tr>
-    <tr>
-      <td *ngFor="let item of ingredientData" [class.red-cell]="item.daysLeft === 0 || item.daysLeft === '#DIV/0!'">
-        {{ item.daysLeft }}
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-
-
-
-<p-table [value]="ingredientData" responsiveLayout="scroll">
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Name</th>
-      <th>Kg per day</th>
-      <th>Stock</th>
-      <th>Days left</th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-row>
-    <tr>
-      <td [style.background-color]="row.color" style="color:white;">{{ row.name }}</td>
-      <td>{{ row.kgPerDay }}</td>
-      <td style="color:orange;">{{ row.stock }}</td>
-      <td [class.red-cell]="row.daysLeft === 0 || row.daysLeft === '#DIV/0!'">
-        {{ row.daysLeft }}
-      </td>
-    </tr>
-  </ng-template>
-</p-table> -->
-

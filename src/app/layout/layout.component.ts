@@ -9,6 +9,7 @@ import { MainhouseComponent } from '../mainhouse/mainhouse.component';
 import { DispatchComponent } from '../dispatch/dispatch.component';
 import { ProductionComponent } from '../production/production.component';
 import { Storagehouse2Component } from '../storagehouse2/storagehouse2.component';
+import { OverallTableComponent } from '../overall-table/overall-table.component';
 
 @Component({
   selector: 'app-layout',
@@ -23,12 +24,13 @@ import { Storagehouse2Component } from '../storagehouse2/storagehouse2.component
     MainhouseComponent,
     DispatchComponent,
     ProductionComponent,
+    OverallTableComponent
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
 })
 export class LayoutComponent implements OnInit {
-  selectedIndex: number = 0;
+  selectedIndex: number = 7;
   getScreenSize() {
     return { width: window.innerWidth, height: window.innerHeight };
   }
@@ -36,7 +38,7 @@ export class LayoutComponent implements OnInit {
   constructor(private toast: ToastrService) {}
   ngOnInit(): void {
     // const scren = this.getScreenSize();
-    this.selectedIndex = 0;
+    this.selectedIndex = 7;
     // this.toast.success(`width: ${scren.width}`, `height: ${scren.height}`);
   }
 }
