@@ -10,6 +10,7 @@ export interface Ingredient {
 
 export interface SmoothieProduction {
   id: number; // Unique identifier for the smoothie production record
+  category: string;
   smoothie_name: string; // Name of the smoothie
   ingredients: Ingredient[]; // Array of ingredients used in the smoothie
   rack: string; // Rack associated with the production
@@ -48,5 +49,10 @@ export class ProductionService {
 
   getDrivers(): Observable<Driver[]> {
     return this.http.get<Driver[]>(`${this.apiUrl}getDrivers`);
+  }
+
+  // Fetch all smoothie production records without date filtering
+  getAllSmoothieProduction(): Observable<SmoothieProduction[]> {
+    return this.http.get<SmoothieProduction[]>(`${this.apiUrl}getSmoothieProductionByDate`);
   }
 }

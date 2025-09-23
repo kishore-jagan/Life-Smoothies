@@ -183,25 +183,47 @@ export class StoragehouseComponent implements OnInit {
   }
 
   transferItem(row: any) {
+    // Validations similar to addStorageItem
     if (!row.transferQty || row.transferQty <= 0) {
-      alert('Please enter a valid quantity');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation Failed',
+        detail: 'Please enter a valid quantity to transfer.',
+      });
       return;
     }
 
     if (row.transferQty > row.qtycotton) {
-      alert('Transfer quantity exceeds available stock');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Quantity Exceeded',
+        detail: `Transfer quantity (${row.transferQty}) exceeds available stock (${row.qtycotton}).`,
+      });
+      return;
+    }
+
+    if (!row.location || String(row.location).trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation Failed',
+        detail: 'Please provide a location.',
+      });
       return;
     }
 
     const payload = {
       id: row.id,
       enteredQtyCotton: row.transferQty,
-      location: row.location || 'Default Warehouse',
+      location: row.location,
     };
 
     this.storageService.transferLifeSmoothi(payload).subscribe({
       next: () => {
-        alert('Transfer successful');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Transferred',
+          detail: 'Transfer successful!',
+        });
 
         // Update row locally
         row.qtycotton -= row.transferQty;
@@ -213,7 +235,11 @@ export class StoragehouseComponent implements OnInit {
         row.location = '';
       },
       error: () => {
-        alert('Transfer failed');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Transfer failed. Please try again later.',
+        });
       },
     });
   }

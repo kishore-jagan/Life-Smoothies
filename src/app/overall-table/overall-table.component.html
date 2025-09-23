@@ -1,0 +1,423 @@
+<div class="product-dashboard">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">
+                <span class="title-icon">{{ getActiveTabIcon() }}</span>
+                Product Sales & Inventory
+            </h1>
+            <p class="dashboard-subtitle">Real-time monitoring of products, sales, and raw materials</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ currentProducts.length }}</div>
+                <div class="stat-label">Active Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ getTotalMonthlySales() | number }}</div>
+                <div class="stat-label">Monthly Sales</div>
+            </div>
+            <div class="stat-card critical" *ngIf="getCriticalProducts() > 0">
+                <div class="stat-value">{{ getCriticalProducts() }}</div>
+                <div class="stat-label">Low Stock</div>
+            </div>
+        </div>
+        <!-- Filters -->
+        <div class="header-filters" style="display:flex; flex-direction: column; gap:5px; align-items:center; margin:8px 0px 0px 20px; flex-wrap: wrap;">
+            <div style = "gap:10px">
+            <p-dropdown
+              [options]="monthsOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Month"
+              [(ngModel)]="selectedMonth"
+              (onChange)="onFilterChange()"
+              styleClass="p-inputtext-sm"
+            ></p-dropdown>
+            <p-dropdown
+              [options]="yearsOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Year"
+              [(ngModel)]="selectedYear"
+              (onChange)="onFilterChange()"
+              styleClass="p-inputtext-sm"
+            ></p-dropdown>
+            </div>
+
+                <!-- Actions -->
+    <div class="export-toolbar">
+        <button type="button" class="export-btn" (click)="exportToExcel()">
+            ⬇️ Export to Excel
+        </button>
+        <button type="button" class="export-btn" (click)="togglePredictionForm()" style="margin-left:8px;">
+            👤 Customers
+        </button>
+    </div>
+    
+    
+            
+        </div>
+    </div>
+<!-- Customers / Prediction Form -->
+<div *ngIf="showPredictionForm" class="prediction-panel" style="display:flex; flex-direction: column; gap:12px; width:100%; padding:12px; margin-top:8px; border:1px solid #e5e7eb; border-radius:8px; background:#ffffff;">
+    <div style="font-weight:700; font-size:14px;">Customers</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end; width:100%;">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:12px; color:#475569;">Name</label>
+            <input type="text" placeholder="e.g., kishore" [(ngModel)]="predictionName" class="p-inputtext p-inputtext-sm">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:12px; color:#475569;">Type</label>
+            <p-dropdown [options]="[{label:'Raw material', value:'material'},{label:'Product boxes', value:'product'},{label:'Shases', value:'shases'}]" [(ngModel)]="predictionType" optionLabel="label" optionValue="value" styleClass="p-inputtext-sm"></p-dropdown>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;" *ngIf="predictionType==='material'">
+            <label style="font-size:12px; color:#475569;">Raw material</label>
+            <p-dropdown [options]="materialDropdownOptions" [(ngModel)]="predictionSelectedMaterial" placeholder="Select material" optionLabel="label" optionValue="value" styleClass="p-inputtext-sm"></p-dropdown>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;" *ngIf="predictionType!=='material'">
+            <label style="font-size:12px; color:#475569;">Product</label>
+            <p-dropdown [options]="productDropdownOptions" [(ngModel)]="predictionSelectedProduct" placeholder="Select product" optionLabel="label" optionValue="value" styleClass="p-inputtext-sm"></p-dropdown>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:12px; color:#475569;">Quantity</label>
+            <input type="number" min="0" step="0.01" [placeholder]="predictionType==='material' ? 'Qty (kg)' : (predictionType==='product' ? 'Qty (boxes)' : 'Qty (shases)')" [(ngModel)]="predictionQuantity" class="p-inputtext p-inputtext-sm">
+        </div>
+            <div style="display:flex; gap:8px;">
+            <button type="button" class="export-btn" (click)="addPredictionEntry()">Add</button>
+            <button type="button" class="export-btn" (click)="applyPrediction()">Apply</button>
+                <button type="button" class="export-btn" (click)="clearPrediction()">Cancel</button>
+        </div>
+    </div>
+    <!-- Shases Preview within the form -->
+    <div *ngIf="predictionType==='shases' && shasesPreview" class="preview-box" style="display:flex; flex-direction:column; gap:4px; padding:8px; border-radius:10px;">
+        <div style="font-size:12px;">Boxes left: <strong>{{ shasesPreview.boxesLeftAfter | number:'1.0-0' }}</strong> / {{ shasesPreview.boxesLeftBefore | number:'1.0-0' }}</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; font-size:12px;">
+            <span *ngFor="let m of shasesPreview.materials">{{ m.name }}: {{ m.remainingStock | number:'1.0-0' }} kg</span>
+        </div>
+    </div>
+        <!-- Current entries -->
+    <div *ngIf="predictionEntries.length>0" style="display:flex; flex-direction:column; gap:8px;">
+    <div style="font-weight:600;">Entries</div>
+    <div *ngFor="let e of predictionEntries; let i = index" style="display:flex; align-items:center; gap:8px; font-size:12px;">
+            <span class="entry-badge">{{ e.kind==='material' ? 'Material' : (e.kind==='product' ? 'Product' : 'Shases') }}</span>
+        <span>{{ e.key }}</span>
+            <span>-</span>
+            <span>{{ e.qty }}</span>
+            <button type="button" class="export-btn" (click)="removePredictionEntry(i)">x</button>
+        </div>
+    </div>
+
+        <!-- Impact Preview Tables -->
+        <div *ngIf="impactedProductsForPreview.length>0" style="margin-top:8px;">
+            <div style="font-weight:600; margin-bottom:4px;">Products impact (temporary)</div>
+            <p-table [value]="impactedProductsForPreview" [tableStyle]="{ 'min-width': '40rem' }" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Product</th>
+                        <th>Used boxes</th>
+                        <th>Boxes before</th>
+                        <th>Boxes after</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-r>
+                    <tr>
+                        <td>{{ r.product }}</td>
+                        <td>{{ r.usedBoxes | number:'1.0-2' }}</td>
+                        <td>{{ r.boxesBefore | number:'1.0-0' }}</td>
+                        <td>{{ r.boxesAfter | number:'1.0-0' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div *ngIf="impactedMaterialsForPreview.length>0" style="margin-top:8px;">
+            <div style="font-weight:600; margin-bottom:4px;">Materials impact (temporary)</div>
+            <p-table [value]="impactedMaterialsForPreview" [tableStyle]="{ 'min-width': '40rem' }" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Material</th>
+                        <th>Used kg</th>
+                        <th>Stock before</th>
+                        <th>Stock after</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-r>
+                    <tr>
+                        <td>{{ r.material }}</td>
+                        <td>{{ r.usedKg | number:'1.0-2' }}</td>
+                        <td>{{ r.stockBefore | number:'1.0-0' }}</td>
+                        <td>{{ r.stockAfter | number:'1.0-0' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+</div>
+    <!-- Tab Navigation -->
+    <div class="tabs-container">
+        
+        <p-tabView [(activeIndex)]="selectedIndex" (onChange)="switchTab(tabs[$event.index].value)" class="category-tabs">
+            <p-tabPanel *ngFor="let tab of tabs" [header]="tab.label">
+                <ng-template pTemplate="header">
+                    <span class="tab-icon">{{ tab.icon }}</span>
+                    <span class="tab-text">{{ tab.label }}</span>
+                </ng-template>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+
+
+
+    <!-- Table Section -->
+    <div class="table-wrapper">
+        <div class="table-container">
+            <p-table [value]="currentProducts" [scrollable]="true" scrollHeight="600px"
+                [tableStyle]="{ 'min-width': '120rem' }" styleClass="p-datatable-sm" [resizableColumns]="true"
+                [loading]="false">
+
+                <!-- Enhanced Header -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <!-- Fixed Columns -->
+                        <th class="sticky-col col-product" pSortableColumn="product">
+                            <div class="header-cell">
+                                <span class="header-icon">🏷️</span>
+                                <span>Product</span>
+                                <p-sortIcon field="product"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-monthly" pSortableColumn="monthlySold">
+                            <div class="header-cell">
+                                <span class="header-icon">📈</span>
+                                <span>Monthly Sold</span>
+                                <p-sortIcon field="monthlySold"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-daily" pSortableColumn="dailySold">
+                            <div class="header-cell">
+                                <span class="header-icon">📅</span>
+                                <span>Daily Sold</span>
+                                <p-sortIcon field="dailySold"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-daily-boxes" pSortableColumn="dailyBoxes">
+                            <div class="header-cell">
+                                <span class="header-icon">📦</span>
+                                <span>Daily Boxes</span>
+                                <p-sortIcon field="dailyBoxes"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-boxes-left" pSortableColumn="boxesLeft">
+                            <div class="header-cell">
+                                <span class="header-icon">📋</span>
+                                <span>Boxes Left</span>
+                                <p-sortIcon field="boxesLeft"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th class="sticky-col col-days-remaining" pSortableColumn="daysRemaining">
+                            <div class="header-cell">
+                                <span class="header-icon">⏰</span>
+                                <span>Days Left</span>
+                                <p-sortIcon field="daysRemaining"></p-sortIcon>
+                            </div>
+                        </th>
+
+                        <!-- Raw Material Columns -->
+                        <th *ngFor="let material of materialColumns" class="material-col">
+                            <div class="header-cell material-header" pTooltip="{{ getMaterialBreakdownTooltip(material) }}" tooltipPosition="top" tooltipStyleClass="wide-tooltip">
+                                <span class="material-icon">🧪</span>
+                                <span>{{ material }}</span>
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <!-- Enhanced Table Body -->
+                <ng-template pTemplate="body" let-product let-rowIndex="rowIndex">
+                    <tr [ngClass]="getRowClass(product)">
+                        <!-- Fixed Columns -->
+                        <td class="sticky-col col-product">
+                            <div class="product-cell">
+                                <div class="product-name">{{ product.product }}</div>
+                                <div class="product-status" [ngClass]="getStatusClass(product)">
+                                    {{ getStatusText(product) }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-monthly">
+                            <div class="metric-cell">
+                                <input type="number"
+                                       class="monthly-input"
+                                       min="0"
+                                       step="1"
+                                       [ngModel]="(monthlyOverrides[product.product] !== undefined && monthlyOverrides[product.product] !== null) ? monthlyOverrides[product.product] : product.monthlySold"
+                                       (ngModelChange)="onMonthlyOverrideChange(product, $event)"
+                                       [attr.aria-label]="'Override monthly sold for ' + product.product" />
+                                <span class="metric-unit">Shases</span>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-daily">
+                            <div class="metric-cell">
+                                <span class="metric-value">{{ product.dailySold | number }}</span>
+                                <span class="metric-unit">Shases</span>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-daily-boxes">
+                            <div class="metric-cell">
+                                <span class="metric-value">{{ product.dailyBoxes | number }}</span>
+                                <span class="metric-unit">boxes</span>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-boxes-left"
+                            [ngClass]="getBoxesLeftClass(product.boxesLeft, product.dailyBoxes)">
+                            <div class="stock-cell">
+                                <div class="stock-value">{{ product.boxesLeft | number }}</div>
+                                <div class="stock-indicator"
+                                    [ngClass]="getStockIndicatorClass(product.boxesLeft, product.dailyBoxes)">
+                                    {{ getStockStatus(product.boxesLeft, product.dailyBoxes) }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="sticky-col col-days-remaining"
+                            [ngClass]="getDaysRemainingClass(product.daysRemaining)">
+                            <div class="days-cell">
+                                <div class="days-value">{{ product.daysRemaining | number }}</div>
+                                <div class="days-label">days</div>
+                                <div class="urgency-indicator" [ngClass]="getUrgencyClass(product.daysRemaining)"></div>
+                            </div>
+                        </td>
+
+                        <!-- Raw Material Columns with Triple Data -->
+                        <td *ngFor="let material of materialColumns" class="material-col">
+                            <div class="material-cell-complex">
+                                <div class="material-row kg-row"
+                                    [ngClass]="getMaterialKgClass(getMaterialData(product, material).used)">
+                                    <span class="material-label">Used grams:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).used |
+                                        number:'1.1-1' }}</span>
+                                </div>
+                                <div class="material-row kg-row"
+                                    [ngClass]="getMaterialKgClass(getMaterialData(product, material).kgPerDay)">
+                                    <span class="material-label">Kg/day:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).kgPerDay |
+                                        number:'1.1-1' }}</span>
+                                </div>
+                                <div class="material-row stock-row"
+                                    [ngClass]="getMaterialStockClass(getMaterialData(product, material).stock)">
+                                    <span class="material-label">Stock:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).stock | number
+                                        }}</span>
+                                </div>
+                                <div class="material-row days-row"
+                                    [ngClass]="getMaterialDaysClass(getMaterialData(product, material).daysLeft)">
+                                    <span class="material-label">Days left:</span>
+                                    <span class="material-value">{{ getMaterialData(product, material).daysLeft | number:'1.0-0' }}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Empty Message -->
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="100%" class="empty-message">
+                            <div class="empty-content">
+                                <span class="empty-icon">📋</span>
+                                <h3>No products found in {{ activeTab }}</h3>
+                                <p>Switch to another category or add products</p>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Totals Footer: Aggregated per material across visible products -->
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <!-- Fixed Columns footer labels -->
+                        <td class="sticky-col col-product">
+                            <div class="product-cell"><strong>Totals (All visible)</strong></div>
+                        </td>
+                        <td class="sticky-col col-monthly"></td>
+                        <td class="sticky-col col-daily"></td>
+                        <td class="sticky-col col-daily-boxes"></td>
+                        <td class="sticky-col col-boxes-left"></td>
+                        <td class="sticky-col col-days-remaining"></td>
+
+                        <!-- Raw Material Columns Totals -->
+                        <td *ngFor="let material of materialColumns" class="material-col">
+                            <div class="material-cell-complex">
+                                <div class="material-row kg-row" [ngClass]="getMaterialKgClass(getTotalMaterialData(material).used)">
+                                    <span class="material-label">Used grams:</span>
+                                    <span class="material-value">{{ getTotalMaterialData(material).used | number:'1.1-1' }}</span>
+                                </div>
+                                <div class="material-row kg-row" [ngClass]="getMaterialKgClass(getTotalMaterialData(material).kgPerDay)">
+                                    <span class="material-label">Kg/day:</span>
+                                    <span class="material-value">{{ getTotalMaterialData(material).kgPerDay | number:'1.2-2' }}</span>
+                                </div>
+                                <div class="material-row stock-row" [ngClass]="getMaterialStockClass(getTotalMaterialData(material).stock)">
+                                    <span class="material-label">Stock:</span>
+                                    <span class="material-value">
+                                        <input type="number"
+                                               class="stock-input"
+                                               min="0"
+                                               step="0.01"
+                                               [ngModel]="(stockOverrides[material] !== undefined && stockOverrides[material] !== null) ? stockOverrides[material] : getTotalMaterialData(material).stock"
+                                               (ngModelChange)="onStockOverrideChange(material, $event)"
+                                               [attr.aria-label]="'Override stock for ' + material" />
+                                    </span>
+                                </div>
+                                <div class="material-row days-row" [ngClass]="getMaterialDaysClass(getTotalMaterialData(material).daysLeft)">
+                                    <span class="material-label">Days left:</span>
+                                    <span class="material-value">{{ getTotalMaterialData(material).daysLeft | number:'1.0-0' }}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- Enhanced Legend -->
+    <div class="legend-section">
+        <h3 class="legend-title">Status Indicators</h3>
+        <div class="legend-grid">
+            <div class="legend-item">
+                <div class="legend-indicator critical-indicator"></div>
+                <div class="legend-content">
+                    <div class="legend-label">Critical Stock</div>
+                    <div class="legend-desc">Less than 10 days remaining</div>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-indicator warning-indicator"></div>
+                <div class="legend-content">
+                    <div class="legend-label">Low Stock</div>
+                    <div class="legend-desc">Boxes left < daily usage</div>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-indicator material-critical"></div>
+                    <div class="legend-content">
+                        <div class="legend-label">Raw Material Critical</div>
+                        <div class="legend-desc">Days left < 10 (red text)</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-indicator material-zero"></div>
+                        <div class="legend-content">
+                            <div class="legend-label">Out of Stock</div>
+                            <div class="legend-desc">Stock = 0 (gray text)</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-indicator material-inactive"></div>
+                        <div class="legend-content">
+                            <div class="legend-label">Inactive Material</div>
+                            <div class="legend-desc">Kg/day = 0 (faded text)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

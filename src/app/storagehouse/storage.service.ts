@@ -61,6 +61,11 @@ export class StorageService {
     );
   }
 
+  // Fetch all storage items without date filtering
+  getAllStorageByDate(): Observable<StorageItem[]> {
+    return this.http.get<StorageItem[]>(`${this.apiUrl}getStorageByDate`);
+  }
+
   getStorageByDate2(
     fromDate: string,
     toDate: string

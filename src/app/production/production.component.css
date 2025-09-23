@@ -269,7 +269,8 @@ input {
 
 ::ng-deep .p-autocomplete {
     width: 100%;
-    border-radius: 15px;
+    height: 40px;
+    border-radius: 15px !important;
     font-size: 16px;
 }
 
@@ -329,6 +330,64 @@ input {
     margin-left: 20px;
     color: #5A87B2;
     font-size: 18px;
+}
+
+/* Accent highlight */
+.highlight {
+    color: #0051C7;
+}
+
+/* Title area enhancements */
+.title-wrap {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.subtitle {
+    color: #5A87B2;
+    font-weight: 600;
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    min-width: 24px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e8f0ff;
+    color: #0051C7;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 6px;
+}
+
+/* Button variants */
+.icon-btn.secondary {
+    background: linear-gradient(135deg, #93A5CF, #7F8C8D);
+    box-shadow: 0 4px 14px rgba(147, 165, 207, 0.3);
+}
+
+.icon-btn.secondary:hover {
+    background: linear-gradient(135deg, #7F8C8D, #5D6D7E);
+}
+
+.icon-btn.success {
+    background: linear-gradient(135deg, #34D399, #059669);
+    box-shadow: 0 4px 14px rgba(52, 211, 153, 0.4);
+}
+
+.icon-btn.success:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+.icon-btn.info {
+    background: linear-gradient(135deg, #4B9EFF, #006DFF);
+    box-shadow: 0 4px 14px rgba(75, 158, 255, 0.4);
+}
+
+.icon-btn.info:hover {
+    background: linear-gradient(135deg, #006DFF, #0051C7);
 }
 
 /* Smooth background enhancement */
@@ -454,18 +513,26 @@ input {
     border-radius: 12px;
     border: 1px solid #e0e0e0;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .ingredient-card:hover {
     transform: scale(1.01);
     border-color: #b0e0d3;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .ingredient-card h4 {
     margin: 0.3rem 0;
     font-size: 1.1rem;
     color: #333;
+}
+
+.ingredient-card.selected {
+    border-color: #34D399;
+    background-color: #f0fdf4; /* light green */
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
 }
 
 /* .ingredient-card p {
@@ -569,4 +636,33 @@ input {
     font-weight: 600;
     margin-bottom: 6px;
     color: #333;
+}
+
+/* Horizontal scroll for category choose buttons */
+.category-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    /* Hide scrollbar (Firefox/IE) */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+
+/* Hide scrollbar (WebKit) */
+::ng-deep .category-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure PrimeNG SelectButton stays on one line and is scrollable */
+::ng-deep .category-scroll .p-selectbutton {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+/* Prevent button text wrapping */
+::ng-deep .category-scroll .p-selectbutton .p-button {
+    white-space: nowrap;
 }
