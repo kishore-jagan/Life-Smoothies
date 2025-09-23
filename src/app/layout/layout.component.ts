@@ -9,6 +9,7 @@ import { MainhouseComponent } from '../mainhouse/mainhouse.component';
 import { DispatchComponent } from '../dispatch/dispatch.component';
 import { ProductionComponent } from '../production/production.component';
 import { Storagehouse2Component } from '../storagehouse2/storagehouse2.component';
+import { OverallTableComponent } from '../overall-table/overall-table.component';
 
 @Component({
   selector: 'app-layout',
@@ -23,6 +24,7 @@ import { Storagehouse2Component } from '../storagehouse2/storagehouse2.component
     MainhouseComponent,
     DispatchComponent,
     ProductionComponent,
+    OverallTableComponent
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',

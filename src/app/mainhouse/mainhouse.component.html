@@ -47,8 +47,8 @@
 
         <div class="tablecontainer">
             <p-table #dt [value]="lifeSmoothieList" [columns]="selectedColumns" [tableStyle]="{ 'min-width': '50rem' }"
-                [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="5" responsiveLayout="scroll"
-                [rowsPerPageOptions]="[5,10,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
+                [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="10" responsiveLayout="scroll"
+                [rowsPerPageOptions]="[10,15,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
                 [exportHeader]="'customExportHeader'" selectionMode="multiple"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
                 [tableStyle]="{'min-width': '50rem'}" responsiveLayout="stack" [breakpoint]="'960px'" stripedRows="tr"

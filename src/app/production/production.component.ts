@@ -9,7 +9,7 @@ import {
 import { MessageService } from 'primeng/api';
 import { AutoComplete } from 'primeng/autocomplete';
 import { HttpClient } from '@angular/common/http';
-import { Toast } from 'ngx-toastr';
+import { Toast } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
 
 interface Ingredient {
@@ -29,6 +29,13 @@ export class ProductionComponent implements OnInit {
 
   smoothieName: string = '';
   smoothies: Smoothie[] = [];
+  categories: string[] = [];
+  selectedCategory: string = '';
+  categoryOptions: { label: string; value: string }[] = [];
+  // Category input and suggestions
+  category: string = '';
+  filteredCategories: string[] = [];
+  private availableCategories: string[] = [];
 
   activeTab = 'choose';
   filteredItemNames: any[] = [];
@@ -52,6 +59,42 @@ export class ProductionComponent implements OnInit {
     private http: HttpClient
   ) {}
 
+  // Computed UI states
+  get isAddIngredientDisabled(): boolean {
+    const nameValid = !!this.newItem && !!this.newItem.name && String(this.newItem.name).trim().length > 0;
+    const qtyNum = Number(this.newItem && this.newItem.qty);
+    return !(nameValid && isFinite(qtyNum) && qtyNum > 0);
+  }
+
+  smoothiesByCategory(cat: string): Smoothie[] {
+    const c = String(cat || '').toLowerCase();
+    return this.smoothies.filter((s) => String(s.category || 'Others').toLowerCase() === c);
+  }
+
+  get displayedSmoothies(): Smoothie[] {
+    if (!this.selectedCategory) return this.smoothies;
+    return this.smoothiesByCategory(this.selectedCategory);
+  }
+
+  filterCategories(event: any) {
+    const query = String(event.query || '').toLowerCase();
+    this.filteredCategories = this.availableCategories.filter((c) => c.toLowerCase().includes(query));
+  }
+
+  get isAddSmoothieDisabled(): boolean {
+    const hasName = !!this.smoothieName && String(this.smoothieName).trim().length > 0;
+    const hasIngredients = Array.isArray(this.ingredients) && this.ingredients.length > 0;
+    return !(hasName && hasIngredients);
+  }
+
+  get isSaveSmoothieProductionDisabled(): boolean {
+    return !this.selectedSmoothie || !isFinite(Number(this.commonQty)) || Number(this.commonQty) <= 0 || !this.commonRack || String(this.commonRack).trim() === '' || !isFinite(Number(this.commonWastage)) || Number(this.commonWastage) < 0;
+  }
+
+  get isCalculateSmoothieProductionDisabled(): boolean {
+    return !this.selectedSmoothie || !Array.isArray(this.selectedSmoothie.ingredients) || this.selectedSmoothie.ingredients.length === 0 || !Array.isArray(this.ingredientDetails) || this.ingredientDetails.length === 0;
+  }
+
   ngOnInit(): void {
     this.lifesmoothieService.getLifeSmoothie().subscribe((data) => {
       this.lifeSmoothieList = data;
@@ -61,6 +104,24 @@ export class ProductionComponent implements OnInit {
     this.ingredientService.getSmoothies().subscribe((data) => {
       this.smoothies = data;
       console.log('Smoothies:', this.smoothies);
+      // derive category suggestions from smoothie names
+      const set = new Set<string>();
+      this.smoothies.forEach((s) => {
+        const name = s.category || '';
+        let cat = name.split(/[-:]/)[0]?.trim() || '';
+        if (!cat) cat = name.split(/\s+/)[0] || '';
+        if (cat) set.add(cat);
+      });
+      this.availableCategories = Array.from(set).sort();
+      // categories for grouping
+      const catSet = new Set<string>();
+      this.smoothies.forEach((s) => catSet.add(s.category || 'Others'));
+      this.categories = Array.from(catSet).sort();
+      this.categoryOptions = this.categories.map((c) => ({ label: c, value: c }));
+      // Default to first category if available
+      if (!this.selectedCategory && this.categories.length > 0) {
+        this.selectedCategory = this.categories[0];
+      }
     });
   }
 
@@ -79,6 +140,12 @@ export class ProductionComponent implements OnInit {
     ) {
       this.ingredients.push({ name: this.newItem.name, qty: this.newItem.qty });
       this.newItem = { name: '', qty: null as any };
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Invalid Ingredient',
+        detail: 'Please select an item and enter a quantity greater than 0.',
+      });
     }
   }
 
@@ -94,9 +161,10 @@ export class ProductionComponent implements OnInit {
       return;
     }
 
-    const smoothieData = {
+    const smoothieData: any = {
       itemname: this.smoothieName,
       ingredients: this.ingredients,
+      category: this.category || null,
     };
 
     this.ingredientService.saveSmoothie(smoothieData).subscribe({
@@ -180,47 +248,142 @@ export class ProductionComponent implements OnInit {
   }
 
   calculateSmoothieProductionFromRawStock() {
-    if (!this.selectedSmoothie || !this.selectedSmoothie.ingredients) {
-      alert('No smoothie selected or ingredients missing.');
+    if (!this.selectedSmoothie || !Array.isArray(this.selectedSmoothie.ingredients) || this.selectedSmoothie.ingredients.length === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Missing Data',
+        detail: 'Please select a smoothie with ingredients before calculating.',
+      });
       return;
     }
 
-    const smoothieCounts = this.ingredientDetails.map((rawItem: any) => {
-      const matchingSmoothieIng = this.selectedSmoothie.ingredients.find(
-        (i: any) => i.name === rawItem.item_name
-      );
+    interface IngredientQty {
+      name: string;
+      requiredQty: number;
+    }
 
-      if (!matchingSmoothieIng) {
-        console.warn(
-          `Ingredient ${rawItem.item_name} not in selected smoothie`
-        );
-        return Infinity;
-      }
+    interface SelectedIngredient {
+      name: string;
+      availableQty: number;
+    }
 
-      const requiredQty = parseFloat(matchingSmoothieIng.qty); // grams per smoothie
-      const availableQty = parseFloat(rawItem.qty_g); // grams in stock
+    // Get all required ingredients that are in the smoothie recipe
+    const requiredIngredients: IngredientQty[] = this.selectedSmoothie.ingredients.map((ing: any) => ({
+      name: ing.name,
+      requiredQty: Number(ing.qty)
+    }));
 
-      if (!requiredQty || !availableQty) return Infinity;
+    // Get selected ingredients with their available quantities
+    const selectedIngredients: SelectedIngredient[] = this.ingredientDetails
+      .filter((detail: any) => detail.selected)
+      .map((detail: any) => {
+        const qty = Number(detail.qty_g);
+        if (qty <= 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Invalid Quantity',
+            detail: `${detail.item_name} has an invalid quantity (${qty}g). Quantity must be greater than 0.`,
+          });
+        }
+        return {
+          name: detail.item_name,
+          availableQty: qty
+        };
+      });
 
-      return Math.floor(availableQty / requiredQty);
+    // Check if any selected ingredients have invalid quantities
+    if (selectedIngredients.some(ing => ing.availableQty <= 0)) {
+      return; // Stop calculation if any selected ingredient has invalid quantity
+    }
+
+    // Check if all required ingredients are selected
+    const missingIngredients = requiredIngredients.filter((reqIng: IngredientQty) => 
+      !selectedIngredients.some((selIng: SelectedIngredient) => selIng.name === reqIng.name)
+    );
+
+    if (missingIngredients.length > 0) {
+      const missingNames = missingIngredients.map((ing: IngredientQty) => ing.name).join(', ');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Missing Ingredients',
+        detail: `Please select all required ingredients: ${missingNames}`,
+      });
+      return;
+    }
+
+    // Calculate how many smoothies can be made based on each ingredient
+    const smoothieCounts = requiredIngredients.map((reqIng: IngredientQty) => {
+      const selectedIng = selectedIngredients.find((selIng: SelectedIngredient) => selIng.name === reqIng.name);
+      if (!selectedIng) return 0;
+      
+      // Calculate how many smoothies can be made with this ingredient
+      return Math.floor(selectedIng.availableQty / reqIng.requiredQty);
     });
 
-    this.calculateMessage = Math.min(...smoothieCounts);
-    alert(
-      `You can produce ${this.calculateMessage} smoothies with the current stock.`
-    );
+    const minCount = Math.min(...smoothieCounts);
+    if (!isFinite(minCount)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Cannot Calculate',
+        detail: 'Some ingredients are missing required quantities. Please review inputs.',
+      });
+      return;
+    }
+
+    this.calculateMessage = minCount;
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Calculation Complete',
+      detail: `You can produce ${this.calculateMessage} smoothies with the current stock.`,
+    });
   }
 
   saveSmoothieProduction() {
-    if (!this.commonQty || !this.commonRack || !this.commonWastage) {
-      alert('Please enter quantity, Wastage and rack.');
+    // Basic field validations
+    if (!this.selectedSmoothie) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Smoothie Selected',
+        detail: 'Select a smoothie before saving production.',
+      });
+      return;
+    }
+
+    if (!isFinite(Number(this.commonQty)) || Number(this.commonQty) <= 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Invalid Quantity',
+        detail: 'Enter a valid number of sachets greater than 0.',
+      });
+      return;
+    }
+
+    if (!this.commonRack || String(this.commonRack).trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Rack Required',
+        detail: 'Please provide a rack location.',
+      });
+      return;
+    }
+
+    if (!isFinite(Number(this.commonWastage)) || Number(this.commonWastage) < 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Invalid Wastage',
+        detail: 'Wastage must be 0 or a positive number.',
+      });
       return;
     }
 
     const selectedItems = this.ingredientDetails.filter((d) => d.selected);
 
     if (selectedItems.length === 0) {
-      alert('Please select at least one ingredient');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Ingredients Selected',
+        detail: 'Select at least one ingredient to produce.',
+      });
       return;
     }
 
@@ -241,6 +404,17 @@ export class ProductionComponent implements OnInit {
         // Here you update the qty of the selected ingredient from the ingredientDetails
         smoothieIngredient.qty = selected.qty; // Update the qty in selectedSmoothie.ingredients
 
+        // Validate each selected ingredient qty
+        const qtyNum = Number(selected.qty);
+        if (!isFinite(qtyNum) || qtyNum <= 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Invalid Ingredient Quantity',
+            detail: `Please enter a positive quantity for ${selected.item_name}.`,
+          });
+          return null;
+        }
+
         return {
           name: selected.item_name,
           qty: selected.qty, // Use the updated quantity here
@@ -248,6 +422,11 @@ export class ProductionComponent implements OnInit {
         };
       })
       .filter(Boolean);
+
+    if (!ingredients || ingredients.length === 0) {
+      // Either none were selected or validation removed them
+      return;
+    }
 
     const singleSmoothieQty_g = ingredients.reduce(
       (sum: number, ing: any) => sum + ing.qty,
@@ -269,6 +448,7 @@ export class ProductionComponent implements OnInit {
       wastage: this.commonWastage,
       entered_qty: this.commonQty, // ✅ Added here
       life_ids: ingredients.map((i: any) => ({ id: i.life_id, qty: i.qty })),
+      category: this.selectedSmoothie?.category || null,
       singleSmoothieQty_g,
       totalQtyUsed_g,
       totalQtyWithWastage_g,
@@ -280,7 +460,11 @@ export class ProductionComponent implements OnInit {
       .post('http://localhost:3000/api/saveSmoothieProduction', payload)
       .subscribe({
         next: () => {
-          alert('Saved successfully!');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Saved',
+            detail: 'Production saved successfully.',
+          });
           this.commonQty = 0;
           this.commonRack = '';
           this.commonWastage = 0;
@@ -288,7 +472,14 @@ export class ProductionComponent implements OnInit {
             d.selected = false;
           });
         },
-        error: (err) => console.error('Error saving smoothie usage', err),
+        error: (err) => {
+          console.error('Error saving smoothie usage', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to save production. Please try again.',
+          });
+        },
       });
   }
 }

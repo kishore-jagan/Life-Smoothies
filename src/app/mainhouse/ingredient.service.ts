@@ -10,6 +10,7 @@ export interface Ingredient {
 export interface Smoothie {
   itemname: string;
   ingredients: Ingredient[];
+  category?: string | null;
 }
 
 @Injectable({

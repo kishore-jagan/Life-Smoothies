@@ -29,22 +29,22 @@ interface ExportColumn {
   dataKey: string;
 }
 
-interface ProductData {
-  name: string;
-  monthlySold: number;
-  dailySold: number;
-  dailyBoxes: number;
-  boxesLeft: number;
-  daysRemaining: number | string;
-}
+// interface ProductData {
+//   name: string;
+//   monthlySold: number;
+//   dailySold: number;
+//   dailyBoxes: number;
+//   boxesLeft: number;
+//   daysRemaining: number | string;
+// }
 
-interface IngredientData {
-  name: string;
-  color: string;
-  kgPerDay: number;
-  stock: number;
-  daysLeft: number | string;
-}
+// interface IngredientData {
+//   name: string;
+//   color: string;
+//   kgPerDay: number;
+//   stock: number;
+//   daysLeft: number | string;
+// }
 
 
 @Component({
@@ -83,11 +83,34 @@ export class DispatchComponent implements OnInit {
 
   dispatchList: any[] = [];
   preDispatchRecords: preDispatchRecord[] = [];
+  filteredPreDispatchRecords: preDispatchRecord[] = [];
+  completedDispatches: any[] = [];
+  filteredCompletedDispatches: any[] = [];
+
+  // Samples (completed sample dispatches)
+  samplesDispatches: any[] = [];
+  filteredSamplesDispatches: any[] = [];
 
   cols!: Column[];
   selectedColumns!: Column[];
   globalFilterFields!: string[];
   searchQuery: string = '';
+
+  // Completed table configs
+  completedCols!: Column[];
+  selectedCompletedCols!: Column[];
+  globalCompletedFilterFields!: string[];
+  // Samples table configs
+  samplesCols!: Column[];
+  selectedSamplesCols!: Column[];
+  globalSamplesFilterFields!: string[];
+
+  // Completed table date filter state
+  completedSelectedPeriod: string = 'year';
+  completedSelectedDate: Date = new Date();
+  completedRangeDates: Date[] = [new Date(), new Date()];
+  completedFromDate!: string;
+  completedToDate!: string;
 
   periodOptions = [
     { label: 'Date Range', value: 'date' },
@@ -111,38 +134,38 @@ export class DispatchComponent implements OnInit {
 
 
 
-  smoothiesData: ProductData[] = [
-    { name: 'Smoothie 1', monthlySold: 43000, dailySold: 1433, dailyBoxes: 96, boxesLeft: 4288, daysRemaining: 45 },
-    { name: 'Smoothie 2', monthlySold: 8000, dailySold: 267, dailyBoxes: 18, boxesLeft: 392, daysRemaining: 22 },
-    { name: 'Smoothie 2 BATEEL 140G', monthlySold: 0, dailySold: 0, dailyBoxes: 0, boxesLeft: 51, daysRemaining: 8 },
-    { name: 'Smoothie 3', monthlySold: 26000, dailySold: 867, dailyBoxes: 58, boxesLeft: 962, daysRemaining: 17 },
-    // ... add all other smoothie rows
-  ];
+  // smoothiesData: ProductData[] = [
+  //   { name: 'Smoothie 1', monthlySold: 43000, dailySold: 1433, dailyBoxes: 96, boxesLeft: 4288, daysRemaining: 45 },
+  //   { name: 'Smoothie 2', monthlySold: 8000, dailySold: 267, dailyBoxes: 18, boxesLeft: 392, daysRemaining: 22 },
+  //   { name: 'Smoothie 2 BATEEL 140G', monthlySold: 0, dailySold: 0, dailyBoxes: 0, boxesLeft: 51, daysRemaining: 8 },
+  //   { name: 'Smoothie 3', monthlySold: 26000, dailySold: 867, dailyBoxes: 58, boxesLeft: 962, daysRemaining: 17 },
+  //   // ... add all other smoothie rows
+  // ];
 
-  shakesData: ProductData[] = [
-    { name: 'Vanilla', monthlySold: 12200, dailySold: 407, dailyBoxes: 27, boxesLeft: 466, daysRemaining: 17 },
-    { name: 'Vegan Vanilla', monthlySold: 300, dailySold: 10, dailyBoxes: 1, boxesLeft: 0, daysRemaining: 0 },
-    { name: 'Vegan Banana', monthlySold: 500, dailySold: 17, dailyBoxes: 1, boxesLeft: 74, daysRemaining: 67 },
-    // ... add all other shake rows
-  ];
+  // shakesData: ProductData[] = [
+  //   { name: 'Vanilla', monthlySold: 12200, dailySold: 407, dailyBoxes: 27, boxesLeft: 466, daysRemaining: 17 },
+  //   { name: 'Vegan Vanilla', monthlySold: 300, dailySold: 10, dailyBoxes: 1, boxesLeft: 0, daysRemaining: 0 },
+  //   { name: 'Vegan Banana', monthlySold: 500, dailySold: 17, dailyBoxes: 1, boxesLeft: 74, daysRemaining: 67 },
+  //   // ... add all other shake rows
+  // ];
 
-  bowlsData: ProductData[] = [
-    { name: 'Dragon Fruit and Banana', monthlySold: 130, dailySold: 4, dailyBoxes: 0, boxesLeft: 105, daysRemaining: 363 },
-    { name: 'Acai Berry and Banana', monthlySold: 900, dailySold: 30, dailyBoxes: 2, boxesLeft: 15, daysRemaining: 12 },
-    { name: 'Mango and Banana', monthlySold: 160, dailySold: 5, dailyBoxes: 0, boxesLeft: 45, daysRemaining: 0 }
-  ];
+  // bowlsData: ProductData[] = [
+  //   { name: 'Dragon Fruit and Banana', monthlySold: 130, dailySold: 4, dailyBoxes: 0, boxesLeft: 105, daysRemaining: 363 },
+  //   { name: 'Acai Berry and Banana', monthlySold: 900, dailySold: 30, dailyBoxes: 2, boxesLeft: 15, daysRemaining: 12 },
+  //   { name: 'Mango and Banana', monthlySold: 160, dailySold: 5, dailyBoxes: 0, boxesLeft: 45, daysRemaining: 0 }
+  // ];
 
-   ingredientData: IngredientData[] = [
-    { name: 'Acai', color: '#8b5cf6', kgPerDay: 32.2, stock: 3550, daysLeft: 110 },
-    { name: 'Acai with Guarana', color: '#ef4444', kgPerDay: 0, stock: 0, daysLeft: 8  },
-    { name: 'Aloe vera', color: '#a3e635', kgPerDay: 2.7, stock: 0, daysLeft: 0 },
-    { name: 'Avocado', color: '#15803d', kgPerDay: 11.1, stock: 390, daysLeft: 35 },
-    { name: 'Banana', color: '#fde047', kgPerDay: 313.5, stock: 48250, daysLeft: 154 },
-    { name: 'Baobab', color: '#f9a8d4', kgPerDay: 0.7, stock: 670, daysLeft: 985 },
-    { name: 'Beetroot', color: '#ec4899', kgPerDay: 7.6, stock: 620, daysLeft: 82 },
-    { name: 'Blackberry', color: '#000000', kgPerDay: 6.1, stock: 5282, daysLeft: 861 },
-    { name: 'Blackcurant', color: '#4b5563', kgPerDay: 5.3, stock: 786, daysLeft: 147 }
-  ];
+  //  ingredientData: IngredientData[] = [
+  //   { name: 'Acai', color: '#8b5cf6', kgPerDay: 32.2, stock: 3550, daysLeft: 110 },
+  //   { name: 'Acai with Guarana', color: '#ef4444', kgPerDay: 0, stock: 0, daysLeft: 8  },
+  //   { name: 'Aloe vera', color: '#a3e635', kgPerDay: 2.7, stock: 0, daysLeft: 0 },
+  //   { name: 'Avocado', color: '#15803d', kgPerDay: 11.1, stock: 390, daysLeft: 35 },
+  //   { name: 'Banana', color: '#fde047', kgPerDay: 313.5, stock: 48250, daysLeft: 154 },
+  //   { name: 'Baobab', color: '#f9a8d4', kgPerDay: 0.7, stock: 670, daysLeft: 985 },
+  //   { name: 'Beetroot', color: '#ec4899', kgPerDay: 7.6, stock: 620, daysLeft: 82 },
+  //   { name: 'Blackberry', color: '#000000', kgPerDay: 6.1, stock: 5282, daysLeft: 861 },
+  //   { name: 'Blackcurant', color: '#4b5563', kgPerDay: 5.3, stock: 786, daysLeft: 147 }
+  // ];
 
 
   
@@ -169,17 +192,19 @@ export class DispatchComponent implements OnInit {
     );
 
     this.getPreDispatches();
+    this.getCompletedDispatches();
 
     this.setView(this.selectedPeriod);
     // this.getSmoothieProduction();
 
     this.cols = [
+      { field: 'category', header: 'Category', type: 'text' },
       { field: 'smoothie_name', header: 'Smoothie Name', type: 'text' },
-      { field: 'total_qty_g', header: 'Total Quantity Used (g)', type: 'text' },
       { field: 'rack', header: 'Rack', type: 'text' },
+      { field: 'total_qty_g', header: 'Total Quantity Used (g)', type: 'text' },
       { field: 'slices', header: 'Slices', type: 'text' },
       { field: 'cotton', header: 'Cotton', type: 'text' },
-      { field: 'created_at', header: 'Creation Date', type: 'date' },
+      { field: 'wastage', header: 'Wastage', type: 'text' },
       // { field: 'ingredients', header: 'Ingredients', type: 'array' },
     ];
 
@@ -189,6 +214,30 @@ export class DispatchComponent implements OnInit {
       title: col.header,
       dataKey: col.field,
     }));
+
+    // Completed dispatches table columns
+    this.completedCols = [
+      { field: 'id', header: 'ID', type: 'text' },
+      { field: 'driver_name', header: 'Driver', type: 'text' },
+      { field: 'truck_no', header: 'Truck No', type: 'text' },
+      { field: 'creation_date', header: 'Date', type: 'shortDate' },
+      // Items will be shown in a fixed last column
+    ];
+    this.selectedCompletedCols = this.completedCols;
+    this.globalCompletedFilterFields = this.completedCols.map((c) => c.field);
+
+    // Samples table columns
+    this.samplesCols = [
+      { field: 'id', header: 'ID', type: 'text' },
+      { field: 'driver_name', header: 'Driver', type: 'text' },
+      { field: 'truck_no', header: 'Remark/Truck No', type: 'text' },
+      { field: 'creation_date', header: 'Date', type: 'shortDate' },
+    ];
+    this.selectedSamplesCols = this.samplesCols;
+    this.globalSamplesFilterFields = this.samplesCols.map((c) => c.field);
+
+    // initialize completed date view and filter
+    this.setCompletedView(this.completedSelectedPeriod);
   }
 
   filterDriverNames(event: any) {
@@ -406,11 +455,14 @@ export class DispatchComponent implements OnInit {
     // Map the dispatch list to form the items array for insertion
     const dispatchItems = this.dispatchList.map((item) => ({
       item_id: item.id, // Item ID
+      category: item.category,
       smoothie_name: item.smoothie_name, // Smoothie name
       transfer_qty: item.transferQty, // Quantity
       one_qty_g: item.one_qty_g, // Quantity in grams
+      total_qty_g: (Number(item.one_qty_g) || 0) * (Number(item.transferQty) || 0) * 15,
       totalShases: item.transferQty * 15, // Calculate total shakes
       location: item.location, // Location of the item
+      ingredients: item.ingredients, // Include ingredients for reference
     }));
 
     // Prepare the payload to be sent to the backend
@@ -441,7 +493,12 @@ export class DispatchComponent implements OnInit {
     this.dispatchService.getPreDispatches().subscribe(
       (data) => {
         this.preDispatchRecords = data;
+        // Only keep pending records for display in the pending section
+        this.filteredPreDispatchRecords = (data || []).filter((d: any) =>
+          String(d?.status ?? '').toLowerCase() === 'pending'
+        );
         console.log('Fetched Dispatches:', this.preDispatchRecords);
+        console.log('Pending Pre-Dispatches:', this.filteredPreDispatchRecords);
       },
       (error) => {
         console.error('Error fetching dispatches:', error);
@@ -449,33 +506,297 @@ export class DispatchComponent implements OnInit {
     );
   }
 
-  completeDispatch(dispatch: any) {
-    const completedItems = dispatch.items.map((item: any) => ({
-      item_id: item.item_id,
-      smoothie_name: item.smoothie_name,
-      transfer_qty: item.transfer_qty,
-      return: this.return || 0,
-      location: item.location,
-    }));
+  private safeParseJSON(val: any): any[] {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  getCompletedDispatches() {
+    this.dispatchService.getCompletedDispatches().subscribe(
+      (data: any[]) => {
+        this.completedDispatches = (data || []).map((d: any) => ({
+          ...d,
+          item_details: Array.isArray(d.item_details)
+            ? d.item_details
+            : (typeof d.item_details === 'string' ? this.safeParseJSON(d.item_details) : []),
+        }));
+        this.applyCompletedFilter();
+        // Build samples list from completed
+        this.samplesDispatches = this.completedDispatches.filter((d: any) =>
+          String(d?.status ?? '').toLowerCase() === 'samples'
+        );
+        this.filteredSamplesDispatches = this.samplesDispatches.slice();
+      },
+      (error: any) => {
+        console.error('Error fetching completed dispatches:', error);
+      }
+    );
+  }
+
+  setCompletedView(view: string) {
+    this.completedSelectedPeriod = view;
+    if (view === 'date') {
+      if (this.completedRangeDates && this.completedRangeDates.length === 2) {
+        const start = this.completedRangeDates[0];
+        const end = this.completedRangeDates[1];
+        this.completedFromDate = this.formatDateTime(new Date(start.setHours(0, 0, 0)));
+        this.completedToDate = this.formatDateTime(new Date(end.setHours(23, 59, 59)));
+      }
+    } else if (view === 'week') {
+      const startOfWeek = new Date(this.completedSelectedDate);
+      startOfWeek.setHours(0, 0, 0, 0);
+      const weekEndDate = this.getWeekEndDate(startOfWeek);
+      this.completedFromDate = this.formatDateTime(startOfWeek);
+      this.completedToDate = this.formatDateTime(weekEndDate);
+    } else if (view === 'month') {
+      const d = new Date(this.completedSelectedDate);
+      const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      this.completedFromDate = this.formatDateTime(new Date(firstDay.setHours(0, 0, 0)));
+      this.completedToDate = this.formatDateTime(new Date(lastDay.setHours(23, 59, 59)));
+    } else if (view === 'year') {
+      const d = new Date(this.completedSelectedDate);
+      const firstDay = new Date(d.getFullYear(), 0, 1);
+      const lastDay = new Date(d.getFullYear(), 11, 31);
+      this.completedFromDate = this.formatDateTime(new Date(firstDay.setHours(0, 0, 0)));
+      this.completedToDate = this.formatDateTime(new Date(lastDay.setHours(23, 59, 59)));
+    }
+    this.applyCompletedFilter();
+  }
+
+  applyCompletedFilter() {
+    if (!this.completedFromDate || !this.completedToDate) {
+      this.filteredCompletedDispatches = this.completedDispatches.slice();
+      return;
+    }
+    const from = new Date(this.completedFromDate).getTime();
+    const to = new Date(this.completedToDate).getTime();
+    this.filteredCompletedDispatches = this.completedDispatches.filter((d: any) => {
+      const t = new Date(d.creation_date).getTime();
+      return t >= from && t <= to;
+    });
+  }
+
+  getTruckNoByDriverName(name: string): string {
+    const driver = this.driversList.find((d) => d.driver_name === name);
+    return driver?.truck_no || '';
+  }
+
+  // Save a single-row dispatch directly as a "Sample" using provided name and remark
+  saveSample(row: any) {
+    const qty = Number(row?.transferQty) || 0;
+    const location = row?.location?.trim?.() || '';
+    const name = row?.sampleName?.trim?.() || '';
+    const remark = row?.sampleRemark?.trim?.() || '';
+    const available = Number(row?.cotton) || 0;
+
+    if (!qty || qty <= 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid Quantity',
+        detail: 'Please enter a valid quantity for samples.',
+        life: 3000,
+      });
+      return;
+    }
+
+    if (qty > available) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Quantity Exceeded',
+        detail: `Sample qty cannot exceed available quantity (${available}).`,
+        life: 3000,
+      });
+      return;
+    }
+
+    if (!location) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Location Required',
+        detail: 'Please enter a location for this sample.',
+        life: 3000,
+      });
+      return;
+    }
+
+    if (!name) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Name Required',
+        detail: 'Please enter a name for samples.',
+        life: 3000,
+      });
+      return;
+    }
+
+    const oneQtyG = Number(row?.one_qty_g) || 0;
+    const item = {
+      item_id: row.id,
+      category: row.category,
+      smoothie_name: row.smoothie_name,
+      transfer_qty: qty,
+      one_qty_g: oneQtyG,
+      total_qty_g: oneQtyG * qty * 15,
+      totalShases: qty * 15,
+      location: location,
+      ingredients: row.ingredients,
+    };
+
+    // Step 1: create a pre-dispatch with status 'Samples'
+    const prePayload: any = {
+      driver_name: name,
+      status: 'Samples',
+      items: [item],
+    };
+
+    this.dispatchService.preDispatch(prePayload).subscribe(
+      (preRes) => {
+        console.log('Sample preDispatch response:', preRes);
+        let preId = (preRes && (preRes.id || preRes.insertId || preRes.pre_dispatch_id)) as number | undefined;
+        // Try deeper common shapes
+        if (!preId) preId = (preRes && (preRes.data?.id || preRes.data?.insertId || preRes.data?.pre_dispatch_id)) as number | undefined;
+        if (!preId && Array.isArray(preRes) && preRes.length) preId = (preRes[0]?.id || preRes[0]?.pre_dispatch_id) as number | undefined;
+
+        const finishWithId = (resolvedId: number) => {
+          // Step 2: complete the dispatch using the created pre-dispatch id
+          const completeItem = { ...item, returns: 0 };
+          const completePayload = {
+            pre_dispatch_id: resolvedId,
+            driver_name: name,
+            truck_no: remark,
+            items: [completeItem],
+          };
+
+          this.dispatchService.completeDispatch(completePayload).subscribe(
+            (res) => {
+              console.log('Sample completeDispatch response:', res);
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Sample Saved',
+                detail: 'Sample dispatch recorded successfully.',
+                life: 3000,
+              });
+              row.sampleName = '';
+              row.sampleRemark = '';
+              row.transferQty = null;
+              row.location = '';
+              this.getPreDispatches();
+              this.getCompletedDispatches();
+            },
+            (err) => {
+              console.error('Sample completeDispatch error:', err);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to complete sample dispatch.',
+                life: 3000,
+              });
+            }
+          );
+        };
+
+        if (preId) {
+          finishWithId(preId);
+        } else {
+          // Fallback: fetch pre-dispatches and infer latest matching 'Samples' record
+          this.dispatchService.getPreDispatches().subscribe(
+            (list) => {
+              const candidates = (list || []).filter((d: any) =>
+                String(d?.status ?? '').toLowerCase() === 'samples' && String(d?.driver_name ?? '') === name
+              );
+              // Choose the most recent candidate
+              const sorted = candidates.sort((a: any, b: any) => new Date(b.dispatch_date || b.creation_date || 0).getTime() - new Date(a.dispatch_date || a.creation_date || 0).getTime());
+              const match = sorted[0];
+              if (match?.id) {
+                finishWithId(match.id);
+              } else {
+                console.error('Could not infer pre-dispatch id from list:', candidates);
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Failed to save sample: pre-dispatch id not found.',
+                  life: 3000,
+                });
+              }
+            },
+            (err) => {
+              console.error('Fetching pre-dispatches failed during sample flow:', err);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to save sample: could not verify pre-dispatch id.',
+                life: 3000,
+              });
+            }
+          );
+        }
+      },
+      (err) => {
+        console.error('Sample preDispatch error:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to create sample pre-dispatch.',
+          life: 3000,
+        });
+      }
+    );
+  }
+
+  completePreDispatch(record: preDispatchRecord) {
+    const truckNo = this.getTruckNoByDriverName(record.driver_name);
+    if (!truckNo) {
+      alert('Truck number not found for driver.');
+      return;
+    }
+
+    // Ensure returns exist on each item and are not greater than transfer_qty
+    const itemsWithReturns = record.items.map((it: any) => {
+      const origQty = Number(it.transfer_qty) || 0;
+      const ret = Math.max(Number(it.returns) || 0, 0);
+      if (ret > origQty) {
+        throw new Error(`Returns cannot exceed transferred qty for item ${it.item_id}`);
+      }
+      const adjusted = origQty - ret;
+      return {
+        ...it,
+        transfer_qty: adjusted,
+        totalShases: adjusted * 15,
+        total_qty_g: (Number(it.one_qty_g) || 0) * adjusted * 15,
+      };
+    });
 
     const payload = {
-      dispatch_id: dispatch.id,
-      driver_name: dispatch.driver_name,
-      completed_date: new Date(),
-      items: completedItems,
+      pre_dispatch_id: record.id,
+      driver_name: record.driver_name,
+      truck_no: truckNo,
+      items: itemsWithReturns,
     };
 
     this.dispatchService.completeDispatch(payload).subscribe(
-      (response) => {
-        alert('Dispatch marked as completed');
-        // Optionally remove this dispatch from UI
-        this.preDispatchRecords = this.preDispatchRecords.filter(
-          (d) => d.id !== dispatch.id
-        );
+      (res) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Dispatch Completed',
+          detail: 'Dispatch recorded and inventory updated.',
+          life: 3000,
+        });
+        this.getPreDispatches();
+        this.getCompletedDispatches();
       },
-      (error) => {
-        console.error('Error completing dispatch:', error);
-        alert('Failed to complete dispatch');
+      (err) => {
+        console.error('Complete dispatch error:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to complete dispatch.',
+          life: 3000,
+        });
       }
     );
   }

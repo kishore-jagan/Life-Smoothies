@@ -39,6 +39,7 @@ const postStorage = async (req, res) => {
     }
 };
 
+
 const postStorage2 = async (req, res) => {
     const {
         itemname, description, lotno,
@@ -77,27 +78,17 @@ const postStorage2 = async (req, res) => {
     }
 };
 
-
-// const getStorage = async (req, res) => {
-//     console.log('Received request to getStorage');
-
-//     try {
-//         const result = await pool.query('SELECT * FROM storage ORDER BY id DESC');
-//         ;
-//         console.log('Query successful:', result.rows);
-//         res.json(result.rows);
-//     } catch (err) {
-//         console.error('Error fetching getStorage data:', err.message);
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
 const getStorageByDate = async (req, res) => {
     console.log('Received request to getStorageByDate');
     const { fromDate, toDate } = req.query;
 
     try {
-        const result = await pool.query(`SELECT * FROM storage WHERE live BETWEEN $1 AND $2 ORDER BY id ASC`, [fromDate, toDate]);
+        let result;
+        if (!fromDate || !toDate) {
+            result = await pool.query(`SELECT * FROM storage ORDER BY id DESC`);
+        } else {
+            result = await pool.query(`SELECT * FROM storage WHERE live BETWEEN $1 AND $2 ORDER BY id DESC`, [fromDate, toDate]);
+        }
         console.log('Query successful:', result.rows);
         res.json(result.rows);
     } catch (err) {
@@ -222,7 +213,7 @@ const getLifeSmoothieByDate = async (req, res) => {
     const { fromDate, toDate } = req.query;
 
     try {
-        const result = await pool.query(`SELECT * FROM lifeSmoothie WHERE live_date BETWEEN $1 AND $2 ORDER BY id ASC`, [fromDate, toDate]);
+        const result = await pool.query(`SELECT * FROM lifeSmoothie WHERE live_date BETWEEN $1 AND $2 ORDER BY id DESC`, [fromDate, toDate]);
         console.log('Query successful:', result.rows);
         res.json(result.rows);
     } catch (err) {
@@ -236,12 +227,14 @@ const postSmoothie = async (req, res) => {
     console.log('Received request to postSmoothie');
 
     const createDate = new Date();
-    const { itemname, ingredients } = req.body;
+    const { itemname, ingredients, category } = req.body;
 
-    console.log('Received data:', { itemname, ingredients });
+    console.log('Received data:', { itemname, category, ingredients });
 
-    const query = 'INSERT INTO smoothies (itemname, ingredients, created_at) VALUES ($1, $2, $3)';
-    const values = [itemname, JSON.stringify(ingredients), createDate];
+    // Ensure your DB has a 'category' column (TEXT). If not, add it with:
+    // ALTER TABLE smoothies ADD COLUMN category TEXT;
+    const query = 'INSERT INTO smoothies (itemname, category, ingredients, created_at) VALUES ($1, $2, $3, $4)';
+    const values = [itemname, category || null, JSON.stringify(ingredients), createDate];
 
     try {
         const result = await pool.query(query, values); // ✅ fixed line
@@ -287,6 +280,7 @@ const getIngredientsByNames = async (req, res) => {
 const saveSmoothieProduction = async (req, res) => {
     const {
         smoothie_name,
+        category,
         ingredients,
         rack,
         wastage,
@@ -300,7 +294,7 @@ const saveSmoothieProduction = async (req, res) => {
     } = req.body;
 
     // Check if any required field is missing
-    if (!smoothie_name || !ingredients || !rack || !wastage || !life_ids || !entered_qty || !singleSmoothieQty_g || !totalQtyUsed_g || !totalQtyWithWastage_g || sliceQty === undefined || cottonQty === undefined) {
+    if (!smoothie_name || !ingredients || !rack || wastage === undefined || !life_ids || !entered_qty || !singleSmoothieQty_g || !totalQtyUsed_g || !totalQtyWithWastage_g || sliceQty === undefined || cottonQty === undefined) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -312,27 +306,82 @@ const saveSmoothieProduction = async (req, res) => {
         const live = new Date(); // You may want to use this value in your DB schema
         await client.query(
             `INSERT INTO Smoothie_production 
-                (smoothie_name, ingredients, rack, wastage, entered_qty, one_qty_g, total_qty_g, totalQtyWithWastage_g, slices, cotton)
-            VALUES ($1, $2::jsonb, $3, $4, $5, $6, $7, $8, $9, $10)`,
-            [smoothie_name, JSON.stringify(ingredients), rack, wastage, entered_qty, singleSmoothieQty_g, totalQtyUsed_g, totalQtyWithWastage_g, sliceQty, cottonQty]
+                (smoothie_name, category, ingredients, rack, wastage, entered_qty, one_qty_g, total_qty_g, totalQtyWithWastage_g, slices, cotton)
+            VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11)`,
+            [smoothie_name, category || null, JSON.stringify(ingredients), rack, wastage, entered_qty, singleSmoothieQty_g, totalQtyUsed_g, totalQtyWithWastage_g, sliceQty, cottonQty]
         );
 
+        // Debug: Log the incoming data
+        console.log('=== DEBUG: saveSmoothieProduction ===');
+        console.log('life_ids:', JSON.stringify(life_ids, null, 2));
+        console.log('ingredients:', JSON.stringify(ingredients, null, 2));
+        console.log('entered_qty:', entered_qty);
+        
+        // Create a map of ingredient names to their quantities for easy lookup
+        const ingredientMap = {};
+        ingredients.forEach(ing => {
+            ingredientMap[ing.name] = ing.qty;
+        });
+        
+        console.log('Ingredient map:', ingredientMap);
+        
         // Update each ingredient's quantity in lifeSmoothie table
         for (const item of life_ids) {
-            const qty_g = item.qty;
-            const qty_kg = qty_g / 1000; // Convert to kg
-            const qty_cotton = qty_kg / 10; // Convert to cottons
+            console.log('\nProcessing item:', JSON.stringify(item, null, 2));
+            
+            // Get the ingredient name from the database using the ID
+            const ingredientNameResult = await client.query(
+                'SELECT item_name FROM lifeSmoothie WHERE id = $1',
+                [item.id]
+            );
+            
+            if (ingredientNameResult.rows.length === 0) {
+                console.log(`No ingredient found with ID ${item.id}, skipping`);
+                continue;
+            }
+            
+            const ingredientName = ingredientNameResult.rows[0].item_name;
+            console.log(`Found ingredient name for ID ${item.id}:`, ingredientName);
+            
+            // Get the quantity from our map
+            const quantity = ingredientMap[ingredientName];
+            if (quantity === undefined) {
+                console.log(`No quantity found for ${ingredientName}, skipping`);
+                continue;
+            }
+            
+            // Get the current stock for this item for debugging
+            const currentStock = await client.query(
+                'SELECT qty_g, qty_kg, qty_cotton FROM lifeSmoothie WHERE id = $1',
+                [item.id]
+            );
+            console.log('Current stock:', currentStock.rows[0]);
+            
+            // Calculate quantities
+            const qty_g = parseFloat(quantity) * parseFloat(entered_qty);
+            const qty_kg = qty_g / 1000;
+            const qty_cotton = qty_kg / 10;
+
+            console.log(`Updating ${ingredientName} (id: ${item.id}):`);
+            console.log(`- qty_g: ${qty_g} (from ${quantity} * ${entered_qty})`);
+            console.log(`- qty_kg: ${qty_kg}`);
+            console.log(`- qty_cotton: ${qty_cotton}`);
 
             // Deduct the used quantity from lifeSmoothie table
-            await client.query(
-                `UPDATE lifeSmoothie
-                    SET 
-                        qty_g = qty_g::numeric - $1,
-                        qty_kg = qty_kg::numeric - $2,
-                        qty_cotton = qty_cotton::numeric - $3
-                    WHERE id = $4`,
-                [qty_g, qty_kg, qty_cotton, item.id]
-            );
+            const updateQuery = `
+                UPDATE lifeSmoothie
+                SET 
+                    qty_g = GREATEST(0, qty_g::numeric - $1),
+                    qty_kg = GREATEST(0, qty_kg::numeric - $2),
+                    qty_cotton = GREATEST(0, qty_cotton::numeric - $3)
+                WHERE id = $4
+                RETURNING *`;
+                
+            console.log('Executing query:', updateQuery);
+            console.log('With values:', [qty_g, qty_kg, qty_cotton, item.id]);
+            
+            const result = await client.query(updateQuery, [qty_g, qty_kg, qty_cotton, item.id]);
+            console.log('Update result:', result.rows[0]);
         }
 
         // Commit the transaction
@@ -356,7 +405,16 @@ const getSmoothieProductionByDate = async (req, res) => {
     const { fromDate, toDate } = req.query;
 
     try {
-        const result = await pool.query(`SELECT * FROM smoothie_production WHERE created_at BETWEEN $1 AND $2 ORDER BY id ASC`, [fromDate, toDate]);
+        let result;
+        if (!fromDate || !toDate) {
+            // No date filters provided: return all
+            result = await pool.query(`SELECT * FROM smoothie_production ORDER BY id ASC`);
+        } else {
+            result = await pool.query(
+                `SELECT * FROM smoothie_production WHERE created_at BETWEEN $1 AND $2 ORDER BY id ASC`,
+                [fromDate, toDate]
+            );
+        }
         console.log('Query successful:', result.rows);
         res.status(200).json(result.rows);
     } catch (err) {
@@ -378,6 +436,8 @@ const getDrivers = async (req, res) => {
     }
 
 }
+
+
 
 const preDispatch = async (req, res) => {
     try {
@@ -432,26 +492,100 @@ const getPreDispatches = async (req, res) => {
     }
 }
 
+
+// Finalize a pre-dispatch: create a dispatch record, mark predispatch as completed,
+// and update smoothie_production cotton (deduct net transferred = transfer_qty - returns)
 const completeDispatch = async (req, res) => {
-    const { dispatch_id, driver_name, completed_date, items } = req.body;
+    try {
+        const { pre_dispatch_id, driver_name, truck_no, items } = req.body;
 
-    const result = await db.query(
-        'INSERT INTO complete_dispatch (dispatch_id, driver_name, completed_date) VALUES ($1, $2, $3) RETURNING id',
-        [dispatch_id, driver_name, completed_date]
-    );
+        if (!pre_dispatch_id || !driver_name || !truck_no || !Array.isArray(items)) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
 
-    const completed_dispatch_id = result.rows[0].id;
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
 
-    const itemPromises = items.map(item => {
-        return db.query(
-            'INSERT INTO completed_dispatch_items (completed_dispatch_id, item_id, smoothie_name, transfer_qty, return, location) VALUES ($1, $2, $3, $4, $5, $6)',
-            [completed_dispatch_id, item.item_id, item.smoothie_name, item.transfer_qty, item.return, item.location]
-        );
-    });
+            // Determine dispatch status from the related predispatch
+            const preStatusResult = await client.query(
+                `SELECT status FROM predispatches WHERE id = $1 LIMIT 1`,
+                [pre_dispatch_id]
+            );
+            const preStatus = (preStatusResult.rows[0]?.status || '').toString().trim();
+            const dispatchStatus = preStatus.toLowerCase() === 'samples' ? 'Samples' : 'Completed';
 
-    await Promise.all(itemPromises);
+            // Insert into dispatches table including status
+            const insertQuery = `
+                INSERT INTO dispatches (driver_name, truck_no, creation_date, item_details, status)
+                VALUES ($1, $2, NOW(), $3::jsonb, $4)
+                RETURNING id
+            `;
+            const inserted = await client.query(insertQuery, [
+                driver_name,
+                truck_no,
+                JSON.stringify(items),
+                dispatchStatus
+            ]);
 
-    res.json({ message: 'Dispatch completed successfully' });
+            // Update predispatch status to Completed (we keep the dispatch record's status as derived above)
+            await client.query(
+                `UPDATE predispatches SET status = 'Completed' WHERE id = $1`,
+                [pre_dispatch_id]
+            );
+
+            // For each item, deduct cotton from smoothie_production by the already-adjusted transfer quantity
+            for (const item of items) {
+                const itemId = item.item_id;
+                const net = Number(item.transfer_qty) || 0; // qty is already adjusted on frontend
+                if (!itemId || net <= 0) continue;
+
+                await client.query(
+                    `UPDATE smoothie_production
+                     SET 
+                       cotton = GREATEST((cotton::numeric - $1), 0),
+                       entered_qty = GREATEST((cotton::numeric - $1), 0) * 15,
+                       slices = GREATEST((cotton::numeric - $1), 0) * 15,
+                       total_qty_g = (GREATEST((cotton::numeric - $1), 0) * 15) * one_qty_g
+                     WHERE id = $2`,
+                    [net, itemId]
+                );
+            }
+
+            await client.query('COMMIT');
+            res.status(200).json({ message: 'Dispatch completed', dispatch_id: inserted.rows[0].id });
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('Complete dispatch failed:', err);
+            res.status(500).json({ message: 'Complete dispatch failed' });
+        } finally {
+            client.release();
+        }
+    } catch (error) {
+        console.error('Error connecting to DB:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getCompletedDispatches = async (req, res) => {
+    try {
+        const { month, year } = req.query; // optional
+        // Use conditional filters: if month/year provided, filter by EXTRACT
+        const query = `
+            SELECT *
+            FROM dispatches
+            WHERE ($1::int IS NULL OR EXTRACT(MONTH FROM creation_date) = $1::int)
+              AND ($2::int IS NULL OR EXTRACT(YEAR FROM creation_date) = $2::int)
+            ORDER BY creation_date DESC
+        `;
+        const m = month ? Number(month) : null;
+        const y = year ? Number(year) : null;
+        const result = await pool.query(query, [m, y]);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Error fetching completed dispatches:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 }
 
 
@@ -477,4 +611,5 @@ module.exports = {
     preDispatch,
     getPreDispatches,
     completeDispatch,
+    getCompletedDispatches,
 }

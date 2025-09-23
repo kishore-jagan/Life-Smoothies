@@ -202,7 +202,7 @@
                             </span>
                         </td>
                         <td class="centered-cell">
-                            <input type="number" [(ngModel)]="row.transferQty" min="0" [max]="newItem.qtycotton" />
+                            <input type="number" placeholder="Qty" [(ngModel)]="row.transferQty" min="0" [max]="newItem.qtycotton" />
                             <input type="text" [(ngModel)]="row.location" placeholder="Location" />
                             <button class="save-btn" (click)="transferItem(row)">Transfer</button>
                         </td>

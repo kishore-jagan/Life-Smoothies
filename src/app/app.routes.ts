@@ -3,6 +3,7 @@ import { AuthenticationComponent } from './authentication/authentication.compone
 import { LayoutComponent } from './layout/layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { StoragehouseComponent } from './storagehouse/storagehouse.component';
+import { Storagehouse2Component } from './storagehouse2/storagehouse2.component';
 import { MainhouseComponent } from './mainhouse/mainhouse.component';
 import { ProductionComponent } from './production/production.component';
 
@@ -27,6 +28,10 @@ export const routes: Routes = [
       {
         path: 'storagehouse',
         component: StoragehouseComponent,
+      },
+      {
+        path: 'storagehouse2',
+        component: Storagehouse2Component,
       },
       {
         path: 'mainhouse',
