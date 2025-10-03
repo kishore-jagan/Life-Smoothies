@@ -93,6 +93,48 @@ export class StoragehouseComponent implements OnInit {
     this.showForm = !this.showForm;
   }
 
+  // ---- Overview metrics (computed from current filtered list) ----
+  get totalItems(): number {
+    return Array.isArray(this.storageList) ? this.storageList.length : 0;
+  }
+
+  get totalQtyCotton(): number {
+    if (!Array.isArray(this.storageList)) return 0;
+    return this.storageList.reduce((sum, item) => {
+      const qty = Number((item as any)?.qtycotton) || 0;
+      return sum + qty;
+    }, 0);
+  }
+
+  get lowStockCount(): number {
+    if (!Array.isArray(this.storageList)) return 0;
+    return this.storageList.filter((item: any) => {
+      const qty = Number(item?.qtycotton) || 0;
+      return qty > 0 && qty < 5;
+    }).length;
+  }
+
+  get outOfStockCount(): number {
+    if (!Array.isArray(this.storageList)) return 0;
+    return this.storageList.filter((item: any) => {
+      const qty = Number(item?.qtycotton) || 0;
+      return qty === 0;
+    }).length;
+  }
+
+  // Maintain original order but push out-of-stock (qtycotton == 0) items to the end
+  get sortedStorageList(): StorageItem[] {
+    if (!Array.isArray(this.storageList)) return [] as StorageItem[];
+    // Create a shallow copy to avoid mutating the original list
+    return [...this.storageList].sort((a: any, b: any) => {
+      const aZero = (Number(a?.qtycotton) || 0) === 0 ? 1 : 0;
+      const bZero = (Number(b?.qtycotton) || 0) === 0 ? 1 : 0;
+      if (aZero > bZero) return 1; // a after b
+      if (aZero < bZero) return -1; // a before b
+      return 0; // keep relative order for stability
+    });
+  }
+
   ngOnInit(): void {
     // this.storageService.getAllStorageItems().subscribe((data) => {
     //   this.storageList = data;
@@ -134,7 +176,15 @@ export class StoragehouseComponent implements OnInit {
   }
 
   addStorageItem() {
-    const item = this.newItem;
+    const item = { ...this.newItem };
+
+    // Normalize dates if bound as Date objects from p-datepicker
+    if (item.productiondate instanceof Date) {
+      item.productiondate = this.formatDateTime(new Date(item.productiondate));
+    }
+    if (item.expirydate instanceof Date) {
+      item.expirydate = this.formatDateTime(new Date(item.expirydate));
+    }
 
     if (
       !item.itemname ||

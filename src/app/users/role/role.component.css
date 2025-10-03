@@ -1,0 +1,353 @@
+/* Roles page styles converted from Tailwind */
+
+.role-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.role-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* gap-4 */
+  height: calc(100vh - -150px); /* h-[calc(100vh-(-150px))] */
+}
+
+@media (min-width: 1024px) {
+  .role-main {
+    flex-direction: row; /* lg:flex-row */
+  }
+}
+
+/* Role List */
+.role-list {
+  width: 100%;
+  border-radius: 0.75rem; /* rounded-xl */
+  overflow: auto;
+  padding-right: 0.5rem; /* pr-2 */
+  height: calc(100vh - 250px);
+}
+
+@media (min-width: 768px) {
+  .role-list {
+    height: calc(100vh - 180px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .role-list {
+    width: 50%; /* lg:w-1/2 */
+    height: calc(100vh - 98px);
+  }
+}
+
+.role-list-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+  padding: 0.5rem; /* p-2 */
+}
+
+.role-list-icon {
+  color: #9333ea; /* text-purple-600 */
+}
+
+.role-list-heading {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+}
+
+.gradient-text {
+  background: linear-gradient(to right, #9333ea, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.roles-grid {
+  display: grid;
+  gap: 1.5rem; /* gap-6 */
+  grid-template-columns: 1fr; /* sm:grid-cols-1 */
+}
+
+@media (min-width: 768px) {
+  .roles-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* md:grid-cols-2 */
+  }
+}
+
+.role-card {
+  background-color: #ffffff;
+  border-radius: 1rem; /* rounded-2xl */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05); /* shadow-lg */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.role-card-header {
+  padding: 1rem; /* p-4 */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.role-header--admin {
+  background-color: #ef4444; /* bg-red-500 */
+}
+
+.role-header--default {
+  background-color: #3b82f6; /* bg-blue-500 */
+}
+
+.role-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* gap-3 */
+}
+
+.role-name {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700; /* font-bold */
+  color: #ffffff;
+}
+
+.role-description {
+  font-size: 0.875rem; /* text-sm */
+  color: #f3f4f6; /* text-gray-100 */
+}
+
+.role-fixed-tag {
+  background-color: #dc2626; /* bg-red-600 */
+  color: #ffffff;
+  font-size: 0.75rem; /* text-xs */
+  padding: 0.25rem 0.5rem; /* px-2 py-1 */
+  border-radius: 9999px; /* rounded-full */
+}
+
+.role-card-body {
+  padding: 1rem; /* p-4 */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.role-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+  color: #374151; /* text-gray-700 */
+  margin-bottom: 0.75rem; /* mb-3 */
+}
+
+.role-perms {
+  margin-bottom: 0.75rem; /* mb-3 */
+}
+
+.role-perms-title {
+  font-weight: 600; /* font-semibold */
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.role-perms-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.role-perm-chip {
+  padding: 0.25rem 0.5rem; /* px-2 py-1 */
+  background-color: #374151; /* bg-gray-700 */
+  border-radius: 0.25rem; /* rounded */
+  font-size: 0.75rem; /* text-xs */
+  color: #ffffff;
+}
+
+.role-actions {
+  margin-top: auto; /* mt-auto */
+  display: flex;
+  gap: 0.5rem; /* gap-2 */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem; /* gap-1 */
+  padding: 0.25rem 0.75rem; /* px-3 py-1 */
+  border-radius: 0.25rem; /* rounded */
+  font-size: 0.875rem; /* text-sm */
+  cursor: pointer;
+  border: none;
+  transition: background-color 150ms ease-in-out, transform 150ms ease-in-out;
+}
+
+.btn-edit {
+  background-color: #dbeafe; /* bg-blue-100 */
+  color: #3b82f6; /* text-blue-500 */
+}
+
+.btn-edit:hover {
+  background-color: #bfdbfe; /* hover:bg-blue-200 */
+}
+
+.btn-delete {
+  background-color: #fee2e2; /* bg-red-100 */
+  color: #ef4444; /* text-red-500 */
+}
+
+.btn-delete:hover {
+  background-color: #fecaca; /* hover:bg-red-200 */
+}
+
+/* Role Form */
+.role-form {
+  width: 100%;
+  border-radius: 0.75rem; /* rounded-xl */
+  overflow: auto;
+  padding-right: 0.5rem; /* pr-2 */
+  height: calc(100vh - 250px);
+  background-color: rgba(255, 255, 255, 0.95); /* bg-white/95 */
+  border-radius: 1rem; /* rounded-2xl */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); /* backdrop-blur-md */
+  border: 1px solid rgba(0,0,0,0.05); /* ring-1 ring-black/5 */
+  padding: 2rem; /* p-8 */
+  color: #111827; /* text-gray-900 */
+  transition: box-shadow 300ms ease-in-out, transform 300ms ease-in-out; /* transition-all duration-300 */
+}
+
+.role-form:hover {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.28); /* hover:shadow-3xl approximation */
+}
+
+@media (min-width: 768px) {
+  .role-form {
+    height: calc(100vh - 180px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .role-form {
+    width: 50%; /* lg:w-1/2 */
+    height: calc(100vh - 98px);
+  }
+}
+
+.role-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.role-form-title {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+  letter-spacing: -0.01em; /* tracking-tight */
+}
+
+.form-field {
+  margin-bottom: 1.25rem; /* mb-5 */
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #374151; /* text-gray-700 */
+  margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0.75rem; /* rounded-xl */
+  padding: 0.75rem; /* p-3 */
+  font-size: 0.875rem; /* text-sm */
+  outline: none;
+  transition: box-shadow 150ms ease-in-out, border-color 150ms ease-in-out;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-blue-500 */
+  border-color: #3b82f6; /* focus:border-blue-500 */
+}
+
+.form-textarea {
+  min-height: 100px; /* min-h-[100px] */
+}
+
+.form-multiselect {
+  border-radius: 0.75rem; /* rounded-xl */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* shadow-sm */
+}
+
+.selected-perms-title {
+  display: block;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600; /* font-semibold */
+  color: #374151; /* text-gray-700 */
+  margin-top: 1rem; /* mt-4 */
+  margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.selected-perms-container {
+  border: 2px dashed #d1d5db; /* border-2 border-dashed border-gray-300 */
+  border-radius: 0.75rem; /* rounded-xl */
+  padding: 1rem; /* p-4 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  min-height: 110px;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.no-perms {
+  color: #9ca3af; /* text-gray-400 */
+  font-size: 0.875rem; /* text-sm */
+  text-align: center;
+  width: 100%;
+}
+
+.selected-perm-chip {
+  background-color: #dbeafe; /* bg-blue-100 */
+  color: #1e40af; /* text-blue-800 */
+  padding: 0.25rem 0.75rem; /* px-3 py-1 */
+  border-radius: 9999px; /* rounded-full */
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 500; /* font-medium */
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.save-btn {
+  background: linear-gradient(to right, #c084fc, #ec4899); /* from-purple-400 to-pink-500 */
+  color: #ffffff;
+  padding: 0.625rem 1.5rem; /* py-2.5 px-6 */
+  border-radius: 0.75rem; /* rounded-xl */
+  font-weight: 500; /* font-medium */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 150ms ease-in-out, background 150ms ease-in-out;
+  cursor: pointer;
+  border: none;
+}
+
+.save-btn:hover {
+  background: linear-gradient(to right, #a855f7, #db2777); /* hover:from-purple-500 hover:to-pink-600 */
+  transform: scale(1.05);
+}
+

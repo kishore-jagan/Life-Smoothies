@@ -1,18 +1,152 @@
 .background {
-  /* background: linear-gradient(135deg, #a2e8a2, #ffd700, #ff8c8c); */
-  background: linear-gradient(135deg, #4cd964, #ff7f50, #a855f7);
+  background: radial-gradient(1200px 500px at 15% 70%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 60%),
+              linear-gradient(135deg, #f8d57e, #ff4f8b 55%, #b24ffa);
+  height: 100%;
   min-height: 100vh;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
+  justify-content: start;
 }
 
 .container {
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: space-between;
-  padding: 40px;
-  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* .container.single {
+  justify-content: center;
+} */
+
+/* Left single hero image takes half width */
+.left-hero {
+  /* padding: 1%; */
+  flex: 1;
+  /* height: calc(100vh - 120px);  */
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  /* padding-right: 24px; */
+}
+
+.blender-jar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 2%;
+  overflow: hidden;
+  filter: saturate(110%);
+}
+
+.slideshow {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-shadow: 0 24px 40px rgba(0,0,0,0.25);
+}
+
+.slideshow img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: fadeShow 36s infinite;
+}
+
+.slideshow img:nth-child(1) { animation-delay: 0s; }
+.slideshow img:nth-child(2) { animation-delay: 6s; }
+.slideshow img:nth-child(3) { animation-delay: 12s; }
+.slideshow img:nth-child(4) { animation-delay: 18s; }
+.slideshow img:nth-child(5) { animation-delay: 24s; }
+.slideshow img:nth-child(6) { animation-delay: 30s; }
+
+@keyframes fadeShow {
+  0% { opacity: 0; transform: scale(1.03); }
+  5% { opacity: 1; transform: scale(1); }
+  25% { opacity: 1; transform: scale(1); }
+  30% { opacity: 0; transform: scale(0.99); }
+  100% { opacity: 0; transform: scale(0.99); }
+}
+
+/* swirl and bubbles */
+.slideshow.swirl img { transform-origin: 50% 60%; animation-name: fadeShow, swirlMotion; }
+
+@keyframes swirlMotion {
+  0% { transform: scale(1.03) rotate(2deg); filter: blur(1px); }
+  12% { transform: scale(1) rotate(0deg); filter: blur(0); }
+  25% { transform: scale(1.02) rotate(-2deg); }
+  30% { transform: scale(0.99) rotate(0deg); filter: blur(0.5px); }
+  100% { transform: scale(0.99) rotate(0deg); filter: blur(0.5px); }
+}
+
+.bubbles { position: absolute; inset: 15% 10% 10% 10%; pointer-events: none; }
+.bubbles span { position: absolute; bottom: 0; width: 8px; height: 8px; background: rgba(255,255,255,0.85); border-radius: 50%; filter: blur(0.2px); animation: rise 6s linear infinite; }
+.bubbles span:nth-child(odd) { width: 6px; height: 6px; animation-duration: 5s; }
+.bubbles span:nth-child(3n) { width: 10px; height: 10px; animation-duration: 7s; }
+.bubbles span:nth-child(1) { left: 8%; animation-delay: 0s; }
+.bubbles span:nth-child(2) { left: 20%; animation-delay: 1s; }
+.bubbles span:nth-child(3) { left: 34%; animation-delay: 2s; }
+.bubbles span:nth-child(4) { left: 48%; animation-delay: 0.5s; }
+.bubbles span:nth-child(5) { left: 62%; animation-delay: 1.5s; }
+.bubbles span:nth-child(6) { left: 76%; animation-delay: 0.8s; }
+.bubbles span:nth-child(7) { left: 88%; animation-delay: 2.2s; }
+.bubbles span:nth-child(8) { left: 28%; animation-delay: 1.8s; }
+.bubbles span:nth-child(9) { left: 54%; animation-delay: 2.6s; }
+.bubbles span:nth-child(10) { left: 70%; animation-delay: 3.2s; }
+
+@keyframes rise {
+  0% { transform: translateY(0) scale(0.9); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(-100%) scale(1.1); opacity: 0; }
+}
+
+/* flyover fruits/cups */
+.flyover { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.flyover img {
+  position: absolute;
+  top: 20%;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  opacity: 0;
+}
+
+.flyover img:nth-child(1) { animation: flyLeft 14s linear infinite 1s; top: 15%; }
+.flyover img:nth-child(2) { animation: flyRight 16s linear infinite 4s; top: 45%; }
+.flyover img:nth-child(3) { animation: flyRightUpDown 18s linear infinite 7s; top: 70%; }
+
+@keyframes flyLeft {
+  0% { transform: translateX(120%) translateY(0) rotate(6deg) scale(0.9); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translateX(0%) translateY(-6%) rotate(-4deg) scale(1); opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(-140%) translateY(4%) rotate(-8deg) scale(0.95); opacity: 0; }
+}
+
+@keyframes flyRight {
+  0% { transform: translateX(-140%) translateY(0) rotate(-6deg) scale(0.9); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translateX(0%) translateY(6%) rotate(4deg) scale(1); opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(120%) translateY(-4%) rotate(8deg) scale(0.95); opacity: 0; }
+}
+
+@keyframes flyRightUpDown {
+  0% { transform: translateX(-140%) translateY(10%) rotate(-8deg) scale(0.9); opacity: 0; }
+  15% { opacity: 1; }
+  30% { transform: translateX(-60%) translateY(-6%) rotate(-2deg) scale(1); }
+  50% { transform: translateX(0%) translateY(8%) rotate(2deg) scale(1); }
+  70% { transform: translateX(60%) translateY(-4%) rotate(3deg) scale(1); }
+  90% { opacity: 1; }
+  100% { transform: translateX(120%) translateY(6%) rotate(6deg) scale(0.95); opacity: 0; }
 }
 
 .left-section {
@@ -82,75 +216,116 @@
 .right-section {
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
 .login-card {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 36px 32px;
+  border-radius: 12px;
+  box-shadow: 0 24px 40px rgba(221, 25, 110, 0.25);
   width: 100%;
-  max-width: 400px;
+  max-width: 520px;
 }
 
-.logo-small img {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 20px;
+.logo-badge {
+  height: 56px;
+  width: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ff66a3, #ffcc33);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 20px rgba(255, 102, 163, 0.5);
 }
 
 .login-card h2 {
-  color: #6a0dad;
-  margin-bottom: 10px;
+  color: #e43a87;
+  margin-bottom: 8px;
+  font-weight: 800;
 }
 
 .subtext {
-  color: #666;
-  margin-bottom: 20px;
+  color: #6d7a98;
+  margin-bottom: 24px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #333;
+  margin-bottom: 8px;
+  color: #2a2a2a;
+  font-weight: 600;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon-left {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  color: #a19e3b;
+}
+
+.icon-right {
+  position: absolute;
+  right: 14px;
+  font-size: 16px;
+  color: #6f6d6d;
 }
 
 .form-group input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 14px 44px 14px 40px;
+  border: 2px solid #ff4f8b;
+  background: #f9e06a;
+  border-radius: 12px;
+  outline: none;
+  transition: box-shadow .2s ease, transform .05s ease;
+}
+
+.form-group input:focus {
+  box-shadow: 0 0 0 4px rgba(255, 79, 139, 0.25);
 }
 
 .sign-in-btn {
   width: 100%;
-  padding: 10px;
-  background-color: #a2e8a2;
+  padding: 14px;
+  background: linear-gradient(180deg, #ff4f8b, #d91a6a);
   border: none;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 800;
   cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 0 14px 24px rgba(217, 26, 106, 0.35);
 }
 
 .sign-in-btn:hover {
-  background-color: #8cd48c;
+  filter: brightness(1.05);
 }
 
 .signup-link, .forgot-password {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .signup-link a, .forgot-password a {
-  color: #6a0dad;
+  color: #e43a87;
   text-decoration: none;
+  font-weight: 700;
 }
 
 .signup-link a:hover, .forgot-password a:hover {

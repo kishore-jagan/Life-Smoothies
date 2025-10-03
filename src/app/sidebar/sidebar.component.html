@@ -1,14 +1,58 @@
 <div class="sidebar">
-    <div class="navigators">
-        <i class="fa-solid fa-dashboard" [ngClass]="{'selected': selectedIndex === 0}" (click)="selectOption(0)"></i>
-        <i class="fa-solid fa-square-poll-vertical" [ngClass]="{'selected': selectedIndex === 1}"
-            (click)="selectOption(1)"></i>
-        <i class="fa-solid fa-chart-line" [ngClass]="{'selected': selectedIndex === 2}" (click)="selectOption(2)"></i>
-        <i class="fa-regular fa-rectangle-list" [ngClass]="{'selected': selectedIndex === 3}"
-            (click)="selectOption(3)"></i>
-        <i class="fa-solid fa-users" [ngClass]="{'selected': selectedIndex === 4}" (click)="selectOption(4)"></i>
-        <i class="fa-solid fa-gears" [ngClass]="{'selected': selectedIndex === 5}" (click)="selectOption(5)"></i>
-        <i class="fa-solid fa-right-from-bracket" [ngClass]="{'selected': selectedIndex === 6}"
-            (click)="selectOption(6)"></i>
+    <div class="logo-section">
+        <div class="logo">
+            <i class="fas fa-blender"></i>
+        </div>
     </div>
-</div>
+    
+    <div class="navigators">
+        <!-- Dashboard -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 0}" (click)="selectOption(0)" title="Dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span class="nav-label">Dashboard</span>
+        </div>
+        
+        <!-- Storage Warehouse -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 1}" (click)="selectOption(1)" title="Storage Warehouse">
+            <i class="fas fa-warehouse"></i>
+            <span class="nav-label">Storage</span>
+        </div>
+        
+        <!-- Main Warehouse -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 2}" (click)="selectOption(2)" title="Main Warehouse">
+            <i class="fas fa-industry"></i>
+            <span class="nav-label">Main House</span>
+        </div>
+        
+        <!-- Smoothie Production -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 3}" (click)="selectOption(3)" title="Smoothie Production">
+            <i class="fas fa-glass-whiskey"></i>
+            <span class="nav-label">Production</span>
+        </div>
+        
+        <!-- Dispatch Products -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 4}" (click)="selectOption(4)" title="Dispatch Products">
+            <i class="fas fa-shipping-fast"></i>
+            <span class="nav-label">Dispatch</span>
+        </div>
+        
+        <!-- Forecast Report -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 5}" (click)="selectOption(5)" title="Forecast Report">
+            <i class="fas fa-chart-line"></i>
+            <span class="nav-label">Forecast</span>
+        </div>
+        
+        <!-- User Management -->
+        <div class="nav-item" [ngClass]="{'selected': selectedIndex === 6}" (click)="selectOption(6)" title="User Management">
+            <i class="fas fa-users-cog"></i>
+            <span class="nav-label">Users</span>
+        </div>
+    </div>
+    
+    <div class="sidebar-footer">
+        <div class="nav-item logout" (click)="logout()" title="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-label">Logout</span>
+        </div>
+    </div>
+</div>  

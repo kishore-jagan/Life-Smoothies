@@ -1,0 +1,116 @@
+<div class="role-container">
+
+    <!-- Main Content -->
+    <div class="role-main">
+
+        <!-- Role List (Scrollable) -->
+        <div class="role-list">
+            <div class="role-list-title">
+                <i class="pi pi-shield role-list-icon" style="font-size: 1.4rem;"></i>
+                <h2 class="role-list-heading gradient-text">Roles</h2>
+            </div>
+            <div class="roles-grid">
+                <div *ngFor="let role of roles" class="role-card">
+
+                    <!-- Role Header -->
+                    <div [ngClass]="role.name === 'Admin' ? 'role-header--admin' : 'role-header--default'"
+                        class="role-card-header">
+                        <div class="role-card-header-left">
+                            <div>
+                                <div class="role-name">{{ role.name }}</div>
+                                <div class="role-description">{{ role.description }}</div>
+                            </div>
+                        </div>
+                        <!-- Fixed Tag for Admin -->
+                        <span *ngIf="role.name === 'Admin'" class="role-fixed-tag">
+                            Fixed
+                        </span>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="role-card-body">
+                        <div class="role-stats">
+                            <i class="pi pi-users"></i>
+                            <span>{{ role.user_count }} user<span *ngIf="role.user_count !== 1">s</span> assigned</span>
+                        </div>
+
+
+                        <!-- Permissions -->
+                        <div class="role-perms">
+                            <div class="role-perms-title">Permissions:</div>
+                            <div class="role-perms-list">
+                                <span *ngFor="let perm of role.permissions | keyvalue" class="role-perm-chip">
+                                    {{ perm.key }}: {{ getPermissionLabels(perm.value).join(', ') }}
+                                </span>
+
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="role-actions">
+                            <button (click)="editRole(role)" class="btn btn-edit">
+                                <i class="pi pi-pencil"></i> Edit
+                            </button>
+                            <button (click)="deleteRole(role.id!)" class="btn btn-delete">
+                                <i class="pi pi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Role Form -->
+        <div class="role-form">
+
+            <!-- Header -->
+            <div class="role-form-header">
+                <h2 class="role-form-title gradient-text">➕ Add New Role</h2>
+            </div>
+
+            <!-- Role Name -->
+            <!-- <div class="flex flex-row gap-4 justify-between"> -->
+            <div class="form-field">
+                <label class="form-label">Role Name</label>
+                <input type="text" [(ngModel)]="newRole.name" class="form-input" placeholder="Enter role name" />
+            </div>
+
+            <!-- Description -->
+            <div class="form-field">
+                <label class="form-label">Description</label>
+                <textarea [(ngModel)]="newRole.description" class="form-textarea" placeholder="Enter description"></textarea>
+            </div>
+            <!-- </div> -->
+
+            <!-- Permissions -->
+            <div class="form-field">
+                <label class="form-label">Permissions</label>
+                <p-multiSelect [options]="allPermissions" [(ngModel)]="newRole.permissionsArray" optionLabel="label"
+                    defaultLabel="Select Permissions" [style]="{'width':'100%'}" class="form-multiselect">
+                </p-multiSelect>
+
+                <!-- Selected permissions -->
+                <div>
+                    <h5 class="selected-perms-title">Selected Permissions</h5>
+                    <div class="selected-perms-container">
+                        <div *ngIf="!newRole.permissionsArray || newRole.permissionsArray.length === 0" class="no-perms">
+                            No Permissions Selected
+                        </div>
+                        <div *ngFor="let perm of newRole.permissionsArray" class="selected-perm-chip">
+                            {{perm.label}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button (click)="saveRole()" class="save-btn">
+                    Save Role
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</div>

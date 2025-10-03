@@ -1,49 +1,55 @@
 <div class="background">
   <div class="container">
-    <div class="left-section">
-      <div class="logo">
-        <img src="../../assets/smoothie-hero.jpg" alt="SmoothieBlend Logo" />
-        <h1>Life Smoothie</h1>
-      </div>
-      <p class="slogan">Craft the perfect blend for your healthy lifestyle</p>
-      <ul class="features">
-        <li><span class="dot green"></span> 100% Natural</li>
-        <li><span class="dot orange"></span> Fresh Daily</li>
-        <li><span class="dot purple"></span> Nutrient Rich</li>
-      </ul>
-      <div class="info-box">
-        <h2><span class="icon">⭐</span> Premium Ingredients</h2>
-        <p>We source only the finest organic fruits and superfoods to create smoothies that nourish your body and delight your taste buds.</p>
-      </div>
-      <div class="info-box">
-        <h2><span class="icon">🎯</span> Personalized Nutrition</h2>
-        <p>Our smart recommendations adapt to your health goals, dietary preferences, and nutritional needs for the perfect blend every time.</p>
+    <div class="left-hero" aria-label="Smoothie feature image">
+      <div class="blender-jar">
+        <div class="slideshow swirl">
+        <img src="../../assets/Pink-Dragon.jpg" alt="Pink Dragon" />
+        <img src="../../assets/Strawberry-Split.jpg" alt="Strawberry Split" />
+        <img src="../../assets/Golden-Sunrise.jpg" alt="Golden Sunrise" />
+        <img src="../../assets/Raspberry-Love.jpg" alt="Raspberry Love" />
+        <img src="../../assets/Matcha-frappe.jpg" alt="Matcha Frappe" />
+        <img src="../../assets/Energy-Booster.jpg" alt="Energy Booster" />
+        </div>
+        <div class="bubbles" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="flyover" aria-hidden="true">
+          <img src="../../assets/Aloe-Ha.jpg" alt="Aloe Ha" />
+          <img src="../../assets/Coffee-frappe.jpg" alt="Coffee Frappe" />
+          <img src="../../assets/Black-Detox.jpg" alt="Black Detox" />
+        </div>
       </div>
     </div>
     <div class="right-section">
       <div class="login-card">
-        <div class="logo-small">
-          <img src="../../assets/smoothie-hero.jpg" alt="Life Smoothie Logo" />
-        </div>
+        <div class="logo-badge" aria-hidden="true">✦</div>
         <h2>Welcome Back</h2>
         <p class="subtext">Sign in to access your personalized smoothie experience</p>
         <form>
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required />
+            <div class="input-wrapper">
+              <span class="icon-left" aria-hidden="true">✉</span>
+              <input type="email" id="email" name="email" placeholder="Enter your email" required />
+            </div>
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required />
+            <div class="input-wrapper">
+              <span class="icon-left" aria-hidden="true">🔒</span>
+              <input type="password" id="password" name="password" placeholder="Enter your password" required />
+              <span class="icon-right" aria-hidden="true">👁</span>
+            </div>
           </div>
-          <button type="submit" class="sign-in-btn">Sign In →</button>
+          <button type="submit" class="sign-in-btn">Sign In</button>
           <p class="signup-link">Don't have an account? <a href="#">Sign up</a></p>
           <p class="forgot-password"><a href="#">Forgot your password?</a></p>
         </form>
       </div>
+      <footer>
+        <p>© 2024 Life Smoothie. Crafted with <span class="heart">❤️</span> for your wellness journey</p>
+      </footer>
     </div>
   </div>
-  <footer>
-    <p>© 2024 Life Smoothie. Crafted with <span class="heart">❤️</span> for your wellness journey</p>
-  </footer>
 </div>

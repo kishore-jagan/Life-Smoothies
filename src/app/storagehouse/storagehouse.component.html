@@ -15,28 +15,28 @@
 
         <div class="overviewbox">
             <div class="overviewbox-item box-blue">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
+                <p class="view1">Total Items</p>
+                <p class="view2">{{ totalItems }}</p>
+                <p class="view3">Based on current filter</p>
                 <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
             </div>
             <div class="overviewbox-item box-green">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-green"><i class="fas fa-box"></i></div>
+                <p class="view1">Total Qty (Cotton)</p>
+                <p class="view2">{{ totalQtyCotton }}</p>
+                <p class="view3">Sum of qtycotton</p>
+                <div class="view-icon icon-green"><i class="fas fa-boxes-stacked"></i></div>
             </div>
             <div class="overviewbox-item box-yellow">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-yellow"><i class="fas fa-box"></i></div>
+                <p class="view1">Low Stock (qty < 5)</p>
+                <p class="view2">{{ lowStockCount }}</p>
+                <p class="view3">Items nearing depletion</p>
+                <div class="view-icon icon-yellow"><i class="fas fa-exclamation-triangle"></i></div>
             </div>
             <div class="overviewbox-item box-blue">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
+                <p class="view1">Out of Stock</p>
+                <p class="view2">{{ outOfStockCount }}</p>
+                <p class="view3">Currently unavailable</p>
+                <div class="view-icon icon-blue"><i class="fas fa-times-circle"></i></div>
             </div>
         </div>
 
@@ -62,11 +62,13 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Production Date</label>
-                        <input type="date" [(ngModel)]="newItem.productiondate" name="productionDate" required />
+                        <p-datepicker [(ngModel)]="newItem.productiondate" name="productionDate" [showIcon]="true"
+                            inputId="productionDate" placeholder="Select date"></p-datepicker>
                     </div>
                     <div class="form-group">
                         <label>Expiry Date</label>
-                        <input type="date" [(ngModel)]="newItem.expirydate" name="expiryDate" required />
+                        <p-datepicker [(ngModel)]="newItem.expirydate" name="expiryDate" [showIcon]="true"
+                            inputId="expiryDate" placeholder="Select date"></p-datepicker>
                     </div>
                     <div class="form-group">
                         <label>Quantity in Cotton</label>
@@ -98,9 +100,9 @@
 
 
         <div class="tablecontainer">
-            <p-table #dt [value]="storageList" [columns]="selectedColumns" [tableStyle]="{ 'min-width': '50rem' }"
-                [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="5" responsiveLayout="scroll"
-                [rowsPerPageOptions]="[5,10,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
+            <p-table #dt [value]="sortedStorageList" [columns]="selectedColumns" [tableStyle]="{ 'min-width': '50rem' }"
+                [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="10" responsiveLayout="scroll"
+                [rowsPerPageOptions]="[10,15,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
                 [exportHeader]="'customExportHeader'" selectionMode="multiple"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
                 [tableStyle]="{'min-width': '50rem'}" responsiveLayout="stack" [breakpoint]="'960px'" stripedRows="true"
@@ -184,14 +186,14 @@
                         <td class="centered-cell">{{ i + 1 }}</td>
                         <td *ngFor="let col of columns" class="centered-cell">
                             <ng-container [ngSwitch]="col.type">
-                                <span *ngSwitchCase="'shortDate'">{{ row[col.field] | date:'short' }}</span>
+                                <span *ngSwitchCase="'shortDate'">{{ row[col.field] | date:'MMM dd yyyy, hh:mm a' }}</span>
                                 <span *ngSwitchCase="'date'">{{ row[col.field] | date }}</span>
                                 <span *ngSwitchDefault [innerHTML]="highlightSearchText(row[col.field])">
                                 </span>
                             </ng-container>
                         </td>
                         <td class="centered-cell">
-                            <span *ngIf="row.qtycotton < 5" class="low-stock">
+                            <span *ngIf="row.qtycotton < 5 && row.qtycotton > 0" class="low-stock">
                                 Low Stock
                             </span>
                             <span *ngIf="row.qtycotton >= 5" class="in-stock">

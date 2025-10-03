@@ -407,3 +407,31 @@
 ::ng-deep .custom-date-input .p-datepicker-input:hover {
     border-color: #119C8D;
 }
+
+/* Stock status badges */
+.low-stock {
+    color: #B45309;
+    background-color: #FEF3C7;
+    border-radius: 5px;
+    padding: 0px 5px;
+    border: 1px solid #FDE68A;
+    border-radius: 25px;
+}
+
+.in-stock {
+    color: #349357;
+    background-color: #DCFCE7;
+    border-radius: 5px;
+    padding: 0px 5px;
+    border: 1px solid #BBF7D0;
+    border-radius: 25px;
+}
+
+.out-stock {
+    color: #B91C1C;
+    background-color: #FEE2E2;
+    border-radius: 5px;
+    padding: 0px 5px;
+    border: 1px solid #FECACA;
+    border-radius: 25px;
+}

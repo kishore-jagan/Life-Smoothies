@@ -1,0 +1,182 @@
+<!-- Toast + ConfirmDialog -->
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="list-container">
+    <!-- Left Section (User Table)-->
+    <div class="list-left">
+        <div class="list-left-inner">
+
+            <!-- Header Row -->
+            <div class="list-header">
+                <div class="list-header-left">
+                    <i class="pi-users list-header-icon" style="font-size: 1.4rem;"></i>
+                    <h2 class="list-header-title">Users</h2>
+                </div>
+
+                <!-- Filter by Role -->
+                <div class="list-filter">
+                    <i class="pi pi-filter list-filter-icon"></i>
+                    <p class="list-filter-label">Filter By Role</p>
+                    <p-select [options]="roles" [(ngModel)]="selectedRole" placeholder="Filter by Role"
+                        optionLabel="name" optionValue="name" (onChange)="filterByRole()" class="filter-select">
+                    </p-select>
+                </div>
+            </div>
+
+            <!-- Scrollable Table -->
+            <!-- <div class="h-[72vh]"> -->
+            <p-table [value]="filteredUsers" scrollable="true" scrollHeight="100%" responsiveLayout="scroll"
+                class="list-table"
+                styleClass="p-datatable-gridlines p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr class="table-header-row">
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Designation</th>
+                        <th>Status</th>
+                        <th>Last Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-user>
+                    <tr>
+                        <!-- User Info -->
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    {{ user.name.charAt(0) }}
+                                </div>
+                                <div class="user-identifiers">
+                                    <p class="user-username">{{ user.username }}</p>
+                                    <p class="user-name">{{ user.name }}</p>
+                                    <p class="user-email">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Role -->
+                        <td>
+                            <span class="role-chip" [ngClass]="{
+                                'role-chip--admin': user.role === 'Admin',
+                                'role-chip--default': user.role !== 'Admin'
+                  }">
+                                {{ user.role }}
+                            </span>
+                        </td>
+
+                        <!-- Designation -->
+                        <td>{{ user.designation }}</td>
+
+                        <!-- Status -->
+                        <td>
+                            <span class="status-chip" [ngClass]="{
+                                'status-chip--active': user.status === 'Active',
+                                'status-chip--inactive': user.status === 'Inactive'
+                  }">
+                                {{ user.status }}
+                            </span>
+                        </td>
+
+                        <!-- Last Active -->
+                        <td>{{ user.lastActive }}</td>
+
+                        <!-- Actions -->
+                        <td>
+                            <div class="action-buttons">
+                                <!-- View User -->
+                                <button pButton pTooltip="View Details" tooltipPosition="top"
+                                    tooltipStyleClass="!p-0 !m-0 !min-w-0 text-xs bg-gray-800 text-white rounded-md"
+                                    icon="pi pi-eye" class="p-button-text p-button-rounded p-button-info"
+                                    (click)="viewUser(user)">
+                                </button>
+
+                                <!-- Edit User -->
+                                <button pButton pTooltip="Edit User" tooltipPosition="top"
+                                    tooltipStyleClass="!p-0 !m-0 !min-w-0 text-xs bg-gray-800 text-white rounded-md"
+                                    icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-warning"
+                                    (click)="editUser(user)">
+                                </button>
+
+                                <!-- Delete User -->
+                                <button pButton pTooltip="Delete User" tooltipPosition="top"
+                                    tooltipStyleClass="!p-0 !m-0 !min-w-0 text-xs bg-gray-800 text-white rounded-md"
+                                    icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger"
+                                    (click)="deleteUser(user)">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <!-- </div> -->
+        </div>
+    </div>
+
+
+    <!-- Right Section (User Stats) -->
+    <div class="list-right">
+
+        <!-- Total Users -->
+        <div class="stat-card stat-card--teal">
+            <div>
+                <p class="text-sm">Total Users</p>
+                <h2 class="text-3xl font-bold">{{ totalUsers }}</h2>
+            </div>
+            <i class="pi pi-users text-[2rem] opacity-80" style="font-size: 2rem;"></i>
+        </div>
+
+        <!-- Total Roles -->
+        <div class="stat-card stat-card--pink">
+            <div>
+                <p class="text-sm">Total Roles</p>
+                <h2 class="text-3xl font-bold">{{ totalRoles }}</h2>
+            </div>
+            <i class="pi pi-shield text-[2rem] opacity-80" style="font-size: 2rem;"></i>
+        </div>
+
+        <!-- Active Users -->
+        <div class="stat-card stat-card--red">
+            <div>
+                <p class="text-sm">Active Users</p>
+                <h2 class="text-3xl font-bold">{{ activeUsers }}</h2>
+            </div>
+            <i class="pi pi-user-plus text-[2rem] opacity-80" style="font-size: 2rem;"></i>
+        </div>
+
+        <!-- Inactive Users -->
+        <div class="stat-card stat-card--orange">
+            <div>
+                <p class="text-sm">InActive Users</p>
+                <h2 class="text-3xl font-bold">{{ inactiveUsers }}</h2>
+            </div>
+            <i class="pi pi-user-minus text-[2rem] opacity-80" style="font-size: 2rem;"></i>
+        </div>
+
+        <!-- Current Logins -->
+        <div class="stat-list">
+
+            <!-- Header with count (Sticky) -->
+            <div class="stat-list-header">
+                <div>
+                    <p class="stat-label">Current Logins</p>
+                    <h2 class="stat-value">{{ logedUsers?.count || 0 }}</h2>
+                </div>
+                <i class="pi pi-unlock stat-icon" style="font-size: 2rem;"></i>
+            </div>
+
+            <!-- Scrollable list of active users -->
+            <div class="stat-users">
+                <div *ngFor="let u of logedUsers?.users" class="stat-user-row">
+                    <span>{{ u.user_name }}</span>
+                    <span>{{ u.login_time | date:'shortTime' }}</span>
+                </div>
+
+                <!-- Empty state message -->
+                <div *ngIf="logedUsers?.users?.length === 0" class="stat-empty">
+                    No active users
+                </div>
+            </div>
+        </div>
+    </div>

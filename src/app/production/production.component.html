@@ -8,7 +8,7 @@
     </div>
 
     <div class="body">
-        <div class="smoothicontainer">
+        <div class="smoothicontainer" [class.has-right]="selectedSmoothie">
             <div class="left-container">
                 <div class="row-item">
                     <div class="title">
@@ -96,8 +96,8 @@
                 </div>
             </div>
 
-            <div class="right-container">
-                <div *ngIf="selectedSmoothie" class="card-style2">
+            <div  *ngIf="selectedSmoothie" class="right-container">
+                <div class="card-style2">
                     <p class="title2">{{ selectedSmoothie.itemname }}</p>
                     <!-- <p>Ingredients ({{ selectedSmoothie.ingredients.length }})</p> -->
 
@@ -116,8 +116,8 @@
             </div>
         </div>
 
-        <div class="editcontainer">
-            <div *ngIf="selectedSmoothie" class="basic-table">
+        <div *ngIf="selectedSmoothie" class="editcontainer">
+            <div class="basic-table">
                 <h3>Edit Quantities: <span class="highlight">{{ selectedSmoothie.itemname }}</span></h3>
 
                 <table>

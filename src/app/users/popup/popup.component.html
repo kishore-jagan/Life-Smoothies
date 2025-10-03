@@ -1,0 +1,125 @@
+<div class="popup-container">
+
+    <!-- Close button -->
+    <button
+      class="close-btn"
+      (click)="closeDialog()">
+      ✕
+    </button>
+  
+  
+    <div class="popup-card">
+  
+      <!-- Header -->
+      <div class="popup-header">
+        <div class="header-left">
+          <div
+            class="avatar-badge">
+            {{ user.avatarInitials }}
+          </div>
+          <div class="user-identifiers">
+            <div class="user-fullname">{{ user.fullName }}</div>
+            <div class="user-username">{{ user.username }}</div>
+          </div>
+        </div>
+  
+        <!-- Toggle Active/Inactive -->
+        <div class="status-toggle">
+          <p-toggleSwitch [(ngModel)]="user.status" (onChange)="toggleStatus($event)">
+          </p-toggleSwitch>
+          <span>{{ user.status ? 'Active' : 'Inactive' }}</span>
+        </div>
+      </div>
+  
+      <!-- DETAILS -->
+      <div class="popup-details">
+  
+        <div class="details-grid">
+          <div class="info-row">
+            <i class="pi pi-envelope text-gray-400"></i>
+            <span>{{ user.email }}</span>
+          </div>
+          <div class="info-row">
+            <i class="pi pi-briefcase text-gray-400"></i>
+            <span>{{ user.designation }}</span>
+          </div>
+          <div class="info-row">
+            <i class="pi pi-id-card text-gray-400"></i>
+            <span>{{ user.role }}</span>
+  
+            <!-- Full Access only for Admin -->
+            <span *ngIf="user.is_admin" class="full-access-chip">
+              Full Access
+            </span>
+          </div>
+          <!-- New Row: Last Active + Hours Spent -->
+          <div class="info-row">
+            <i class="pi pi-clock text-gray-400"></i>
+            <span>Last Active: {{ user.lastActive || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <i class="pi pi-chart-line text-gray-400"></i>
+            <span>Hours Spent: {{ user.hoursSpent || 0 }} hrs</span>
+          </div>
+        </div>
+  
+        <!-- Page Access -->
+        <div>
+          <h4 class="section-title">Page Access</h4>
+          <div class="page-access">
+            <div class="page-access-inner">
+              <div *ngFor="let a of user.access" class="page-access-row">
+                <span class="page-access-page">{{ a.page }}</span>
+                <div class="page-access-perms">
+                  <span class="perm-indicator" [ngClass]="a.perms.R ? 'perm-yes' : 'perm-no'">
+                    R <i [class]="a.perms.R ? 'pi pi-check' : 'pi pi-times'"></i>
+                  </span>
+                  <span class="perm-indicator" [ngClass]="a.perms.W ? 'perm-yes' : 'perm-no'">
+                    W <i [class]="a.perms.W ? 'pi pi-check' : 'pi pi-times'"></i>
+                  </span>
+                  <span class="perm-indicator" [ngClass]="a.perms.E ? 'perm-yes' : 'perm-no'">
+                    E <i [class]="a.perms.E ? 'pi pi-check' : 'pi pi-times'"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Parameters -->
+        <div>
+          <h4 class="section-title">Accessible Parameters</h4>
+          <div class="parameters">
+            <div class="parameters-inner">
+  
+              <div *ngFor="let cat of user.parameters">
+                <!-- Category Title -->
+                <h5 [ngClass]="{
+              'cat-wave': cat.key === 'wave',
+              'cat-wind': cat.key === 'wind',
+              'cat-tide': cat.key === 'tide',
+              'cat-current': cat.key === 'current'
+            }" class="category-title">
+                  {{ cat.key }}
+                </h5>
+  
+                <!-- Parameters -->
+                <div class="param-chips">
+                  <span *ngFor="let p of cat.value" class="param-chip" [ngClass]="{
+                    'chip-wave': cat.key === 'wave',
+                    'chip-wind': cat.key === 'wind',
+                    'chip-tide': cat.key === 'tide',
+                    'chip-current': cat.key === 'current'
+                  }">
+                    {{ p.name }}
+                  </span>
+                </div>
+              </div>
+  
+            </div>
+          </div>
+        </div>
+  
+      </div>
+    </div>
+  </div>

@@ -111,6 +111,47 @@ export class MainhouseComponent implements OnInit {
     private http: HttpClient
   ) {}
 
+  // ---- Overview metrics (computed from current filtered list) ----
+  get totalItems(): number {
+    return Array.isArray(this.lifeSmoothieList) ? this.lifeSmoothieList.length : 0;
+  }
+
+  get totalQtyCotton(): number {
+    if (!Array.isArray(this.lifeSmoothieList)) return 0;
+    return this.lifeSmoothieList.reduce((sum, item: any) => {
+      const qty = Number(item?.qty_cotton) || 0;
+      return sum + qty;
+    }, 0);
+  }
+
+  get lowStockCount(): number {
+    if (!Array.isArray(this.lifeSmoothieList)) return 0;
+    return this.lifeSmoothieList.filter((item: any) => {
+      const qty = Number(item?.qty_cotton) || 0;
+      return qty > 0 && qty < 5;
+    }).length;
+  }
+
+  get outOfStockCount(): number {
+    if (!Array.isArray(this.lifeSmoothieList)) return 0;
+    return this.lifeSmoothieList.filter((item: any) => {
+      const qty = Number(item?.qty_cotton) || 0;
+      return qty === 0;
+    }).length;
+  }
+
+  // Maintain original order but push out-of-stock (qty_cotton == 0) items to the end
+  get sortedLifeSmoothieList(): LifesmoothieModel[] {
+    if (!Array.isArray(this.lifeSmoothieList)) return [] as LifesmoothieModel[];
+    return [...this.lifeSmoothieList].sort((a: any, b: any) => {
+      const aZero = (Number(a?.qty_cotton) || 0) === 0 ? 1 : 0;
+      const bZero = (Number(b?.qty_cotton) || 0) === 0 ? 1 : 0;
+      if (aZero > bZero) return 1;
+      if (aZero < bZero) return -1;
+      return 0;
+    });
+  }
+
   ngOnInit(): void {
     // this.intervalId = setInterval(() => {
     //   this.imageIndex = (this.imageIndex + 1) % this.imageList.length;
