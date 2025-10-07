@@ -7,17 +7,17 @@ import { catchError, Observable, throwError } from 'rxjs';
 })
 export class AdduserService {
 
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'http://localhost/api/index.php?action=';
   constructor(private http: HttpClient) { }
 
   addUser(payload: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users`, payload).pipe(
+    return this.http.post(`${this.apiUrl}addUser`, payload).pipe(
       catchError((error) => throwError(() => error))
     );
   }
 
   fetchUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/fetchUsers`);
+    return this.http.get<any[]>(`${this.apiUrl}fetchAllUsers`);
   }
 
   deleteUser(id: number): Observable<any> {
@@ -30,15 +30,15 @@ export class AdduserService {
 
   checkuser(user_name: any, email: any) {
     const body = { user_name, email };
-    return this.http.post<any[]>(`${this.apiUrl}/check`, body);
+    return this.http.post<any[]>(`${this.apiUrl}check`, body);
   }
 
   get_roles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/getroles`);
+    return this.http.get<any[]>(`${this.apiUrl}getroles`);
   }
 
   get_counts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/counts`);
+    return this.http.get<any[]>(`${this.apiUrl}getCounts`);
   }
 
   updateUser(id: number, payload: any): Observable<any> {
@@ -48,16 +48,16 @@ export class AdduserService {
   }
 
   getUserById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/users/${id}`);
+    return this.http.get<any>(`${this.apiUrl}getUserDetails&id=${id}`);
   }
 
   // Driver API methods
   getDrivers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/getDrivers`);
+    return this.http.get<any[]>(`${this.apiUrl}getDrivers`);
   }
 
   addDriver(payload: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/addDriver`, payload).pipe(
+    return this.http.post(`${this.apiUrl}addDriver`, payload).pipe(
       catchError((error) => throwError(() => error))
     );
   }

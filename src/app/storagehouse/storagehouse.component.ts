@@ -203,7 +203,7 @@ export class StoragehouseComponent implements OnInit {
       });
       return;
     }
-
+    console.log("post storage itsm: ", item);
     this.storageService.addStorageItem(item).subscribe({
       next: (data) => {
         this.messageService.add({
@@ -295,9 +295,12 @@ export class StoragehouseComponent implements OnInit {
   }
 
   formatDateTime(date: Date): string {
-    return date.toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'
+    return date.toISOString().slice(0, 19).replace('T', ' '); // 'YYYY-MM-DDTHH:mm:ss'
   }
-
+  formatDateTime2(date: Date): string {
+    return date.toISOString().slice(0, 10);
+  }
+  
   onSearch(query: string, dt: any): void {
     this.searchQuery = query;
     dt.filterGlobal(query, 'contains');
@@ -361,7 +364,8 @@ export class StoragehouseComponent implements OnInit {
     if (!this.fromDate || !this.toDate) {
       console.warn('fromDate or toDate is missing');
     }
-
+    // this.fromDate = this.formatDateTime2(new Date(this.fromDate));
+    // this.toDate = this.formatDateTime2(new Date(this.toDate));
     this.storageService.getStorageByDate(this.fromDate, this.toDate).subscribe(
       (data) => {
         console.log('Filtered data by date:', data);

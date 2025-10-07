@@ -97,11 +97,14 @@ export class ProductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getSmoothiess();
+  }
+  getSmoothiess(){
     this.lifesmoothieService.getLifeSmoothie().subscribe((data) => {
       this.lifeSmoothieList = data;
       console.log('Life Smoothie List:', this.lifeSmoothieList);
     });
-
+  
     this.ingredientService.getSmoothies().subscribe((data) => {
       this.smoothies = data;
       console.log('Smoothies:', this.smoothies);
@@ -124,6 +127,7 @@ export class ProductionComponent implements OnInit {
         this.selectedCategory = this.categories[0];
       }
     });
+
   }
 
   filterItemNames(event: any) {
@@ -176,6 +180,7 @@ export class ProductionComponent implements OnInit {
           detail: 'Smoothie saved successfully!',
         });
         this.resetForm();
+        this.getSmoothiess()
       },
       error: (err) => {
         console.error('Failed to save smoothie:', err);
@@ -186,6 +191,7 @@ export class ProductionComponent implements OnInit {
         });
       },
     });
+    
   }
 
   resetForm() {
@@ -198,7 +204,7 @@ export class ProductionComponent implements OnInit {
     const ingredientNames = smoothie.ingredients.map((ing: any) => ing.name);
 
     this.http
-      .post<any[]>('http://localhost:3000/api/getIngredientsByNames', {
+      .post<any[]>('http://localhost/api/index.php?action=getIngredientsByNames', {
         names: ingredientNames,
       })
       .subscribe({
@@ -458,7 +464,7 @@ export class ProductionComponent implements OnInit {
     };
 
     this.http
-      .post('http://localhost:3000/api/saveSmoothieProduction', payload)
+      .post('http://localhost/api/index.php?action=saveSmoothieProduction', payload)
       .subscribe({
         next: () => {
           this.messageService.add({

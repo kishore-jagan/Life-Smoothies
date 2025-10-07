@@ -17,7 +17,7 @@ export interface Smoothie {
   providedIn: 'root',
 })
 export class IngredientService {
-  private apiUrl = 'http://localhost:3000/api/';
+  private apiUrl = 'http://localhost/api/index.php?action=';
   constructor(private http: HttpClient) {}
   saveSmoothie(smoothie: Smoothie): Observable<any> {
     return this.http.post(`${this.apiUrl}postSmoothie`, smoothie);

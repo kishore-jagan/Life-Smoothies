@@ -43,37 +43,37 @@ export interface User {
 })
 export class UsersService {
 
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'http://localhost/api/index.php?action=';
 
   constructor(private http: HttpClient) { }
 
  // Get all users
  getAllUsers(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/users/all`);
+  return this.http.get<any[]>(`${this.apiUrl}getAllusers`);
 }
 
 // Delete user by ID
 deleteUser(id: number): Observable<any> {
-  return this.http.delete(`${this.apiUrl}/users/${id}`).pipe(
+  return this.http.delete(`${this.apiUrl}deleteUser&id=${id}`).pipe(
     catchError((error) => throwError(() => error))
   );
 }
 
 // Get user details by ID
 getUserDetails(id: number): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/users/${id}/details`);
+  return this.http.get<any>(`${this.apiUrl}getUserDetails&id=${id}`);
 }
 
 // Status Update Active or InActive
 updateUserStatus(id: number, status: boolean): Observable<any> {
-  return this.http.put(`${this.apiUrl}/users/${id}/status`, { status }).pipe(
+  return this.http.put(`${this.apiUrl}updateUserStatus&id=${id}`, { status }).pipe(
     catchError((error) => throwError(() => error))
   );
 }
 
 // Get currently logged-in user
 getActiveUsers() {
-  return this.http.get<any>(`${this.apiUrl}/currect_login`);
+  return this.http.get<any>(`${this.apiUrl}getActiveUsers`);
 }
 
 // Edit User ID

@@ -35,7 +35,7 @@ export interface Driver {
   providedIn: 'root',
 })
 export class ProductionService {
-  private apiUrl = 'http://localhost:3000/api/';
+  private apiUrl = 'http://localhost/api/index.php?action=';
   constructor(private http: HttpClient) {}
 
   getSmoothieProductionByDate(
@@ -43,7 +43,7 @@ export class ProductionService {
     toDate: string
   ): Observable<SmoothieProduction[]> {
     return this.http.get<SmoothieProduction[]>(
-      `${this.apiUrl}getSmoothieProductionByDate?fromDate=${fromDate}&toDate=${toDate}`
+      `${this.apiUrl}getSmoothieProductionByDate&fromDate=${fromDate}&toDate=${toDate}`
     );
   }
 

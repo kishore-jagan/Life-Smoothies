@@ -38,7 +38,7 @@ export interface LifesmoothieModel {
   providedIn: 'root',
 })
 export class StorageService {
-  private apiUrl = 'http://localhost:3000/api/';
+  private apiUrl = 'http://localhost/api/index.php?action=';
   constructor(private http: HttpClient) {}
 
   addStorageItem(item: any): Observable<any> {
@@ -57,7 +57,7 @@ export class StorageService {
     toDate: string
   ): Observable<StorageItem[]> {
     return this.http.get<StorageItem[]>(
-      `${this.apiUrl}getStorageByDate?fromDate=${fromDate}&toDate=${toDate}`
+      `${this.apiUrl}getStorageByDate&fromDate=${fromDate}&toDate=${toDate}`
     );
   }
 
@@ -71,7 +71,7 @@ export class StorageService {
     toDate: string
   ): Observable<StorageItem[]> {
     return this.http.get<StorageItem[]>(
-      `${this.apiUrl}getStorageByDate2?fromDate=${fromDate}&toDate=${toDate}`
+      `${this.apiUrl}getStorageByDate2&fromDate=${fromDate}&toDate=${toDate}`
     );
   }
 
@@ -96,7 +96,7 @@ export class StorageService {
     toDate: string
   ): Observable<LifesmoothieModel[]> {
     return this.http.get<LifesmoothieModel[]>(
-      `${this.apiUrl}getLifeSmoothieByDate?fromDate=${fromDate}&toDate=${toDate}`
+      `${this.apiUrl}getLifeSmoothieByDate&fromDate=${fromDate}&toDate=${toDate}`
     );
   }
 }

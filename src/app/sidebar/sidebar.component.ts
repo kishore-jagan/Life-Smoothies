@@ -34,7 +34,7 @@ export class SidebarComponent implements OnInit {
     const sessionId = this.sessionService.getUser()?.sessionId;
  console.log('ksbdkjsabdkjasbdjkasbdjksbd',sessionId);
     if (sessionId) {
-      this.http.post('http://localhost:3000/api/logout', { sessionId }).subscribe({
+      this.http.post('http://localhost/api/index.php?action=logoutUser', { sessionId }).subscribe({
         next: () => {
           console.log("Logout successful");
           // this.toastr.success("You have been logged out", "Success");

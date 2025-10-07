@@ -481,6 +481,7 @@ export class DispatchComponent implements OnInit {
         this.dispatchList = []; // Clear the dispatch list
         this.driverName = ''; // Reset the driver name field
         alert('Dispatch successful');
+        this.getPreDispatches();
       },
       (error) => {
         console.error('Error during dispatch:', error);
@@ -499,6 +500,7 @@ export class DispatchComponent implements OnInit {
         );
         console.log('Fetched Dispatches:', this.preDispatchRecords);
         console.log('Pending Pre-Dispatches:', this.filteredPreDispatchRecords);
+
       },
       (error) => {
         console.error('Error fetching dispatches:', error);

@@ -27,7 +27,7 @@ export interface Item {
   providedIn: 'root',
 })
 export class DispatchService {
-  private apiUrl = 'http://localhost:3000/api/';
+  private apiUrl = 'http://localhost/api/index.php?action=';
   constructor(private http: HttpClient) {}
 
   preDispatch(payload: any): Observable<any> {
