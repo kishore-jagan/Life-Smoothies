@@ -19,6 +19,7 @@ interface Ingredient {
 
 @Component({
   selector: 'app-production',
+  standalone: true,
   imports: [FormsModule, CommonModule, AutoComplete, SelectButtonModule, Toast],
   templateUrl: './production.component.html',
   styleUrl: './production.component.css',

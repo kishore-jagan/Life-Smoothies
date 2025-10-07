@@ -6,12 +6,16 @@ import { StoragehouseComponent } from './storagehouse/storagehouse.component';
 import { Storagehouse2Component } from './storagehouse2/storagehouse2.component';
 import { MainhouseComponent } from './mainhouse/mainhouse.component';
 import { ProductionComponent } from './production/production.component';
+import { DispatchComponent } from './dispatch/dispatch.component';
+import { OverallTableComponent } from './overall-table/overall-table.component';
+import { UsersComponent } from './users/users.component';
+import { AuthGuard } from './authentication/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'auth',
+    redirectTo: 'base',
   },
   {
     path: 'auth',
@@ -20,6 +24,7 @@ export const routes: Routes = [
   {
     path: 'base',
     component: LayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       {
         path: 'dashboard',
@@ -29,10 +34,10 @@ export const routes: Routes = [
         path: 'storagehouse',
         component: StoragehouseComponent,
       },
-      {
-        path: 'storagehouse2',
-        component: Storagehouse2Component,
-      },
+      // {
+      //   path: 'storagehouse2',
+      //   component: Storagehouse2Component,
+      // },
       {
         path: 'mainhouse',
         component: MainhouseComponent,
@@ -42,8 +47,20 @@ export const routes: Routes = [
         component: ProductionComponent,
       },
       {
+        path: 'dispatch',
+        component: DispatchComponent,
+      },
+      {
+        path: 'overall-table',
+        component: OverallTableComponent,
+      },
+      {
+        path: 'users',
+        component: UsersComponent,
+      },
+      {
         path: '**',
-        redirectTo: 'dashboard',
+        redirectTo: 'auth',
       },
     ],
   },

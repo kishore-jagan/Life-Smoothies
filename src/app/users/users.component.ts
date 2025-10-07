@@ -8,6 +8,7 @@ import { UsersService } from './users.service';
 
 @Component({
   selector: 'app-users',
+  standalone: true,
   imports: [CommonModule, FormsModule, AdduserComponent, ListComponent, RoleComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'

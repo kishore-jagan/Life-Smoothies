@@ -1,5 +1,5 @@
 const express = require('express')
-const { getStorage, postStorage, postStorage2, getStorageByDate, getStorageByDate2, transferLifeSmoothi, transferLifeSmoothi2, getLifeSmoothie, postSmoothie, getSmoothies, getIngredientsByNames, saveSmoothieProduction, getLifeSmoothieByDate, getSmoothieProductionByDate, getDrivers, preDispatch, getPreDispatches, completeDispatch, getCompletedDispatches } = require('./controller')
+const { getStorage, postStorage, postStorage2, getStorageByDate, getStorageByDate2, transferLifeSmoothi, transferLifeSmoothi2, getLifeSmoothie, postSmoothie, getSmoothies, getIngredientsByNames, saveSmoothieProduction, getLifeSmoothieByDate, getSmoothieProductionByDate, getDrivers, addDriver, updateDriver, deleteDriver, preDispatch, getPreDispatches, completeDispatch, getCompletedDispatches } = require('./controller')
 const router = express.Router();
 const userController = require('./user');
 
@@ -19,6 +19,9 @@ router.get('/getStorageByDate', getStorageByDate);
 router.get('/getStorageByDate2', getStorageByDate2);
 router.get('/getSmoothieProductionByDate', getSmoothieProductionByDate);
 router.get('/getDrivers', getDrivers);
+router.post('/addDriver', addDriver);
+router.put('/updateDriver/:id', updateDriver);
+router.delete('/deleteDriver/:id', deleteDriver);
 router.post('/preDispatch', preDispatch);
 router.get('/getPreDispatches', getPreDispatches);
 router.post('/completeDispatch', completeDispatch);

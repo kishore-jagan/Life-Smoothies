@@ -12,22 +12,24 @@ import { Storagehouse2Component } from '../storagehouse2/storagehouse2.component
 import { OverallTableComponent } from '../overall-table/overall-table.component';
 import { UsersComponent } from '../users/users.component';
 import { AclService } from '../users/acl-service/acl.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
   imports: [
-    ToastrModule,
     RouterModule,
     SidebarComponent,
     DashboardComponent,
     StoragehouseComponent,
-    Storagehouse2Component,
+    // Storagehouse2Component,
     MainhouseComponent,
     DispatchComponent,
     ProductionComponent,
     OverallTableComponent,
     UsersComponent,
+    CommonModule,
+    FormsModule
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
@@ -38,10 +40,10 @@ export class LayoutComponent implements OnInit {
     return { width: window.innerWidth, height: window.innerHeight };
   }
 
-  constructor(private toast: ToastrService) {}
+  constructor(private toast: ToastrService, public acl: AclService) {}
   ngOnInit(): void {
     // const scren = this.getScreenSize();
-    this.selectedIndex = 0;
+    this.selectedIndex = 1;
     // this.toast.success(`width: ${scren.width}`, `height: ${scren.height}`);
   }
 }

@@ -17,9 +17,9 @@
     text-align: center;
     position: fixed;
     top: 0px;
-    left: 51.5%;
-    transform: translateX(-50%);
-    width: 96%;
+    /* left: 51.5%; */
+    /* transform: translateX(-50%); */
+    width: calc(100% - 300px);
     height: 10%;
     display: flex;
     align-items: center;

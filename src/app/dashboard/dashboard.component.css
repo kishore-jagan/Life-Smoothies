@@ -58,8 +58,17 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .topnav {
-        width: 90%;
+        width: 95%;
+        /* height: 10%; */
+        /* flex-direction: column; */
         padding: 10px 20px;
+        /* gap: 10px; */
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
 }
 
@@ -79,6 +88,12 @@
     margin-right: 10px;
 }
 
+.iq-logo {
+    width: 300px;
+    height: 60px;
+    object-fit: contain;
+    /* border-radius: 8px; */
+}
 
 .body {
     flex: 1;

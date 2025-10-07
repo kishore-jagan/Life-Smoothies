@@ -516,7 +516,7 @@ const logoutUser = async (req, res) => {
        WHERE id = $2`,
             [logoutTime, sessionId]
         );
-
+       console.log("Logout successful");
         res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
         console.error("Logout error:", error);
@@ -545,35 +545,35 @@ const loginUser = async (req, res) => {
         }
 
         // ✅ Check if user is locked
-        if (user.on_hold_time && new Date(user.on_hold_time) > new Date()) {
-            const minutesLeft = Math.ceil((new Date(user.on_hold_time) - new Date()) / 60000);
-            return res.status(403).json({
-                message: `Account locked. Try again after ${minutesLeft} minutes.`
-            });
-        }
+        // if (user.on_hold_time && new Date(user.on_hold_time) > new Date()) {
+        //     const minutesLeft = Math.ceil((new Date(user.on_hold_time) - new Date()) / 60000);
+        //     return res.status(403).json({
+        //         message: `Account locked. Try again after ${minutesLeft} minutes.`
+        //     });
+        // }
         // const hashedPassword = await bcrypt.hash(password, 10);
 
         // ✅ Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            let failedAttempts = user.failed_attempts + 1;
+            return res.status(401).json({ message: 'Invalid password' });
+            // let failedAttempts = user.failed_attempts + 1;
 
-            if (failedAttempts >= 3) {
-                // Lock for 1 hour
-                const lockUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-                await pool.query(
-                    'UPDATE sm_users SET failed_attempts = $1, on_hold_time = $2 WHERE user_name = $3',
-                    [failedAttempts, lockUntil, user_name]
-                );
-                return res.status(403).json({ message: 'Account locked due to multiple failed attempts. Try again after 1 hour.' });
-            } else {
-                // Just increment failed attempts
-                await pool.query(
-                    'UPDATE sm_users SET failed_attempts = $1 WHERE user_name = $2',
-                    [failedAttempts, user_name]
-                );
-                return res.status(401).json({ message: 'Invalid password' });
-            }
+            // if (failedAttempts >= 3) {
+            //     // Lock for 1 hour
+            //     const lockUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+            //     await pool.query(
+            //         'UPDATE sm_users SET failed_attempts = $1, on_hold_time = $2 WHERE user_name = $3',
+            //         [failedAttempts, lockUntil, user_name]
+            //     );
+            //     return res.status(403).json({ message: 'Account locked due to multiple failed attempts. Try again after 1 hour.' });
+            // } else {
+            //     // Just increment failed attempts
+            //     await pool.query(
+            //         'UPDATE sm_users SET failed_attempts = $1 WHERE user_name = $2',
+            //         [failedAttempts, user_name]
+            //     );
+            // }
         }
 
         // ✅ fetch role permissions
@@ -593,11 +593,11 @@ const loginUser = async (req, res) => {
         }
 
 
-        // ✅ On successful login → reset failed attempts
-        await pool.query(
-            'UPDATE sm_users SET failed_attempts = 0, on_hold_time = NULL WHERE user_name = $1',
-            [user_name]
-        );
+//         // ✅ On successful login → reset failed attempts
+//         await pool.query(
+//             'UPDATE sm_users SET failed_attempts = 0, on_hold_time = NULL WHERE user_name = $1',
+//             [user_name]
+//         );
 
         // ✅ Insert session log entry
         const loginTime = new Date();
@@ -607,7 +607,7 @@ const loginUser = async (req, res) => {
             [user.id, loginTime]
         );
 
-        console.log("Login successful, session created:", session.rows[0].id);
+        // console.log("Login successful, session created:", session.rows[0].id);
         res.status(200).json({
             message: 'Login successful',
             user: {

@@ -427,14 +427,82 @@ const getDrivers = async (req, res) => {
     console.log('Received request to getDrivers');
 
     try {
-        const result = await pool.query('SELECT * FROM drivers');
+        const result = await pool.query('SELECT * FROM drivers ORDER BY id DESC');
         console.log('Query successful:', result.rows);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error fetching drivers:', err.message);
         res.status(500).json({ error: 'Failed to fetch drivers' });
     }
+}
 
+const addDriver = async (req, res) => {
+    const { driver_id, driver_name, truck_no } = req.body;
+    const timestamp = new Date();
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO drivers (driver_id, driver_name, truck_no, timestamp)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [driver_id, driver_name, truck_no, timestamp]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error adding driver:', err);
+        
+        if (err.code === '23505') { // PostgreSQL unique_violation error code
+            return res.status(400).json({ error: 'Driver ID already exists' });
+        }
+
+        res.status(500).json({ error: 'Failed to add driver' });
+    }
+}
+
+const updateDriver = async (req, res) => {
+    const { id } = req.params;
+    const { driver_id, driver_name, truck_no } = req.body;
+    const timestamp = new Date();
+
+    try {
+        const result = await pool.query(
+            `UPDATE drivers 
+             SET driver_id = $1, driver_name = $2, truck_no = $3, timestamp = $4
+             WHERE id = $5
+             RETURNING *`,
+            [driver_id, driver_name, truck_no, timestamp, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Driver not found' });
+        }
+
+        res.status(200).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error updating driver:', err);
+        res.status(500).json({ error: 'Failed to update driver' });
+    }
+}
+
+const deleteDriver = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            'DELETE FROM drivers WHERE id = $1 RETURNING *',
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Driver not found' });
+        }
+
+        res.status(200).json({ message: 'Driver deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting driver:', err);
+        res.status(500).json({ error: 'Failed to delete driver' });
+    }
 }
 
 
@@ -608,6 +676,9 @@ module.exports = {
     saveSmoothieProduction,
     getSmoothieProductionByDate,
     getDrivers,
+    addDriver,
+    updateDriver,
+    deleteDriver,
     preDispatch,
     getPreDispatches,
     completeDispatch,

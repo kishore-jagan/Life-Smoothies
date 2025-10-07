@@ -4,23 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
+// removed: MultiSelectModule (parameters UI)
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
-import { ChipModule } from 'primeng/chip';
+// removed: ChipModule (parameters UI)
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { RouterModule } from '@angular/router';
-import { TagModule } from 'primeng/tag';
+// removed: TagModule (no longer used)
 import { ToastrService } from 'ngx-toastr';
 
 import { AdduserService } from './adduser.service';
 import { UsersService } from '../users.service';
 
-type ParameterCategory = 'wave' | 'current' | 'wind' | 'tide';
+// removed: ParameterCategory and parameter-related types
 @Component({
   selector: 'app-adduser',
-  imports: [CommonModule, FormsModule, InputTextModule, PasswordModule, SelectModule, CheckboxModule, CardModule, MultiSelectModule, ChipModule, TagModule, ButtonModule, RippleModule, RouterModule],
+  imports: [CommonModule, FormsModule, InputTextModule, PasswordModule, SelectModule, CheckboxModule, CardModule, ButtonModule, RippleModule, RouterModule],
   templateUrl: './adduser.component.html',
   styleUrl: './adduser.component.css'
 })
@@ -45,6 +45,17 @@ export class AdduserComponent implements OnInit {
     confirmPassword: ''
   };
 
+  // Driver related properties
+  isDriverEditMode: boolean = false;
+  editDriverId: number = 0;
+  isLoadingDrivers: boolean = false;
+  drivers: any[] = [];
+  driver = {
+    driver_id: '',
+    driver_name: '',
+    truck_no: ''
+  };
+
 
   roles: any[] = [];
   statuses = [
@@ -66,11 +77,10 @@ export class AdduserComponent implements OnInit {
     private AdduserService: AdduserService,
     private UserlistService: UsersService
   ) { }
-  get selectedParametersList(): string[] {
-    return Object.values(this.selectedParameters || {}).flat();
-  }
+  // removed: selectedParametersList (parameters not used)
 
   formErrors: { [key: string]: string } = {};
+  driverErrors: { [key: string]: string } = {};
 
   validateField(field: string) {
     switch (field) {
@@ -124,6 +134,34 @@ export class AdduserComponent implements OnInit {
     }
     // this.checkusername()
   }
+
+  validateDriverField(field: string) {
+    switch (field) {
+      case 'driver_id':
+        if (!this.driver.driver_id || this.driver.driver_id.trim().length === 0) {
+          this.driverErrors['driver_id'] = "Driver ID is required.";
+        } else {
+          this.driverErrors['driver_id'] = "";
+        }
+        break;
+
+      case 'driver_name':
+        if (!this.driver.driver_name || this.driver.driver_name.trim().length < 2) {
+          this.driverErrors['driver_name'] = "Driver name must be at least 2 characters.";
+        } else {
+          this.driverErrors['driver_name'] = "";
+        }
+        break;
+
+      case 'truck_no':
+        if (!this.driver.truck_no || this.driver.truck_no.trim().length === 0) {
+          this.driverErrors['truck_no'] = "Truck number is required.";
+        } else {
+          this.driverErrors['truck_no'] = "";
+        }
+        break;
+    }
+  }
   getTotalCount() {
     this.AdduserService.get_counts().subscribe({
       next: (res: any) => {
@@ -162,55 +200,10 @@ export class AdduserComponent implements OnInit {
       },
     });
   }
-  colorMap: Record<string, string> = {
-    wave: 'bg-gradient-to-r from-blue-500 to-purple-500',
-    wind: 'bg-gradient-to-r from-green-400 to-teal-500',
-    current: 'bg-gradient-to-r from-orange-400 to-pink-500',
-    tide: 'bg-gradient-to-r from-purple-400 to-indigo-500'
-  };
-
-  getColor(param: string): string {
-    return this.colorMap[param.toLowerCase()] || 'bg-gray-400';
-  }
+  // removed: colorMap and getColor (parameters UI removed)
 
 
-  readonly categories: ParameterCategory[] = ['wave', 'current', 'wind', 'tide'];
-
-  parametersByCategory: Record<ParameterCategory, { name: string; value: string }[]> = {
-    wave: [
-      { name: 'Significant Wave Height', value: 'SWH' },
-      { name: 'Mean Wave Period', value: 'MWP' },
-      { name: 'Peak Wave Period', value: 'PWP' },
-      { name: 'Primary Sweel Wave', value: 'PSW' },
-      { name: 'Secondary Sweel Wave', value: 'SSW' },
-      { name: 'Primary Sweel Period', value: 'PSP' },
-      { name: 'Secondary Sweel Period', value: 'SSP' },
-      { name: 'Primary Sweel Direction', value: 'PSD' },
-      { name: 'Secondary Sweel Direction', value: 'SSD' },
-      { name: 'Wind Wave Height', value: 'WWH' },
-      { name: 'Wind Wave Period', value: 'WWP' },
-      { name: 'Wind Wave Direction', value: 'WWD' },
-      { name: 'Wave Direction', value: 'WD' }
-    ],
-    current: [
-      { name: 'Current Speed', value: 'CS' },
-      { name: 'Current Direction', value: 'CD' },
-      { name: 'Pressure', value: 'PRE' },
-      { name: 'Temperature', value: 'TEMP' },
-      { name: 'Battery', value: 'BAT' }
-    ],
-    wind: [
-      { name: 'Wind Speed', value: 'WS' },
-      { name: 'Wind Direction', value: 'WD' },
-      { name: 'Wind Gust', value: 'WG' }
-    ],
-    tide: [
-      { name: 'Water Level', value: 'TH' }
-    ]
-  };
-  originalOrder = (a: any, b: any): number => {
-    return 0; // no sorting, keep original order
-  };
+  // removed: categories, parametersByCategory, originalOrder
 
   // Selected parameters per category
   // selectedParameters:any = {
@@ -224,6 +217,7 @@ export class AdduserComponent implements OnInit {
     this.getuserbyID();
     this.getroles();
     this.getTotalCount();
+    this.loadDrivers();
   }
 
   getuserbyID() {
@@ -233,7 +227,7 @@ export class AdduserComponent implements OnInit {
       this.editUserId = id;
 
       // Call API to get user details
-      this.AdduserService.getUserById(id).subscribe(apiUser => {
+    this.AdduserService.getUserById(id).subscribe(apiUser => {
         console.log("byu", apiUser)
         this.user.fullName = apiUser.full_name;
         this.user.user_name = apiUser.user_name;
@@ -241,7 +235,7 @@ export class AdduserComponent implements OnInit {
         this.user.designation = apiUser.designation;
         this.user.role = apiUser.role_id;
         this.user.status = apiUser.status ? "1" : "0";
-        this.selectedParameters = apiUser.parameters;
+        // parameters removed from UI; ignore any parameters from API
         this.UserlistService.clearEditingUserId();
       });
     }
@@ -279,9 +273,7 @@ export class AdduserComponent implements OnInit {
         email: this.user.email,
         designation: this.user.designation,
         role_id: this.user.role,
-        status: this.user.status,
-        parameters: this.selectedParameters,   // ✅ wave/current/wind/tide
-
+        status: this.user.status
       };
 
       this.AdduserService.addUser(payload)
@@ -325,8 +317,7 @@ export class AdduserComponent implements OnInit {
         email: this.user.email,
         designation: this.user.designation,
         role_id: this.user.role,
-        status: this.user.status,
-        parameters: this.selectedParameters
+        status: this.user.status
       };
       console.log("role", payload)
 
@@ -367,33 +358,124 @@ export class AdduserComponent implements OnInit {
       password: '',
       confirmPassword: ''
     };
-    this.selectedParameters.wave = [];
-    this.selectedParameters.current = [];
-    this.selectedParameters.wind = [];
-    this.selectedParameters.tide = [];
-
+    // removed: parameter resets
   }
 
-  selectedParameters: Record<ParameterCategory, any[]> = {
-    wave: [],
-    current: [],
-    wind: [],
-    tide: []
-  };
+  // removed: selectedParameters, parameterMessages, updateSelectedMessage
 
-  parameterMessages: Record<ParameterCategory, string> = {
-    wave: '',
-    current: '',
-    wind: '',
-    tide: ''
-  };
-  updateSelectedMessage(category: ParameterCategory) {
-    const selected = this.selectedParameters[category] || [];
-    if (selected.length > 0) {
-      this.parameterMessages[category] = selected.map((p: any) => p.name).join(', ');
-    } else {
-      this.parameterMessages[category] = '';
+  // Driver methods
+  loadDrivers() {
+    this.isLoadingDrivers = true;
+    this.AdduserService.getDrivers().subscribe({
+      next: (res: any) => {
+        this.drivers = res;
+        this.isLoadingDrivers = false;
+      },
+      error: (err) => {
+        console.error('Error loading drivers:', err);
+        this.isLoadingDrivers = false;
+        this.toastr.error('Failed to load drivers', 'Error');
+      }
+    });
+  }
+
+  onDriverSubmit() {
+    // Validate all fields
+    this.validateDriverField('driver_id');
+    this.validateDriverField('driver_name');
+    this.validateDriverField('truck_no');
+
+    // Check if there are any errors
+    const hasErrors = Object.values(this.driverErrors).some(error => error !== '');
+    if (hasErrors) {
+      this.toastr.error('Please fix the validation errors', 'Validation Error');
+      return;
     }
+
+    if (this.isDriverEditMode && this.editDriverId) {
+      this.updateDriver();
+    } else {
+      this.addDriver();
+    }
+  }
+
+  addDriver() {
+    const payload = {
+      driver_id: this.driver.driver_id,
+      driver_name: this.driver.driver_name,
+      truck_no: this.driver.truck_no
+    };
+
+    this.AdduserService.addDriver(payload).subscribe({
+      next: (res) => {
+        console.log('Driver added:', res);
+        this.toastr.success('Driver added successfully!', 'Success');
+        this.resetDriverForm();
+        this.loadDrivers();
+      },
+      error: (err) => {
+        console.error('Error adding driver:', err);
+        this.toastr.error('Failed to add driver', 'Error');
+      }
+    });
+  }
+
+  updateDriver() {
+    const payload = {
+      driver_id: this.driver.driver_id,
+      driver_name: this.driver.driver_name,
+      truck_no: this.driver.truck_no
+    };
+
+    this.AdduserService.updateDriver(this.editDriverId, payload).subscribe({
+      next: (res) => {
+        console.log('Driver updated:', res);
+        this.toastr.success('Driver updated successfully!', 'Success');
+        this.resetDriverForm();
+        this.loadDrivers();
+      },
+      error: (err) => {
+        console.error('Error updating driver:', err);
+        this.toastr.error('Failed to update driver', 'Error');
+      }
+    });
+  }
+
+  editDriver(driver: any) {
+    this.isDriverEditMode = true;
+    this.editDriverId = driver.id;
+    this.driver = {
+      driver_id: driver.driver_id,
+      driver_name: driver.driver_name,
+      truck_no: driver.truck_no
+    };
+  }
+
+  deleteDriver(driverId: number) {
+    if (confirm('Are you sure you want to delete this driver?')) {
+      this.AdduserService.deleteDriver(driverId).subscribe({
+        next: (res) => {
+          console.log('Driver deleted:', res);
+          this.toastr.success('Driver deleted successfully!', 'Success');
+          this.loadDrivers();
+        },
+        error: (err) => {
+          console.error('Error deleting driver:', err);
+          this.toastr.error('Failed to delete driver', 'Error');
+        }
+      });
+    }
+  }
+
+  resetDriverForm() {
+    this.driver = {
+      driver_id: '',
+      driver_name: '',
+      truck_no: ''
+    };
+    this.driverErrors = {};
+    this.isDriverEditMode = false;
+    this.editDriverId = 0;
   }
 
 }

@@ -114,14 +114,24 @@
   width: 160px;
   height: 160px;
   object-fit: cover;
-  border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  /* border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25); */
   opacity: 0;
 }
 
 .flyover img:nth-child(1) { animation: flyLeft 14s linear infinite 1s; top: 15%; }
-.flyover img:nth-child(2) { animation: flyRight 16s linear infinite 4s; top: 45%; }
+.flyover img:nth-child(2) { animation: flyRight 16s linear infinite 3s; top: 45%; }
 .flyover img:nth-child(3) { animation: flyRightUpDown 18s linear infinite 7s; top: 70%; }
+.flyover img:nth-child(4) { animation: flyLeftUpDown1 20s linear infinite 10s; top: 30%; }
+.flyover img:nth-child(5) { animation: flyLeftUpDown2 22s linear infinite 13s; top: 50%; }
+.flyover img:nth-child(6) { animation: flyLeftUpDown3 24s linear infinite 15s; top: 60%; }
+.flyover img:nth-child(7) { animation: flyLeft2 14s linear infinite 2s; top: 15%; right: 10%; }
+.flyover img:nth-child(8) { animation: flyRight2 16s linear infinite 4s; top: 45%; right: 10%; }
+.flyover img:nth-child(9) { animation: flyRightUpDown2 18s linear infinite 6s; top: 70%; right: 10%; }
+.flyover img:nth-child(10) { animation: flyLeftUpDown11 20s linear infinite 8s; top: 30%; right: 10%;}
+.flyover img:nth-child(11) { animation: flyLeftUpDown22 22s linear infinite 11s; top: 50%; right: 10%; }
+.flyover img:nth-child(12) { animation: flyLeftUpDown33 24s linear infinite 16s; top: 60%; right: 10%;}
+
 
 @keyframes flyLeft {
   0% { transform: translateX(120%) translateY(0) rotate(6deg) scale(0.9); opacity: 0; }
@@ -131,12 +141,28 @@
   100% { transform: translateX(-140%) translateY(4%) rotate(-8deg) scale(0.95); opacity: 0; }
 }
 
+@keyframes flyLeft2 {
+  0% { transform: translateX(-100%) translateY(0) rotate(-6deg) scale(0.9); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translateX(0%) translateY(6%) rotate(4deg) scale(1); opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(140%) translateY(4%) rotate(8deg) scale(0.95); opacity: 0; }
+}
+
 @keyframes flyRight {
   0% { transform: translateX(-140%) translateY(0) rotate(-6deg) scale(0.9); opacity: 0; }
   10% { opacity: 1; }
   50% { transform: translateX(0%) translateY(6%) rotate(4deg) scale(1); opacity: 1; }
   90% { opacity: 1; }
   100% { transform: translateX(120%) translateY(-4%) rotate(8deg) scale(0.95); opacity: 0; }
+}
+
+@keyframes flyRight2 {
+  0% { transform: translateX(100%) translateY(0) rotate(6deg) scale(0.9); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translateX(0%) translateY(-6%) rotate(-4deg) scale(1); opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(120%) translateY(4%) rotate(8deg) scale(0.95); opacity: 0; }
 }
 
 @keyframes flyRightUpDown {
@@ -148,6 +174,103 @@
   90% { opacity: 1; }
   100% { transform: translateX(120%) translateY(6%) rotate(6deg) scale(0.95); opacity: 0; }
 }
+
+@keyframes flyRightUpDown2 {
+  0% { transform: translateX(100%) translateY(10%) rotate(8deg) scale(0.9); opacity: 0; }
+  15% { opacity: 1; }
+  30% { transform: translateX(60%) translateY(6%) rotate(2deg) scale(1); }
+  50% { transform: translateX(0%) translateY(-8%) rotate(-2deg) scale(1); }
+  70% { transform: translateX(-60%) translateY(4%) rotate(-3deg) scale(1); }
+  90% { opacity: 1; }
+  100% { transform: translateX(-120%) translateY(-6%) rotate(6deg) scale(0.95); opacity: 0; }
+}
+
+@keyframes flyLeftUpDown1 {
+  0% {transform: translateX(-120%) translateY(-6%) rotate(6deg) scale(0.9); opacity: 0;}
+  10% {opacity: 1;}
+  25% {transform: translateX(60%) translateY(4%) rotate(3deg) scale(1);}
+  50% {transform: translateX(0%) translateY(-8%) rotate(-2deg) scale(1);}
+  75% {transform: translateX(-60%) translateY(6%) rotate(-4deg) scale(1);}
+  90% {opacity: 1;}
+  100% {transform: translateX(-140%) translateY(-4%) rotate(-6deg) scale(0.95);opacity: 0;}
+}
+
+@keyframes flyLeftUpDown11 {
+  0% {transform: translateX(120%) translateY(6%) rotate(-6deg) scale(0.9); opacity: 0;}
+  10% {opacity: 1;}
+  25% {transform: translateX(60%) translateY(-4%) rotate(-3deg) scale(1);}
+  50% {transform: translateX(0%) translateY(8%) rotate(2deg) scale(1);}
+  75% {transform: translateX(-60%) translateY(-6%) rotate(4deg) scale(1);}
+  90% {opacity: 1;}
+  100% {transform: translateX(-140%) translateY(4%) rotate(6deg) scale(0.95);opacity: 0;}
+}
+
+@keyframes flyLeftUpDown2 {
+  0% {transform: translateX(120%) translateY(6%) rotate(-6deg) scale(0.9); opacity: 0;}
+  10% {opacity: 1;}
+  25% {transform: translateX(60%) translateY(-4%) rotate(-3deg) scale(1);}
+  50% {transform: translateX(0%) translateY(8%) rotate(2deg) scale(1);}
+  75% {transform: translateX(-60%) translateY(-6%) rotate(4deg) scale(1);}
+  90% {opacity: 1;}
+  100% {transform: translateX(140%) translateY(4%) rotate(6deg) scale(0.95);opacity: 0;}
+}
+
+@keyframes flyLeftUpDown22 {
+  0% {transform: translateX(-120%) translateY(-6%) rotate(6deg) scale(0.9); opacity: 0;}
+  10% {opacity: 1;}
+  25% {transform: translateX(-60%) translateY(4%) rotate(3deg) scale(1);}
+  50% {transform: translateX(0%) translateY(-8%) rotate(-2deg) scale(1);}
+  75% {transform: translateX(60%) translateY(6%) rotate(-4deg) scale(1);}
+  90% {opacity: 1;}
+  100% {transform: translateX(-140%) translateY(-4%) rotate(-6deg) scale(0.95);opacity: 0;}
+}
+
+@keyframes flyLeftUpDown3 {
+  0% {transform: translateX(120%) translateY(10%) rotate(4deg) scale(0.9);opacity: 0;}
+  15% {opacity: 1;}
+  30% {transform: translateX(70%) translateY(-4%) rotate(0deg) scale(1);}
+  50% {transform: translateX(0%) translateY(6%) rotate(-2deg) scale(1);}
+  70% {transform: translateX(-70%) translateY(-4%) rotate(-3deg) scale(1);}
+  90% {opacity: 1;}
+  100% {transform: translateX(-140%) translateY(4%) rotate(-6deg) scale(0.95);opacity: 0;}
+}
+
+@keyframes flyLeftUpDown33 {
+  0% {transform: translateX(120%) translateY(-10%) rotate(-4deg) scale(0.9);opacity: 0;}
+  15% {opacity: 1;}
+  30% {transform: translateX(-70%) translateY(4%) rotate(0deg) scale(1);}
+  50% {transform: translateX(0%) translateY(-6%) rotate(2deg) scale(1);}
+  70% {transform: translateX(70%) translateY(4%) rotate(3deg) scale(1);}
+  90% {opacity: 1;}
+  100% {transform: translateX(140%) translateY(-4%) rotate(6deg) scale(0.95);opacity: 0;}
+}
+
+/* @keyframes flyLeftUpDown3 {
+  0% {
+    transform: translateX(120%) translateY(-8%) rotate(8deg) scale(0.9);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  35% {
+    transform: translateX(50%) translateY(6%) rotate(3deg) scale(1);
+  }
+  55% {
+    transform: translateX(0%) translateY(-6%) rotate(-2deg) scale(1);
+  }
+  75% {
+    transform: translateX(-50%) translateY(4%) rotate(-3deg) scale(1);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-140%) translateY(-6%) rotate(-6deg) scale(0.95);
+    opacity: 0;
+  }
+} */
+
 
 .left-section {
   flex: 1;
@@ -170,6 +293,12 @@
 .logo h1 {
   font-size: 2.5em;
   margin: 0;
+}
+
+.iq-logo {
+  width: 80%;
+  height: auto;
+  object-fit: cover;
 }
 
 .slogan {
@@ -240,8 +369,9 @@
   justify-content: center;
   color: #fff;
   font-size: 26px;
-  margin-bottom: 16px;
+  /* margin-bottom: 16px; */
   box-shadow: 0 10px 20px rgba(255, 102, 163, 0.5);
+  margin-top: 10px;
 }
 
 .login-card h2 {
@@ -272,6 +402,28 @@
   align-items: center;
 }
 
+/* Position the eye toggle inside the input */
+.input-wrapper .password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #6f6d6d;
+}
+
+.input-wrapper .password-toggle i {
+  font-size: 16px;
+  line-height: 1;
+}
+
 .icon-left {
   position: absolute;
   left: 12px;
@@ -288,9 +440,9 @@
 
 .form-group input {
   width: 100%;
-  padding: 14px 44px 14px 40px;
+  padding: 14px 44px 14px 40px; /* right padding leaves room for eye icon */
   border: 2px solid #ff4f8b;
-  background: #f9e06a;
+  background: #e0e7eb;
   border-radius: 12px;
   outline: none;
   transition: box-shadow .2s ease, transform .05s ease;
@@ -319,7 +471,7 @@
 
 .signup-link, .forgot-password {
   text-align: center;
-  margin-top: 12px;
+  margin-top: 50px;
 }
 
 .signup-link a, .forgot-password a {
@@ -333,11 +485,22 @@
 }
 
 footer {
-  text-align: center;
+  text-align: end;
   color: white;
   padding: 20px;
 }
 
 .heart {
   color: #ff4d4d;
+}
+
+/* Splash loader */
+.splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  z-index: 9999;
 }

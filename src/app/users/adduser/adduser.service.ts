@@ -50,4 +50,27 @@ export class AdduserService {
   getUserById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/users/${id}`);
   }
+
+  // Driver API methods
+  getDrivers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/getDrivers`);
+  }
+
+  addDriver(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/addDriver`, payload).pipe(
+      catchError((error) => throwError(() => error))
+    );
+  }
+
+  updateDriver(id: number, payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/updateDriver/${id}`, payload).pipe(
+      catchError((error) => throwError(() => error))
+    );
+  }
+
+  deleteDriver(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/deleteDriver/${id}`).pipe(
+      catchError((error) => throwError(() => error))
+    );
+  }
 }

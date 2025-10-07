@@ -15,7 +15,7 @@ export class RoleComponent implements OnInit{
   @Input() search: string = '';
 
   roles: Role[] = [];
-  pages = ['Home', 'Dashboard', 'Reports', 'Analysis', 'Hindcast', 'Settings', 'User Management', 'Notification', 'Data Health'];
+  pages = ['Dashboard', 'Storage House', 'Life Smoothie House', 'Production', 'Dispatch', 'Forecast', 'User Management'];
 
   // Permissions matrix for each page (Read, Write, Execute)
   allPermissions = this.pages.flatMap(page => [

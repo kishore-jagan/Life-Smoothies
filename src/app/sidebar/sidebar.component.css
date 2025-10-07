@@ -44,6 +44,13 @@
     background-clip: text;
 }
 
+.iq-logo {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    /* border-radius: 8px; */
+}
+
 .navigators {
     flex: 1;
     padding: 10px 0;

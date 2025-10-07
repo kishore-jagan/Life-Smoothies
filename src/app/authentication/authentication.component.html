@@ -1,4 +1,14 @@
-<div class="background">
+<div *ngIf="isSplashLoading" class="splash" aria-label="Loading">
+  <img
+    class="logo"
+    src="https://lifesmoothies.ae/wp-content/themes/life-smoothie-child/assets/loaders.gif"
+    alt="Loading"
+    width="100"
+    height="100"
+  />
+</div>
+
+<div class="background" *ngIf="!isSplashLoading">
   <div class="container">
     <div class="left-hero" aria-label="Smoothie feature image">
       <div class="blender-jar">
@@ -15,36 +25,61 @@
           <span></span><span></span><span></span><span></span><span></span>
         </div>
         <div class="flyover" aria-hidden="true">
-          <img src="../../assets/Aloe-Ha.jpg" alt="Aloe Ha" />
-          <img src="../../assets/Coffee-frappe.jpg" alt="Coffee Frappe" />
-          <img src="../../assets/Black-Detox.jpg" alt="Black Detox" />
+          <img src="../../assets/strawberry.png" alt="strawberry" />
+          <img src="../../assets/pineapple.png" alt="pineapple" />
+          <img src="../../assets/orange.png" alt="orange" />
+          <img src="../../assets/mango1.png" alt="Mango" />
+          <img src="../../assets/blueberry.png" alt="Blueberry" />
+          <img src="../../assets/guava.png" alt="Guava" />
+          <img src="../../assets/guava.png" alt="Guava" />
+          <img src="../../assets/blueberry.png" alt="Blueberry" />
+          <img src="../../assets/mango1.png" alt="Mango" />
+          <img src="../../assets/orange.png" alt="orange" />
+          <img src="../../assets/pineapple.png" alt="pineapple" />
+          <img src="../../assets/strawberry.png" alt="strawberry" />
         </div>
       </div>
     </div>
+    
     <div class="right-section">
       <div class="login-card">
-        <div class="logo-badge" aria-hidden="true">✦</div>
+        <div style="display: flex; gap: 25px; width: 100%; height: auto;">
+          <div class="logo-badge" aria-hidden="true">✦</div>
+          <img src="../../assets/iqlogo.png" alt="IQ Foods" class="iq-logo">
+        </div>
+        
         <h2>Welcome Back</h2>
         <p class="subtext">Sign in to access your personalized smoothie experience</p>
-        <form>
+        <form #loginFormRef="ngForm" (ngSubmit)="login()">
           <div class="form-group">
-            <label for="email">Email Address</label>
+            <label for="email">User Name</label>
             <div class="input-wrapper">
               <span class="icon-left" aria-hidden="true">✉</span>
-              <input type="email" id="email" name="email" placeholder="Enter your email" required />
+              <input type="text" name="username" id="username" [(ngModel)]="username"
+            #userNameRef="ngModel" placeholder="Username" class="form-control" required />
             </div>
           </div>
           <div class="form-group">
             <label for="password">Password</label>
             <div class="input-wrapper">
               <span class="icon-left" aria-hidden="true">🔒</span>
-              <input type="password" id="password" name="password" placeholder="Enter your password" required />
-              <span class="icon-right" aria-hidden="true">👁</span>
+              <input [type]="showPassword ? 'text' : 'password'" name="password" id="loginPassword"
+            [(ngModel)]="loginPassword" #loginPasswordRef="ngModel"
+            placeholder="Officer@24" required class="form-control" />
+          <button type="button" class="password-toggle" (click)="showPassword = !showPassword">
+            <i *ngIf="showPassword" class="fa fa-eye"></i>
+            <i *ngIf="!showPassword" class="fa fa-eye-slash"></i>
+          </button>
+              <!-- <span class="icon-right" aria-hidden="true">👁</span> -->
             </div>
           </div>
-          <button type="submit" class="sign-in-btn">Sign In</button>
-          <p class="signup-link">Don't have an account? <a href="#">Sign up</a></p>
-          <p class="forgot-password"><a href="#">Forgot your password?</a></p>
+          <button type="submit" class="sign-in-btn" [disabled]="loginFormRef.invalid || isLoading">
+            <span *ngIf="isLoading" class="spinner"></span>
+            {{ isLoading ? 'Logging In...' : 'Login' }}
+          </button>
+          <!-- <button type="submit" class="sign-in-btn">Sign In</button> -->
+          <p class="signup-link">Don't have an account? <a href="#">Contact Admin</a></p>
+          <!-- <p class="forgot-password"><a href="#">Forgot your password?</a></p> -->
         </form>
       </div>
       <footer>

@@ -27,6 +27,8 @@
                 {{ formErrors['fullName'] }}
               </p>
             </div>
+
+           
   
   
   
@@ -120,60 +122,80 @@
                 Confirm Password must match Password
               </p>
             </div>
+
+            <div class="form-actions">
+              <button
+                class="btn-primary"
+                (click)="onSubmit()">
+                {{ isEditMode ? 'Update User' : 'Add User' }}
+              </button>
+              <button
+                class="btn-primary"
+                (click)="resetForm()">
+                Cancel
+              </button>
+            </div>
+
           </div>
         </form>
       </div>
   
   
-      <div class="params-card">
-        <h3 class="params-title">Parameters</h3>
-  
-        <div class="params-grid">
-          <div class="param-group" *ngFor="let param of categories">
-            <label class="param-group-label">{{ param }} Parameters</label>
-  
-            <div class="param-row">
-              <!-- Dropdown -->
-              <p-multiSelect [options]="parametersByCategory[param]" [(ngModel)]="selectedParameters[param]"
-                optionLabel="name" placeholder="Select {{param}} parameters" [filter]="true" [showToggleAll]="true"
-                [display]="'comma'" [maxSelectedLabels]="0" selectedItemsLabel="{0} selected"
-                class="param-select" appendTo="body"
-                [panelStyle]="{maxHeight:'16rem', overflow:'auto'}" (onChange)="updateSelectedMessage(param)">
-              </p-multiSelect>
-  
-              <!-- Message box with colored pills -->
-              <div class="param-msg-box">
-                <ng-container *ngIf="(selectedParameters[param] ?? []).length; else noParam">
-                  <div class="param-chips">
-                    <span *ngFor="let p of selectedParameters[param]"
-                      class="param-chip" [ngClass]="getColor(param)">
-                      {{ p.name }}
-                    </span>
-                  </div>
-                </ng-container>
-                <ng-template #noParam>
-                  <span class="no-param-text">No parameters selected for {{ param }}</span>
-                </ng-template>
-              </div>
+      <div class="drivers-card">
+        <h3 class="drivers-title">Add Drivers</h3>
+        
+        <!-- Driver Form -->
+        <form #driverForm="ngForm" class="driver-form">
+          <div class="driver-form-grid">
+            <!-- Driver ID -->
+            <div>
+              <label class="form-label">Driver ID</label>
+              <input type="text" pInputText name="driverId" [(ngModel)]="driver.driver_id" 
+                placeholder="Enter driver ID" class="form-input" 
+                (ngModelChange)="validateDriverField('driver_id')" />
+              <p class="input-hint-error" *ngIf="driverErrors['driver_id']">
+                {{ driverErrors['driver_id'] }}
+              </p>
+            </div>
+
+            <!-- Driver Name -->
+            <div>
+              <label class="form-label">Driver Name</label>
+              <input type="text" pInputText name="driverName" [(ngModel)]="driver.driver_name" 
+                placeholder="Enter driver name" class="form-input" 
+                (ngModelChange)="validateDriverField('driver_name')" />
+              <p class="input-hint-error" *ngIf="driverErrors['driver_name']">
+                {{ driverErrors['driver_name'] }}
+              </p>
+            </div>
+
+            <!-- Truck No -->
+            <div>
+              <label class="form-label">Truck No</label>
+              <input type="text" pInputText name="truckNo" [(ngModel)]="driver.truck_no" 
+                placeholder="Enter truck number" class="form-input" 
+                (ngModelChange)="validateDriverField('truck_no')" />
+              <p class="input-hint-error" *ngIf="driverErrors['truck_no']">
+                {{ driverErrors['truck_no'] }}
+              </p>
             </div>
           </div>
-        </div>
+        </form>
   
         <div class="form-actions">
           <button
             class="btn-primary"
-            (click)="onSubmit()">
-            {{ isEditMode ? 'Update User' : 'Add User' }}
+            (click)="onDriverSubmit()">
+            {{ isDriverEditMode ? 'Update Driver' : 'Add Driver' }}
           </button>
           <button
             class="btn-primary"
-            (click)="resetForm()">
+            (click)="resetDriverForm()">
             Cancel
           </button>
         </div>
       </div>
-  
-  
+
   
     </div>
   
@@ -237,89 +259,48 @@
             </div>
           </div>
   
-          <!-- Parameters -->
-          <!-- Parameters -->
-          <div *ngIf="selectedParameters && (selectedParameters | keyvalue).length" class="preview-params">
-            <span class="preview-params-title">Selected Parameters</span>
-  
-            <div class="preview-param-groups">
-              <!-- Loop categories -->
-              <div *ngFor="let category of selectedParameters| keyvalue: originalOrder">
-                <h4 class="preview-category-title" [ngClass]="{
-              'cat-wave': category.key === 'wave',
-              'cat-wind': category.key === 'wind',
-              'cat-current': category.key === 'current',
-              'cat-tide': category.key === 'tide'
-            }">
-                  {{ category.key }}
-                </h4>
-  
-                <!-- Loop parameters inside category -->
-                <div class="preview-param-chips">
-                  <span *ngFor="let param of category.value" class="preview-param-chip" [ngClass]="{
-                  'chip-wave': category.key === 'wave',
-                  'chip-wind': category.key === 'wind',
-                  'chip-current': category.key === 'current',
-                  'chip-tide': category.key === 'tide'
-                }">
-                    {{ param.name }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          
   
   
         </div>
       </div>
-      <!-- <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-   
-        <div
-          class="flex flex-col items-center justify-center bg-blue-500 text-white rounded-xl shadow-lg p-6 w-full transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
-          pTooltip="Active Users" tooltipPosition="bottom">
-   
-   
-          <div class="bg-white rounded-full p-4 mb-3 shadow-md flex items-center justify-center w-16 h-16">
-            <i class="pi pi-users text-3xl text-blue-500"></i>
+     
+      <!-- Parameters -->
+          <!-- Parameters -->
+          <div class="driver-list">
+            <h3 class="driver-list-title">Drivers List</h3>
+            
+            <!-- Loading state -->
+            <div *ngIf="isLoadingDrivers" class="loading-state">
+              <p>Loading drivers...</p>
+            </div>
+            
+            <!-- Empty state -->
+            <div *ngIf="!isLoadingDrivers && drivers.length === 0" class="empty-state">
+              <p>No drivers found. Add a driver to get started.</p>
+            </div>
+            
+            <!-- Drivers list -->
+            <div *ngIf="!isLoadingDrivers && drivers.length > 0" class="drivers-list-container">
+              <div *ngFor="let driver of drivers; let i = index" class="driver-item">
+                <div class="driver-info">
+                  <div class="driver-id">ID: {{ driver.driver_id }}</div>
+                  <div class="driver-name">{{ driver.driver_name }}</div>
+                  <div class="driver-truck">Truck: {{ driver.truck_no }}</div>
+                  <div class="driver-timestamp">Added: {{ driver.timestamp | date:'short' }}</div>
+                </div>
+                <div class="driver-actions">
+                  <button class="btn-edit" (click)="editDriver(driver)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="btn-delete" (click)="deleteDriver(driver.id)">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-   
-          <span class="font-medium text-white">Active Users</span>
-          <span class="text-2xl font-bold">{{ activeUsers }}</span>
-        </div>
-   
-        <div
-          class="flex flex-col items-center justify-center bg-red-500 text-white rounded-xl shadow-lg p-6 w-full transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
-          pTooltip="Number of currently active users" tooltipPosition="top">
-   
-          <div class="bg-white rounded-full p-4 mb-3 shadow-md flex items-center justify-center w-16 h-16">
-            <i class="pi pi-user-minus text-3xl text-red-500"></i>
-          </div>
-          <span class="font-medium text-white">Inactive Users</span>
-          <span class="text-2xl font-bold">{{ inactiveUsers }}</span>
-        </div>
-   
-        <div
-          class="flex flex-col items-center justify-center bg-blue-500 text-white rounded-xl shadow-lg p-6 w-full transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
-          pTooltip="Number of currently active users" tooltipPosition="top">
-   
-          <div class="bg-white rounded-full p-4 mb-3 shadow-md flex items-center justify-center w-16 h-16">
-            <i class="pi pi-user text-3xl text-blue-500"></i>
-          </div>
-          <span class="font-medium text-white">Total Users</span>
-          <span class="text-2xl font-bold">{{ totalUsers }}</span>
-        </div>
-   
-        <div
-          class="flex flex-col items-center justify-center bg-purple-500 text-white rounded-xl shadow-lg p-6 w-full transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
-          pTooltip="Number of currently active users" tooltipPosition="top">
-   
-          <div class="bg-white rounded-full p-4 mb-3 shadow-md flex items-center justify-center w-16 h-16">
-            <i class="pi pi-shield text-3xl text-purple-500"></i>
-          </div>
-          <span class="font-medium text-white">Roles</span>
-          <span class="text-2xl font-bold">{{ totalRoles }}</span>
-        </div>
-      </div> -->
+
   
     </div>
   
