@@ -19,7 +19,7 @@ export class SessionService {
 
   constructor() {
     const saved = sessionStorage.getItem('currentUser');
-    console.log('saved', saved);
+    // console.log('saved', saved);
     if (saved) {
       this.currentUser = JSON.parse(saved);
     }

@@ -1,21 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { AutoComplete } from 'primeng/autocomplete';
 import { MultiSelectModule } from 'primeng/multiselect';
-import {
-  LifesmoothieModel,
-  StorageItem,
-  StorageService,
-} from '../storagehouse/storage.service';
-import { IngredientService, Smoothie } from './ingredient.service';
-import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
-import { HttpClient } from '@angular/common/http';
+import { LifesmoothieModel, StorageService } from '../storagehouse/storage.service';
+import { Smoothie } from './ingredient.service';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { DatePickerModule } from 'primeng/datepicker';
+import { SessionService } from '../users/session-service/session.service';
 
 interface Ingredient {
   name: string;
@@ -42,17 +35,15 @@ interface ExportColumn {
     FormsModule,
     TableModule,
     ButtonModule,
-    AutoComplete,
-    Toast,
     MultiSelectModule,
     SelectButtonModule,
     DatePickerModule,
   ],
   templateUrl: './mainhouse.component.html',
   styleUrl: './mainhouse.component.css',
-  providers: [StorageService, MessageService],
-})
-export class MainhouseComponent implements OnInit {
+  providers: [StorageService],
+  })
+  export class MainhouseComponent implements OnInit {
   // imageList: string[] = [
   //   '/assets/Energy-Booster.jpg',
   //   '/assets/Pink-Dragon.jpg',
@@ -62,7 +53,6 @@ export class MainhouseComponent implements OnInit {
   // currentImage: string = this.imageList[0];
   // private imageIndex: number = 0;
   // private intervalId: any;
-
   lifeSmoothieList: LifesmoothieModel[] = [];
 
   smoothieName: string = '';
@@ -93,7 +83,7 @@ export class MainhouseComponent implements OnInit {
     { label: 'Yearly', value: 'year' },
   ];
   showDate = true;
-  selectedPeriod: string = 'date';
+  selectedPeriod: string = 'month';
   selectedDate: Date = new Date(); // for week/month/year
   fromDateModel: Date = new Date(); // for date range
   toDateModel: Date = new Date(); // for date range
@@ -104,11 +94,48 @@ export class MainhouseComponent implements OnInit {
 
   exportColumns!: ExportColumn[];
 
+  // Computed export filename (PrimeNG will append .csv)
+  get csvFileName(): string {
+    const now = new Date();
+    const day = now.getDate();
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    return `Life Smoothie_${day} ${month} ${year}`;
+  }
+
+  get userFullName(): string {
+    const user = this.sessionService.getUser();
+    return user?.full_name || user?.user_name || 'User';
+  }
+
+  get userInitials(): string {
+    const user = this.sessionService.getUser();
+    const name = (user?.full_name || user?.user_name || '').trim();
+    if (!name) return 'U';
+    const parts = name.split(/\s+/);
+    const first = parts[0]?.[0] ?? '';
+    const second = (parts[1]?.[0] ?? parts[0]?.[1] ?? '') as string;
+    const initials = (first + second).toUpperCase();
+    return initials || first.toUpperCase() || 'U';
+  }
+
   constructor(
+    private sessionService: SessionService,
     private lifesmoothieService: StorageService,
-    private ingredientService: IngredientService,
-    private messageService: MessageService,
-    private http: HttpClient
   ) {}
 
   // ---- Overview metrics (computed from current filtered list) ----
@@ -179,11 +206,11 @@ export class MainhouseComponent implements OnInit {
       { field: 'location', header: 'Location', type: 'text' },
       { field: 'production_date', header: 'Production Date', type: 'date' },
       { field: 'expiry_date', header: 'Expiry Date', type: 'date' },
-      { field: 'qty_cotton', header: 'Qty Cotton', type: 'text' },
+      { field: 'qty_cotton', header: 'Qty Carton', type: 'text' },
       { field: 'qty_kg', header: 'Qty Kg', type: 'text' },
-      { field: 'qty_g', header: 'Qty g', type: 'text' },
-      { field: 'supplier', header: 'Supplier', type: 'text' },
-      { field: 'truck_no', header: 'Truck No', type: 'text' },
+      // { field: 'qty_g', header: 'Qty g', type: 'text' },
+      // { field: 'supplier', header: 'Supplier', type: 'text' },
+      // { field: 'truck_no', header: 'Truck No', type: 'text' },
     ];
 
     this.selectedColumns = this.cols;

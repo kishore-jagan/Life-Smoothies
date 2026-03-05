@@ -7,7 +7,8 @@ import { CardModule } from 'primeng/card';
 import { InputIconModule } from 'primeng/inputicon';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { AuthService } from './auth.service';
 import { SessionService } from '../users/session-service/session.service';
 // import { NgForm } from '@angular/forms';
@@ -18,7 +19,7 @@ import { SessionService } from '../users/session-service/session.service';
     PasswordModule,
     ButtonModule,
     CardModule,
-    InputIconModule, RouterModule, ReactiveFormsModule, ToastrModule,],
+    InputIconModule, RouterModule, ReactiveFormsModule, ToastModule],
   templateUrl: './authentication.component.html',
   styleUrl: './authentication.component.css',
   providers: [AuthService]
@@ -32,7 +33,7 @@ export class AuthenticationComponent implements OnInit {
   errorMsg = '';
   isSplashLoading = true;
 
-  constructor( private toastr: ToastrService, private authService: AuthService, private router: Router, private sessionService: SessionService ) {}
+  constructor( private messageService: MessageService, private authService: AuthService, private router: Router, private sessionService: SessionService ) {}
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -50,28 +51,25 @@ export class AuthenticationComponent implements OnInit {
 
   login() {
     // 🔍 Validate input
-    if (!this.username && !this.loginPassword) {
-      this.toastr.error(
-        '❌ All Fields Are Required, please try again.',
-        'Access Denied',
-        {
-          positionClass: 'toast-bottom-right',
-          progressBar: true,
-          timeOut: 3500,
-        }
-      );
+    if (!this.username?.trim() || !this.loginPassword?.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Access Denied',
+        detail: '❌ All Fields Are Required, please try again.',
+        life: 3500
+      });
       return;
     }
-   
+
     const cred = {
       user_name: this.username,
       password: this.loginPassword,
     };
-   
+
     this.authService.login_user(this.username, this.loginPassword).subscribe({
       next: (res: any) => {
         console.log('Login success===:', res);
-        this.toastr.success('Login successful', 'Success');
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 });
         
         // ✅ Save to SessionService so ACL can read permissions
         this.sessionService.setUser({
@@ -83,48 +81,38 @@ export class AuthenticationComponent implements OnInit {
           sessionId: String(res.sessionId || ''),
           loginTime: new Date().getTime(),
         });
-    // 🔥 Start heartbeat
-    // this.startHeartbeat(res.sessionId);
+        // 🔥 Start heartbeat
+        // this.startHeartbeat(res.sessionId);
         console.log("start navigate");
         this.router.navigate(['/base']);
         console.log("stop navigate");
       },
-   
+
       error: (error) => {
         const message = error.error?.message || 'Something went wrong';
-   
+
         switch (error.status) {
           case 401:
             this.errorMsg = message;
-            this.toastr.error(
-              `❌ ${message}`,
-              'Access Denied',
-              { positionClass: 'toast-bottom-right', progressBar: true, timeOut: 3500 }
-            );
+            this.messageService.add({ severity: 'error', summary: 'Access Denied', detail: `❌ ${message}`, life: 3500 });
             break;
-   
+
           case 403:
             this.errorMsg = message;
-           if (message.includes('not active')) {
-              this.toastr.error(
-                `🚫 ${message}`,
-                'Access Denied',
-                { positionClass: 'toast-bottom-right', progressBar: true, timeOut: 5000 }
-              );
+            if (message.includes('not active')) {
+              this.messageService.add({ severity: 'error', summary: 'Access Denied', detail: `🚫 ${message}`, life: 5000 });
             }
             break;
-   
+
           default:
             this.errorMsg = 'Something went wrong. Please try again.';
-            this.toastr.error(
-              this.errorMsg,
-              `Error ${error.status}`,
-              { positionClass: 'toast-bottom-right', progressBar: true, timeOut: 3500 }
-            );
-        }}
+            this.messageService.add({ severity: 'error', summary: `Error ${error.status}` , detail: this.errorMsg, life: 3500 });
+        }
+      }
     });
-   
+
     this.resetForms();
   }
+
 
 }

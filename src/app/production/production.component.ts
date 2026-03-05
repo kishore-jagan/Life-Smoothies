@@ -11,6 +11,8 @@ import { AutoComplete } from 'primeng/autocomplete';
 import { HttpClient } from '@angular/common/http';
 import { Toast } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SessionService } from '../users/session-service/session.service';
 
 interface Ingredient {
   name: string;
@@ -20,7 +22,7 @@ interface Ingredient {
 @Component({
   selector: 'app-production',
   standalone: true,
-  imports: [FormsModule, CommonModule, AutoComplete, SelectButtonModule, Toast],
+  imports: [FormsModule, CommonModule, AutoComplete, SelectButtonModule, Toast, DatePickerModule],
   templateUrl: './production.component.html',
   styleUrl: './production.component.css',
   providers: [MessageService, StorageService],
@@ -29,6 +31,7 @@ export class ProductionComponent implements OnInit {
   lifeSmoothieList: LifesmoothieModel[] = [];
 
   smoothieName: string = '';
+  itemdesc: string = '';
   smoothies: Smoothie[] = [];
   categories: string[] = [];
   selectedCategory: string = '';
@@ -47,18 +50,47 @@ export class ProductionComponent implements OnInit {
   selectedSmoothie: any = null;
   ingredientDetails: any[] = [];
 
-  commonQty: number = 0;
-  commonWastage: number = 0;
+  commonQty: number = null as any;
+  commonWastage: number = null as any;
+  curtainValue: number = null as any;
   commonRack: string = '';
+  productionMode: 'sachets' | 'raw' = 'sachets';
+  productionDate: Date | null = null;
+  expiryDate: Date | null = null;
 
   calculateMessage!: number;
 
+  get userFullName(): string {
+    const user = this.sessionService.getUser();
+    return user?.full_name || user?.user_name || 'User';
+  }
+
+  get userInitials(): string {
+    const user = this.sessionService.getUser();
+    const name = (user?.full_name || user?.user_name || '').trim();
+    if (!name) return 'U';
+    const parts = name.split(/\s+/);
+    const first = parts[0]?.[0] ?? '';
+    const second = (parts[1]?.[0] ?? parts[0]?.[1] ?? '') as string;
+    const initials = (first + second).toUpperCase();
+    return initials || first.toUpperCase() || 'U';
+  }
+
   constructor(
+    private sessionService: SessionService,
     private lifesmoothieService: StorageService,
     private ingredientService: IngredientService,
     private messageService: MessageService,
     private http: HttpClient
   ) {}
+
+  private formatDateLocal(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const y = date.getFullYear();
+    const m = pad(date.getMonth() + 1);
+    const d = pad(date.getDate());
+    return `${y}-${m}-${d}`; // YYYY-MM-DD
+  }
 
   // Computed UI states
   get isAddIngredientDisabled(): boolean {
@@ -170,6 +202,7 @@ export class ProductionComponent implements OnInit {
       itemname: this.smoothieName,
       ingredients: this.ingredients,
       category: this.category || null,
+      itemdesc: this.itemdesc || null,
     };
 
     this.ingredientService.saveSmoothie(smoothieData).subscribe({
@@ -197,6 +230,8 @@ export class ProductionComponent implements OnInit {
   resetForm() {
     this.newItem = { name: '', qty: null as any };
     this.ingredients = [];
+    this.smoothieName = '';
+    this.itemdesc = '';
   }
 
   selectSmoothie(smoothie: any) {
@@ -204,7 +239,7 @@ export class ProductionComponent implements OnInit {
     const ingredientNames = smoothie.ingredients.map((ing: any) => ing.name);
 
     this.http
-      .post<any[]>('http://localhost/api/index.php?action=getIngredientsByNames', {
+      .post<any[]>('http://localhost:8080/api/index.php?action=getIngredientsByNames', {
         names: ingredientNames,
       })
       .subscribe({
@@ -280,6 +315,8 @@ export class ProductionComponent implements OnInit {
       requiredQty: Number(ing.qty)
     }));
 
+    console.log('Required Ingredients:', requiredIngredients);
+
     // Get selected ingredients with their available quantities
     const selectedIngredients: SelectedIngredient[] = this.ingredientDetails
       .filter((detail: any) => detail.selected)
@@ -298,6 +335,7 @@ export class ProductionComponent implements OnInit {
         };
       });
 
+    console.log('Selected Ingredients:', selectedIngredients);  
     // Check if any selected ingredients have invalid quantities
     if (selectedIngredients.some(ing => ing.availableQty <= 0)) {
       return; // Stop calculation if any selected ingredient has invalid quantity
@@ -326,6 +364,8 @@ export class ProductionComponent implements OnInit {
       // Calculate how many smoothies can be made with this ingredient
       return Math.floor(selectedIng.availableQty / reqIng.requiredQty);
     });
+
+    console.log("smoothieCounts", smoothieCounts);
 
     const minCount = Math.min(...smoothieCounts);
     if (!isFinite(minCount)) {
@@ -444,27 +484,32 @@ export class ProductionComponent implements OnInit {
 
     const sliceQty = totalQtyUsed_g / singleSmoothieQty_g;
 
-    const cottonQty = sliceQty / 15;
+    // const divisor = this.productionMode === 'raw' ? 10 : 15;
+    const cottonQty = Math.ceil(sliceQty / this.curtainValue);
 
     const totalQtyWithWastage_g = totalQtyUsed_g + this.commonWastage;
 
     const payload = {
       smoothie_name: this.selectedSmoothie.itemname,
       ingredients: ingredients.map((i: any) => ({ name: i.name, qty: i.qty })),
-      rack: this.commonRack,
+      rack: (this.commonRack && String(this.commonRack).trim() !== '') ? String(this.commonRack).trim() : null,
       wastage: this.commonWastage,
       entered_qty: this.commonQty, // ✅ Added here
       life_ids: ingredients.map((i: any) => ({ id: i.life_id, qty: i.qty })),
       category: this.selectedSmoothie?.category || null,
+      itemdesc: (this.selectedSmoothie && this.selectedSmoothie.itemdesc) ? this.selectedSmoothie.itemdesc : (this.itemdesc || null),
       singleSmoothieQty_g,
       totalQtyUsed_g,
       totalQtyWithWastage_g,
       sliceQty,
       cottonQty,
+      cartonvalue: this.curtainValue,
+      production_date: this.productionDate ? this.formatDateLocal(this.productionDate) : null,
+      expiry_date: this.expiryDate ? this.formatDateLocal(this.expiryDate) : null,
     };
 
     this.http
-      .post('http://localhost/api/index.php?action=saveSmoothieProduction', payload)
+      .post('http://localhost:8080/api/index.php?action=saveSmoothieProduction', payload)
       .subscribe({
         next: () => {
           this.messageService.add({
@@ -475,6 +520,8 @@ export class ProductionComponent implements OnInit {
           this.commonQty = 0;
           this.commonRack = '';
           this.commonWastage = 0;
+          this.productionDate = null;
+          this.expiryDate = null;
           this.ingredientDetails.forEach((d) => {
             d.selected = false;
           });

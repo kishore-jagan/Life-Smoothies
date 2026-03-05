@@ -19,12 +19,13 @@
     top: 0px;
     /* left: 51.5%; */
     /* transform: translateX(-50%); */
-    width: calc(100% - 300px);
+    width: calc(100% - 280px);
     height: 10%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 100;
+    margin-left: 20px;
 }
 
 /* Glass effect for text */
@@ -598,7 +599,8 @@ input {
 .calculateContainer.success-message {
     display: flex;
     align-items: center;
-    background: linear-gradient(135deg, #4caf50, #81c784);
+    /* background: linear-gradient(135deg, #ff758c, #6a82fb); */
+    background: linear-gradient(135deg, #e96443, #904e95);
     color: #fff;
     padding: 16px 24px;
     border-radius: 12px;

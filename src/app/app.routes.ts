@@ -34,10 +34,10 @@ export const routes: Routes = [
         path: 'storagehouse',
         component: StoragehouseComponent,
       },
-      // {
-      //   path: 'storagehouse2',
-      //   component: Storagehouse2Component,
-      // },
+      {
+        path: 'storagehouse2',
+        component: Storagehouse2Component,
+      },
       {
         path: 'mainhouse',
         component: MainhouseComponent,

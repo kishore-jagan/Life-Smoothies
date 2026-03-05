@@ -3,6 +3,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    padding: 20px;
 }
 
 .topnav {
@@ -17,18 +18,20 @@
     text-align: center;
     position: fixed;
     top: 0px;
-    left: 51.5%;
-    transform: translateX(-50%);
-    width: 96%;
+    /* left: 51.5%; */
+    /* transform: translateX(-50%); */
+    width: calc(100% - 280px);
     height: 10%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 100;
+    margin-left: 20px;
 }
 
 /* Glass effect for text */
 .topnav h2 {
+    /* font-size: 40px; */
     font-weight: bold;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     /* Slight glow effect */
@@ -37,9 +40,17 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .topnav {
-        width: 90%;
-        height: 13%;
+        width: 95%;
+        /* height: 10%; */
+        /* flex-direction: column; */
         padding: 10px 20px;
+        /* gap: 10px; */
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
 }
 
@@ -65,7 +76,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0px;
+    padding: 10px;
     overflow-y: auto;
     /* Allows scrolling if content overflows */
 }
@@ -125,6 +136,9 @@
 
 .overviewbox-item:hover {
     transform: translateY(-5px);
+    /* border-color: linear-gradient(145deg, #e3f2fd, #BDDDFC); */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
 }
 
 /* Color variations */
@@ -160,7 +174,7 @@
 
 .view-icon {
     position: absolute;
-    right: 10%;
+    right: 6%;
     top: 15%;
     width: 40px;
     height: 40px;
@@ -205,23 +219,43 @@
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
 
-.icon-btn:hover {
+.icon-btn2 {
+    /* margin-top: 25px; */
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* gap: 10px; */
+    margin-left: 5px;
+    background-color: var(--primary-color, #007bff);
+    color: #fff;
+    border: none;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 300;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.icon-btn:hover, .icon-btn2:hover {
     background-color: var(--primary-hover, #0056b3);
     box-shadow: 0 6px 14px rgba(0, 123, 255, 0.3);
     transform: translateY(-2px);
 }
 
-.icon-btn:active {
+.icon-btn:active, .icon-btn2:active {
     transform: translateY(1px);
     box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
 }
 
-.icon-btn i {
+.icon-btn i, .icon-btn2 i {
     font-size: 18px;
     transition: transform 0.2s;
 }
 
-.icon-btn:hover i {
+.icon-btn:hover i, .icon-btn2:hover i {
     transform: scale(1.1);
 }
 
@@ -274,6 +308,18 @@ h3 {
     min-width: 250px;
     display: flex;
     flex-direction: column;
+}
+
+::ng-deep .form-group .p-datepicker{
+    width: 100% !important;
+    height: 45px !important;
+    /* padding: 10px 15px; */
+    border: 1px solid #ccd6dd;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: 0.3s ease;
+    background-color: #ffffff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 label {
@@ -348,7 +394,7 @@ button {
     margin-bottom: 20px;
     background-color: #fdfefe;
     box-shadow: 0 4px 12px rgba(189, 221, 252, 0.5);
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 ::ng-deep .p-datatable-header {

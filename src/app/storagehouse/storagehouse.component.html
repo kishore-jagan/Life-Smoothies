@@ -1,7 +1,7 @@
 <div class="storagemain">
     <div class="topnav">
-        <h2 class="logo">WM</h2>
-        <h2>Warehouse Manager</h2>
+        <h2 class="logo">{{userInitials}}</h2>
+        <h2>{{userFullName}}</h2>
     </div>
 
     <div class="body">
@@ -21,9 +21,9 @@
                 <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
             </div>
             <div class="overviewbox-item box-green">
-                <p class="view1">Total Qty (Cotton)</p>
+                <p class="view1">Total Qty (carton)</p>
                 <p class="view2">{{ totalQtyCotton }}</p>
-                <p class="view3">Sum of qtycotton</p>
+                <p class="view3">Sum of qtycarton</p>
                 <div class="view-icon icon-green"><i class="fas fa-boxes-stacked"></i></div>
             </div>
             <div class="overviewbox-item box-yellow">
@@ -71,12 +71,12 @@
                             inputId="expiryDate" placeholder="Select date"></p-datepicker>
                     </div>
                     <div class="form-group">
-                        <label>Quantity in Cotton</label>
-                        <input type="number" [(ngModel)]="newItem.qtycotton" name="quantity" required />
+                        <label>Quantity in carton</label>
+                        <input type="number" [(ngModel)]="newItem.qtycotton" name="quantity" placeholder= "0" required />
                     </div>
                 </div>
 
-                <div class="form-row">
+                <!-- <div class="form-row">
                     <div class="form-group">
                         <label>Supplier Name</label>
                         <input type="text" [(ngModel)]="newItem.supplier" name="supplier" required />
@@ -85,7 +85,7 @@
                         <label>Container No</label>
                         <input type="text" [(ngModel)]="newItem.truckno" name="truckNo" required />
                     </div>
-                </div>
+                </div> -->
 
                 <div class="button-row">
                     <button type="submit" class="save-btn">Save</button>
@@ -103,7 +103,7 @@
             <p-table #dt [value]="sortedStorageList" [columns]="selectedColumns" [tableStyle]="{ 'min-width': '50rem' }"
                 [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="10" responsiveLayout="scroll"
                 [rowsPerPageOptions]="[10,15,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
-                [exportHeader]="'customExportHeader'" selectionMode="multiple"
+                [exportHeader]="'customExportHeader'" [exportFilename]="csvFileName" selectionMode="multiple"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
                 [tableStyle]="{'min-width': '50rem'}" responsiveLayout="stack" [breakpoint]="'960px'" stripedRows="true"
                 rowHover="true" showCurrentPageReport="true">
@@ -186,12 +186,23 @@
                         <td class="centered-cell">{{ i + 1 }}</td>
                         <td *ngFor="let col of columns" class="centered-cell">
                             <ng-container [ngSwitch]="col.type">
+                              <ng-container *ngIf="col.field === 'qtycotton'; else checkAdded">
+                                <span>{{ row.qtycotton }}</span>
+                              </ng-container>
+                              <ng-template #checkAdded>
+                                <ng-container *ngIf="col.field === 'addedqty'; else defaultCell">
+                                  <span>{{ row.addedqty || 0 }}</span>
+                                  <button class="icon-btn2" (click)="openAddQtyDialog(row)" title="Add qty"><i class="pi pi-pencil"></i></button>
+                                  <button class="icon-btn2" (click)="openQtyHistory(row)" title="View history"><i class="pi pi-history"></i></button>
+                                </ng-container>
+                              </ng-template>
+                              <ng-template #defaultCell>
                                 <span *ngSwitchCase="'shortDate'">{{ row[col.field] | date:'MMM dd yyyy, hh:mm a' }}</span>
                                 <span *ngSwitchCase="'date'">{{ row[col.field] | date }}</span>
-                                <span *ngSwitchDefault [innerHTML]="highlightSearchText(row[col.field])">
-                                </span>
+                                <span *ngSwitchDefault [innerHTML]="highlightSearchText(row[col.field])"></span>
+                              </ng-template>
                             </ng-container>
-                        </td>
+                          </td>
                         <td class="centered-cell">
                             <span *ngIf="row.qtycotton < 5 && row.qtycotton > 0" class="low-stock">
                                 Low Stock
@@ -212,6 +223,68 @@
                 </ng-template>
 
             </p-table>
+            <p-dialog header="Add Quantity" [(visible)]="addQtyDialogVisible" [modal]="true" [style]="{width:'380px'}">
+                <div class="form-row">
+                    <div class="form-group" style="width:100%">
+                        <label>Quantity to add</label>
+                        <input type="number" [(ngModel)]="addQtyValue" min="1" placeholder="0" style="width:100%" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="width:100%">
+                        <label>Remark</label>
+                        <textarea [(ngModel)]="addQtyRemark" rows="3" placeholder="Optional remark" style="width:100%"></textarea>
+                    </div>
+                </div>
+                <ng-template pTemplate="footer">
+                    <button class="cancel-btn" type="button" (click)="cancelAddQtyDialog()">Cancel</button>
+                    <button class="save-btn" type="button" (click)="confirmAddQtyDialog()">Save</button>
+                </ng-template>
+            </p-dialog>
+            <p-dialog [(visible)]="qtyHistoryVisible" [modal]="true" [style]="{width:'700px'}" [breakpoints]="{'960px':'95vw'}" [maximizable]="true" [draggable]="false">
+                <ng-template pTemplate="header">
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <i class="pi pi-history"></i>
+                        <span>Added Qty History</span>
+                    </div>
+                    <div style="font-size:12px;color:#888">{{ qtyHistoryTitle }}</div>
+                </ng-template>
+                <div *ngIf="qtyHistoryLoading">Loading...</div>
+                <div *ngIf="!qtyHistoryLoading">
+                    <div style="overflow:auto">
+                        <table class="p-datatable-table" style="width:100%; text-align:center">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Entity</th>
+                                    <th>Entity ID</th>
+                                    <th>Added Qty</th>
+                                    <th>Remark</th>
+                                    <th>User</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let r of qtyHistoryRows">
+                                    <td>{{ r.id }}</td>
+                                    <td>{{ r.entity }}</td>
+                                    <td>{{ r.entity_id }}</td>
+                                    <td>{{ r.addedqty }}</td>
+                                    <td>{{ r.remark }}</td>
+                                    <td>{{ r.user }}</td>
+                                    <td>{{ r.created_at | date:'MMM dd yyyy, hh:mm a' }}</td>
+                                </tr>
+                                <tr *ngIf="qtyHistoryRows?.length === 0">
+                                    <td colspan="7" style="text-align:center;color:#888">No history found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <ng-template pTemplate="footer">
+                    <button class="cancel-btn" type="button" (click)="qtyHistoryVisible=false">Close</button>
+                </ng-template>
+            </p-dialog>
         </div>
     </div>
 </div>

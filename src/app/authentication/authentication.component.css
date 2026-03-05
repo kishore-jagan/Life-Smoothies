@@ -122,9 +122,9 @@
 .flyover img:nth-child(1) { animation: flyLeft 14s linear infinite 1s; top: 15%; }
 .flyover img:nth-child(2) { animation: flyRight 16s linear infinite 3s; top: 45%; }
 .flyover img:nth-child(3) { animation: flyRightUpDown 18s linear infinite 7s; top: 70%; }
-.flyover img:nth-child(4) { animation: flyLeftUpDown1 20s linear infinite 10s; top: 30%; }
+/* .flyover img:nth-child(4) { animation: flyLeftUpDown1 20s linear infinite 10s; top: 30%; }
 .flyover img:nth-child(5) { animation: flyLeftUpDown2 22s linear infinite 13s; top: 50%; }
-.flyover img:nth-child(6) { animation: flyLeftUpDown3 24s linear infinite 15s; top: 60%; }
+.flyover img:nth-child(6) { animation: flyLeftUpDown3 24s linear infinite 15s; top: 60%; } */
 .flyover img:nth-child(7) { animation: flyLeft2 14s linear infinite 2s; top: 15%; right: 10%; }
 .flyover img:nth-child(8) { animation: flyRight2 16s linear infinite 4s; top: 45%; right: 10%; }
 .flyover img:nth-child(9) { animation: flyRightUpDown2 18s linear infinite 6s; top: 70%; right: 10%; }
@@ -504,3 +504,4 @@ footer {
   background: #ffffff;
   z-index: 9999;
 }
+

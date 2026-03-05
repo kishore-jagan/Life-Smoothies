@@ -7,7 +7,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 })
 export class AdduserService {
 
-  private apiUrl = 'http://localhost/api/index.php?action=';
+  private apiUrl = 'http://localhost:8080/api/index.php?action=';
   constructor(private http: HttpClient) { }
 
   addUser(payload: any): Observable<any> {
@@ -30,7 +30,7 @@ export class AdduserService {
 
   checkuser(user_name: any, email: any) {
     const body = { user_name, email };
-    return this.http.post<any[]>(`${this.apiUrl}check`, body);
+    return this.http.post<any[]>(`${this.apiUrl}checkusername`, body);
   }
 
   get_roles(): Observable<any[]> {
@@ -42,7 +42,7 @@ export class AdduserService {
   }
 
   updateUser(id: number, payload: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/users/${id}`, payload).pipe(
+    return this.http.put(`${this.apiUrl}updateUser&id=${id}`, payload).pipe(
       catchError((error) => throwError(() => error))
     );
   }

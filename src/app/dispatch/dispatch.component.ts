@@ -9,6 +9,7 @@ import { Toast } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { DatePickerModule } from 'primeng/datepicker';
 import { AutoComplete } from 'primeng/autocomplete';
+import * as XLSX from 'xlsx';
 import {
   Driver,
   Ingredient,
@@ -16,6 +17,7 @@ import {
   SmoothieProduction,
 } from '../production/production.service';
 import { DispatchService, preDispatchRecord } from './dispatch.service';
+import { SessionService } from '../users/session-service/session.service';
 
 interface Column {
   field: string;
@@ -100,10 +102,15 @@ export class DispatchComponent implements OnInit {
   completedCols!: Column[];
   selectedCompletedCols!: Column[];
   globalCompletedFilterFields!: string[];
-  // Samples table configs
+  // Samples table columns
   samplesCols!: Column[];
   selectedSamplesCols!: Column[];
   globalSamplesFilterFields!: string[];
+  samplesSelectedPeriod: string = 'year';
+  samplesSelectedDate: Date = new Date();
+  samplesRangeDates: Date[] = [new Date(), new Date()];
+  samplesFromDate!: string;
+  samplesToDate!: string;
 
   // Completed table date filter state
   completedSelectedPeriod: string = 'year';
@@ -119,7 +126,7 @@ export class DispatchComponent implements OnInit {
     { label: 'Yearly', value: 'year' },
   ];
   // showDate = true;
-  selectedPeriod: string = 'year';
+  selectedPeriod: string = 'month';
   selectedDate: Date = new Date(); // for week/month/year
   fromDateModel: Date = new Date(); // for date range
   toDateModel: Date = new Date(); // for date range
@@ -132,45 +139,41 @@ export class DispatchComponent implements OnInit {
 
   return: number = 0;
 
+  // ---- Overview metrics ----
+  get totalSmoothieItems(): number {
+    return Array.isArray(this.SmoothieProduction) ? this.SmoothieProduction.length : 0;
+  }
 
+  get totalPreDispatchItems(): number {
+    return Array.isArray(this.filteredPreDispatchRecords) ? this.filteredPreDispatchRecords.length : 0;
+  }
 
-  // smoothiesData: ProductData[] = [
-  //   { name: 'Smoothie 1', monthlySold: 43000, dailySold: 1433, dailyBoxes: 96, boxesLeft: 4288, daysRemaining: 45 },
-  //   { name: 'Smoothie 2', monthlySold: 8000, dailySold: 267, dailyBoxes: 18, boxesLeft: 392, daysRemaining: 22 },
-  //   { name: 'Smoothie 2 BATEEL 140G', monthlySold: 0, dailySold: 0, dailyBoxes: 0, boxesLeft: 51, daysRemaining: 8 },
-  //   { name: 'Smoothie 3', monthlySold: 26000, dailySold: 867, dailyBoxes: 58, boxesLeft: 962, daysRemaining: 17 },
-  //   // ... add all other smoothie rows
-  // ];
+  get totalCompletedItems(): number {
+    const list = Array.isArray(this.filteredCompletedDispatches) ? this.filteredCompletedDispatches : [];
+    return list.filter((d: any) => String(d?.status ?? '').toLowerCase() === 'completed').length;
+  }
 
-  // shakesData: ProductData[] = [
-  //   { name: 'Vanilla', monthlySold: 12200, dailySold: 407, dailyBoxes: 27, boxesLeft: 466, daysRemaining: 17 },
-  //   { name: 'Vegan Vanilla', monthlySold: 300, dailySold: 10, dailyBoxes: 1, boxesLeft: 0, daysRemaining: 0 },
-  //   { name: 'Vegan Banana', monthlySold: 500, dailySold: 17, dailyBoxes: 1, boxesLeft: 74, daysRemaining: 67 },
-  //   // ... add all other shake rows
-  // ];
+  get totalSampleItems(): number {
+    return Array.isArray(this.filteredSamplesDispatches) ? this.filteredSamplesDispatches.length : 0;
+  }
 
-  // bowlsData: ProductData[] = [
-  //   { name: 'Dragon Fruit and Banana', monthlySold: 130, dailySold: 4, dailyBoxes: 0, boxesLeft: 105, daysRemaining: 363 },
-  //   { name: 'Acai Berry and Banana', monthlySold: 900, dailySold: 30, dailyBoxes: 2, boxesLeft: 15, daysRemaining: 12 },
-  //   { name: 'Mango and Banana', monthlySold: 160, dailySold: 5, dailyBoxes: 0, boxesLeft: 45, daysRemaining: 0 }
-  // ];
+  get userFullName(): string {
+    const user = this.sessionService.getUser();
+    return user?.full_name || user?.user_name || 'User';
+  }
 
-  //  ingredientData: IngredientData[] = [
-  //   { name: 'Acai', color: '#8b5cf6', kgPerDay: 32.2, stock: 3550, daysLeft: 110 },
-  //   { name: 'Acai with Guarana', color: '#ef4444', kgPerDay: 0, stock: 0, daysLeft: 8  },
-  //   { name: 'Aloe vera', color: '#a3e635', kgPerDay: 2.7, stock: 0, daysLeft: 0 },
-  //   { name: 'Avocado', color: '#15803d', kgPerDay: 11.1, stock: 390, daysLeft: 35 },
-  //   { name: 'Banana', color: '#fde047', kgPerDay: 313.5, stock: 48250, daysLeft: 154 },
-  //   { name: 'Baobab', color: '#f9a8d4', kgPerDay: 0.7, stock: 670, daysLeft: 985 },
-  //   { name: 'Beetroot', color: '#ec4899', kgPerDay: 7.6, stock: 620, daysLeft: 82 },
-  //   { name: 'Blackberry', color: '#000000', kgPerDay: 6.1, stock: 5282, daysLeft: 861 },
-  //   { name: 'Blackcurant', color: '#4b5563', kgPerDay: 5.3, stock: 786, daysLeft: 147 }
-  // ];
-
-
-  
-
+  get userInitials(): string {
+    const user = this.sessionService.getUser();
+    const name = (user?.full_name || user?.user_name || '').trim();
+    if (!name) return 'U';
+    const parts = name.split(/\s+/);
+    const first = parts[0]?.[0] ?? '';
+    const second = (parts[1]?.[0] ?? parts[0]?.[1] ?? '') as string;
+    const initials = (first + second).toUpperCase();
+    return initials || first.toUpperCase() || 'U';
+  }
   constructor(
+    private sessionService: SessionService,
     private messageService: MessageService,
     private productionService: ProductionService,
     private dispatchService: DispatchService
@@ -202,8 +205,8 @@ export class DispatchComponent implements OnInit {
       { field: 'smoothie_name', header: 'Smoothie Name', type: 'text' },
       { field: 'rack', header: 'Rack', type: 'text' },
       { field: 'total_qty_g', header: 'Total Quantity Used (g)', type: 'text' },
-      { field: 'slices', header: 'Slices', type: 'text' },
-      { field: 'cotton', header: 'Cotton', type: 'text' },
+      { field: 'slices', header: 'Sachets/Kg', type: 'text' },
+      { field: 'cotton', header: 'Carton', type: 'text' },
       { field: 'wastage', header: 'Wastage', type: 'text' },
       // { field: 'ingredients', header: 'Ingredients', type: 'array' },
     ];
@@ -217,7 +220,7 @@ export class DispatchComponent implements OnInit {
 
     // Completed dispatches table columns
     this.completedCols = [
-      { field: 'id', header: 'ID', type: 'text' },
+      // { field: 'id', header: 'ID', type: 'text' },
       { field: 'driver_name', header: 'Driver', type: 'text' },
       { field: 'truck_no', header: 'Truck No', type: 'text' },
       { field: 'creation_date', header: 'Date', type: 'shortDate' },
@@ -228,9 +231,9 @@ export class DispatchComponent implements OnInit {
 
     // Samples table columns
     this.samplesCols = [
-      { field: 'id', header: 'ID', type: 'text' },
-      { field: 'driver_name', header: 'Driver', type: 'text' },
-      { field: 'truck_no', header: 'Remark/Truck No', type: 'text' },
+      // { field: 'id', header: 'ID', type: 'text' },
+      { field: 'driver_name', header: 'Samples taken by', type: 'text' },
+      { field: 'truck_no', header: 'Remark', type: 'text' },
       { field: 'creation_date', header: 'Date', type: 'shortDate' },
     ];
     this.selectedSamplesCols = this.samplesCols;
@@ -238,6 +241,7 @@ export class DispatchComponent implements OnInit {
 
     // initialize completed date view and filter
     this.setCompletedView(this.completedSelectedPeriod);
+    this.setSamplesView(this.samplesSelectedPeriod);
   }
 
   filterDriverNames(event: any) {
@@ -367,6 +371,49 @@ export class DispatchComponent implements OnInit {
     });
   }
 
+  setSamplesView(view: string) {
+    this.samplesSelectedPeriod = view;
+    if (view === 'date') {
+      if (this.samplesRangeDates && this.samplesRangeDates.length === 2) {
+        const [start, end] = this.samplesRangeDates;
+        this.samplesFromDate = this.formatDateTime(new Date(start.setHours(0, 0, 0)));
+        this.samplesToDate = this.formatDateTime(new Date(end.setHours(23, 59, 59)));
+      }
+    } else if (view === 'week') {
+      const startOfWeek = new Date(this.samplesSelectedDate);
+      startOfWeek.setHours(0, 0, 0, 0);
+      const weekEndDate = this.getWeekEndDate(startOfWeek);
+      this.samplesFromDate = this.formatDateTime(startOfWeek);
+      this.samplesToDate = this.formatDateTime(weekEndDate);
+    } else if (view === 'month') {
+      const d = new Date(this.samplesSelectedDate);
+      const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      this.samplesFromDate = this.formatDateTime(new Date(firstDay.setHours(0, 0, 0)));
+      this.samplesToDate = this.formatDateTime(new Date(lastDay.setHours(23, 59, 59)));
+    } else if (view === 'year') {
+      const d = new Date(this.samplesSelectedDate);
+      const firstDay = new Date(d.getFullYear(), 0, 1);
+      const lastDay = new Date(d.getFullYear(), 11, 31);
+      this.samplesFromDate = this.formatDateTime(new Date(firstDay.setHours(0, 0, 0)));
+      this.samplesToDate = this.formatDateTime(new Date(lastDay.setHours(23, 59, 59)));
+    }
+    this.applySamplesFilter();
+  }
+
+  applySamplesFilter() {
+    if (!this.samplesFromDate || !this.samplesToDate) {
+      this.filteredSamplesDispatches = this.samplesDispatches.slice();
+      return;
+    }
+    const from = new Date(this.samplesFromDate).getTime();
+    const to = new Date(this.samplesToDate).getTime();
+    this.filteredSamplesDispatches = this.samplesDispatches.filter((d: any) => {
+      const t = new Date(d.creation_date).getTime();
+      return t >= from && t <= to;
+    });
+  }
+
   addToDispatchList(row: any) {
     if (row.transferQty > 0 && row.location) {
       if (row.transferQty > row.cotton) {
@@ -420,6 +467,129 @@ export class DispatchComponent implements OnInit {
     }
   }
 
+  private pick(obj: any, keys: string[]) {
+    if (!obj) return undefined;
+    const headers = Object.keys(obj || {});
+    for (const k of keys) {
+      const found = headers.find((h) => h?.trim?.().toLowerCase() === k.toLowerCase());
+      if (found !== undefined) return obj[found];
+    }
+    return undefined;
+  }
+
+  onImportDispatchFileChange(event: any) {
+    const file: File | null = event?.target?.files?.[0] || null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      try {
+        const bstr = e?.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        this.addRowsFromExcel(rows);
+      } catch (err) {
+        console.error('Excel import error:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Import Failed',
+          detail: 'Could not read the Excel file.',
+          life: 3000,
+        });
+      }
+    };
+    reader.readAsBinaryString(file);
+    // reset input so same file can be selected again if needed
+    try { event.target.value = null; } catch {}
+  }
+
+  private addRowsFromExcel(rows: any[]) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      this.messageService.add({ severity: 'warn', summary: 'No Data', detail: 'No rows found in the Excel file.', life: 3000 });
+      return;
+    }
+    let added = 0;
+    for (const r of rows) {
+      const idVal = this.pick(r, ['id', 'item_id', 'Item ID']);
+      const id = Number(idVal);
+      const nameRaw = this.pick(r, ['smoothie_name', 'Smoothie', 'Product', 'Name']);
+      const smoothieName = String(nameRaw || '').trim();
+      const rackRaw = this.pick(r, ['rack', 'Rack']);
+      const rack = String(rackRaw || '').trim();
+      const qtyVal = this.pick(r, ['transfer_qty', 'qty', 'Quantity', 'Qty']);
+      const qty = Number(qtyVal);
+      const location = String(this.pick(r, ['location', 'Location']) || '').trim();
+      const cartonVal = this.pick(r, ['cartonvalue', 'Carton', 'SachetsPerBox']);
+      const cartonvalue = Number(cartonVal) || 15;
+
+      if (!qty || qty <= 0 || !location) {
+        continue;
+      }
+
+      let src: any = null;
+      // 1) Try by Rack
+      if (rack) {
+        const targetRack = rack.toLowerCase();
+        const candidates = (this.SmoothieProduction || []).filter((p: any) => String(p?.rack || '').trim().toLowerCase() === targetRack);
+        if (candidates.length === 1) {
+          src = candidates[0];
+        } else if (candidates.length > 1) {
+          if (smoothieName) {
+            const t = smoothieName.toLowerCase();
+            src = candidates.find((p: any) => String(p?.smoothie_name || '').trim().toLowerCase() === t) || candidates[0];
+          } else if (!isNaN(id) && id > 0) {
+            src = candidates.find((p: any) => Number(p?.id) === id) || candidates[0];
+          } else {
+            src = candidates[0];
+          }
+        }
+      }
+      // 2) Then by Smoothie Name
+      if (!src && smoothieName) {
+        const target = smoothieName.toLowerCase();
+        src = (this.SmoothieProduction || []).find((p: any) => String(p?.smoothie_name || '').trim().toLowerCase() === target);
+      }
+      // 3) Lastly by ID
+      if (!src && !isNaN(id) && id > 0) {
+        src = (this.SmoothieProduction || []).find((p: any) => Number(p?.id) === id);
+      }
+      if (!src) {
+        continue;
+      }
+
+      const available = Number(src?.cotton) || 0;
+      if (qty > available) {
+        // skip rows exceeding stock
+        continue;
+      }
+
+      const exists = this.dispatchList.find((it: any) => Number(it?.id) === Number(src.id));
+      const oneQtyG = Number(src?.one_qty_g) || 0;
+      const entry = {
+        ...src,
+        transferQty: qty,
+        location: location,
+        cartonvalue: cartonvalue,
+        total_qty_g: oneQtyG * qty * cartonvalue,
+        totalShases: qty * cartonvalue,
+      };
+      if (!exists) {
+        this.dispatchList.push(entry);
+        added++;
+      } else {
+        exists.transferQty = qty;
+        exists.location = location;
+        exists.cartonvalue = cartonvalue;
+      }
+    }
+    if (added > 0) {
+      this.messageService.add({ severity: 'success', summary: 'Import Complete', detail: `Added ${added} item(s) to dispatch list.`, life: 3000 });
+    } else {
+      this.messageService.add({ severity: 'warn', summary: 'Nothing Added', detail: 'No valid rows were imported.', life: 3000 });
+    }
+  }
+
   removeRow(index: number) {
     const removedItem = this.dispatchList[index];
 
@@ -448,22 +618,33 @@ export class DispatchComponent implements OnInit {
 
   preDispatch() {
     if (!this.driverName) {
-      alert('Please enter driver name');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Driver Required',
+        detail: 'Please enter driver name',
+        life: 3000,
+      });
       return;
     }
 
     // Map the dispatch list to form the items array for insertion
-    const dispatchItems = this.dispatchList.map((item) => ({
-      item_id: item.id, // Item ID
-      category: item.category,
-      smoothie_name: item.smoothie_name, // Smoothie name
-      transfer_qty: item.transferQty, // Quantity
-      one_qty_g: item.one_qty_g, // Quantity in grams
-      total_qty_g: (Number(item.one_qty_g) || 0) * (Number(item.transferQty) || 0) * 15,
-      totalShases: item.transferQty * 15, // Calculate total shakes
-      location: item.location, // Location of the item
-      ingredients: item.ingredients, // Include ingredients for reference
-    }));
+    const dispatchItems = this.dispatchList.map((item) => {
+      const carton = Number(item.cartonvalue) || 15;
+      const qty = Number(item.transferQty) || 0;
+      const oneQtyG = Number(item.one_qty_g) || 0;
+      return {
+        item_id: item.id, // Item ID
+        category: item.category,
+        smoothie_name: item.smoothie_name, // Smoothie name
+        transfer_qty: qty, // Quantity
+        one_qty_g: oneQtyG, // Quantity in grams
+        cartonvalue: carton, // Persist carton value
+        total_qty_g: oneQtyG * qty * carton,
+        totalShases: qty * carton, // Calculate total sachets based on cartonvalue
+        location: item.location, // Location of the item
+        ingredients: item.ingredients, // Include ingredients for reference
+      };
+    });
 
     // Prepare the payload to be sent to the backend
     const payload = {
@@ -480,12 +661,22 @@ export class DispatchComponent implements OnInit {
         console.log('Dispatch successful:', response);
         this.dispatchList = []; // Clear the dispatch list
         this.driverName = ''; // Reset the driver name field
-        alert('Dispatch successful');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Dispatch Saved',
+          detail: 'Pre-dispatch created successfully.',
+          life: 3000,
+        });
         this.getPreDispatches();
       },
       (error) => {
         console.error('Error during dispatch:', error);
-        alert('Error during dispatch');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error during dispatch',
+          life: 3000,
+        });
       }
     );
   }
@@ -532,6 +723,7 @@ export class DispatchComponent implements OnInit {
           String(d?.status ?? '').toLowerCase() === 'samples'
         );
         this.filteredSamplesDispatches = this.samplesDispatches.slice();
+        this.applySamplesFilter();
       },
       (error: any) => {
         console.error('Error fetching completed dispatches:', error);
@@ -571,13 +763,16 @@ export class DispatchComponent implements OnInit {
   }
 
   applyCompletedFilter() {
+    const completedOnly = this.completedDispatches.filter(
+      (d: any) => String(d?.status ?? '').toLowerCase() === 'completed'
+    );
     if (!this.completedFromDate || !this.completedToDate) {
-      this.filteredCompletedDispatches = this.completedDispatches.slice();
+      this.filteredCompletedDispatches = completedOnly.slice();
       return;
     }
     const from = new Date(this.completedFromDate).getTime();
     const to = new Date(this.completedToDate).getTime();
-    this.filteredCompletedDispatches = this.completedDispatches.filter((d: any) => {
+    this.filteredCompletedDispatches = completedOnly.filter((d: any) => {
       const t = new Date(d.creation_date).getTime();
       return t >= from && t <= to;
     });
@@ -595,6 +790,7 @@ export class DispatchComponent implements OnInit {
     const name = row?.sampleName?.trim?.() || '';
     const remark = row?.sampleRemark?.trim?.() || '';
     const available = Number(row?.cotton) || 0;
+    const cartonvalue = Number(row?.cartonvalue) || 15;
 
     if (!qty || qty <= 0) {
       this.messageService.add({
@@ -643,8 +839,9 @@ export class DispatchComponent implements OnInit {
       smoothie_name: row.smoothie_name,
       transfer_qty: qty,
       one_qty_g: oneQtyG,
-      total_qty_g: oneQtyG * qty * 15,
-      totalShases: qty * 15,
+      cartonvalue: cartonvalue,
+      total_qty_g: oneQtyG * qty * cartonvalue,
+      totalShases: qty * cartonvalue,
       location: location,
       ingredients: row.ingredients,
     };
@@ -765,11 +962,13 @@ export class DispatchComponent implements OnInit {
         throw new Error(`Returns cannot exceed transferred qty for item ${it.item_id}`);
       }
       const adjusted = origQty - ret;
+      const carton = Number(it.cartonvalue) || 15;
       return {
         ...it,
         transfer_qty: adjusted,
-        totalShases: adjusted * 15,
-        total_qty_g: (Number(it.one_qty_g) || 0) * adjusted * 15,
+        cartonvalue: carton,
+        totalShases: adjusted * carton,
+        total_qty_g: (Number(it.one_qty_g) || 0) * adjusted * carton,
       };
     });
 
@@ -788,6 +987,7 @@ export class DispatchComponent implements OnInit {
           detail: 'Dispatch recorded and inventory updated.',
           life: 3000,
         });
+         this.getSmoothieProduction();
         this.getPreDispatches();
         this.getCompletedDispatches();
       },
@@ -801,5 +1001,159 @@ export class DispatchComponent implements OnInit {
         });
       }
     );
+  }
+
+  private escapeCsv(value: any): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    const str = String(value).replace(/\r?\n/g, ' ').trim();
+    if (/[",\n]/.test(str)) {
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  }
+
+  private formatExportDate(value: any): string {
+    const d = value ? new Date(value) : null;
+    if (!d || isNaN(d.getTime())) {
+      return '';
+    }
+    const to2 = (num: number) => num.toString().padStart(2, '0');
+    return `${to2(d.getDate())}-${to2(d.getMonth() + 1)}-${d.getFullYear()} ${to2(
+      d.getHours()
+    )}:${to2(d.getMinutes())}`;
+  }
+
+  private formatFileDate(date: Date = new Date()): string {
+    return date
+      .toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+      .replace(/,/g, '');
+  }
+
+  exportCompletedDispatches(): void {
+    if (!this.filteredCompletedDispatches?.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Records',
+        detail: 'There are no completed dispatches to export.',
+        life: 3000,
+      });
+      return;
+    }
+
+    const headers = [
+      'Driver',
+      'Truck No',
+      'Date',
+      'Item ID',
+      'Smoothie',
+      'Qty Cotton (kg)',
+      'Location',
+      'Returns',
+    ];
+
+    const rows: string[][] = [headers];
+
+    this.filteredCompletedDispatches.forEach((dispatch: any) => {
+      const items = Array.isArray(dispatch.item_details) && dispatch.item_details.length
+        ? dispatch.item_details
+        : [null];
+
+      items.forEach((item: any) => {
+        rows.push([
+          this.escapeCsv(dispatch.driver_name),
+          this.escapeCsv(dispatch.truck_no),
+          this.escapeCsv(this.formatExportDate(dispatch.creation_date)),
+          this.escapeCsv(item?.item_id ?? ''),
+          this.escapeCsv(item?.smoothie_name ?? ''),
+          this.escapeCsv(item?.transfer_qty ?? ''),
+          this.escapeCsv(item?.location ?? ''),
+          this.escapeCsv(item?.returns ?? 0),
+        ]);
+      });
+    });
+
+    const csvContent = rows.map((row) => row.join(',')).join('\r\n');
+    const exportDateLabel = this.formatFileDate();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `completed_dispatches_${exportDateLabel}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Export Ready',
+      detail: 'Completed dispatch report downloaded with item details.',
+      life: 3000,
+    });
+  }
+
+  exportSamplesDispatches(): void {
+    if (!this.filteredSamplesDispatches?.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Records',
+        detail: 'There are no sample dispatches to export.',
+        life: 3000,
+      });
+      return;
+    }
+
+    const headers = [
+      'Samples taken by',
+      'Remark',
+      'Date',
+      'Item ID',
+      'Smoothie',
+      'Qty Cotton (kg)',
+      'Location',
+      'Returns',
+    ];
+
+    const rows: string[][] = [headers];
+
+    this.filteredSamplesDispatches.forEach((dispatch: any) => {
+      const items = Array.isArray(dispatch.item_details) && dispatch.item_details.length
+        ? dispatch.item_details
+        : [null];
+
+      items.forEach((item: any) => {
+        rows.push([
+          this.escapeCsv(dispatch.driver_name),
+          this.escapeCsv(dispatch.truck_no),
+          this.escapeCsv(this.formatExportDate(dispatch.creation_date)),
+          this.escapeCsv(item?.item_id ?? ''),
+          this.escapeCsv(item?.smoothie_name ?? ''),
+          this.escapeCsv(item?.transfer_qty ?? ''),
+          this.escapeCsv(item?.location ?? ''),
+          this.escapeCsv(item?.returns ?? 0),
+        ]);
+      });
+    });
+
+    const csvContent = rows.map((row) => row.join(',')).join('\r\n');
+    const exportDateLabel = this.formatFileDate();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `sample_dispatches_${exportDateLabel}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Export Ready',
+      detail: 'Sample dispatch report downloaded with item details.',
+      life: 3000,
+    });
   }
 }

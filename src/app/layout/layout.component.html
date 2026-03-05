@@ -6,17 +6,17 @@
         }@else if(selectedIndex === 1){
         <app-storagehouse *ngIf="acl.canRead('Storage House')"></app-storagehouse>
         }@else if(selectedIndex === 2){
-        <!-- <app-storagehouse2></app-storagehouse2> -->
-        <app-mainhouse *ngIf="acl.canRead('Life Smoothie House')"></app-mainhouse>
+        <app-storagehouse2 *ngIf="acl.canRead('Storage House 2')"></app-storagehouse2>
         }@else if(selectedIndex === 3){
-        <app-production *ngIf="acl.canRead('Production')"></app-production>
+        <app-mainhouse *ngIf="acl.canRead('Life Smoothie House')"></app-mainhouse>    
         }@else if(selectedIndex === 4){
-        <app-dispatch *ngIf="acl.canRead('Dispatch')"></app-dispatch>
+        <app-production *ngIf="acl.canRead('Production')"></app-production>
         }@else if(selectedIndex === 5){
-        <app-overall-table *ngIf="acl.canRead('Forecast')"></app-overall-table>
+        <app-dispatch *ngIf="acl.canRead('Dispatch')"></app-dispatch>
         }@else if(selectedIndex === 6){
+        <app-overall-table *ngIf="acl.canRead('Forecast')"></app-overall-table>
+        }@else if(selectedIndex === 7){
         <app-users *ngIf="acl.canRead('User Management')"></app-users>
         }
     </div>
-
 </div>

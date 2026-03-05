@@ -1,10 +1,7 @@
 <div class="smoothiemain">
-    <div class="topnav">
-        <h2 class="logo">WM</h2>
-        <div class="title-wrap">
-            <h2>Warehouse Manager</h2>
-            <!-- <small class="subtitle">Smoothie Production Console</small> -->
-        </div>
+     <div class="topnav">
+        <h2 class="logo">{{userInitials}}</h2>
+        <h2>{{userFullName}}</h2>
     </div>
 
     <div class="body">
@@ -12,7 +9,7 @@
             <div class="left-container">
                 <div class="row-item">
                     <div class="title">
-                        <p>Smoothies</p>
+                        <p>Sachets</p>
                         <span>Craft your signature flavour</span>
                     </div>
                     <img src="../../assets/Energy-Booster.jpg" alt="Energy Booster" class="row-img">
@@ -21,17 +18,16 @@
                 <div class="tabs">
                     <div class="tab-header">
 
-                        <div [class.active]="activeTab === 'choose'" (click)="activeTab = 'choose'">Choose Smoothie
+                        <div [class.active]="activeTab === 'choose'" (click)="activeTab = 'choose'">Select Sachet or Raw Item
                         </div>
-                        <div [class.active]="activeTab === 'production'" (click)="activeTab = 'production'">Smoothie
-                            Production</div>
+                        <div [class.active]="activeTab === 'production'" (click)="activeTab = 'production'">Create Sachet or Raw Item</div>
                     </div>
 
                     <div class="tab-content">
                         <!-- Tab 1: Smoothie Production -->
                         <div *ngIf="activeTab === 'choose'" class="tab-panel">
                             <div class="title2">
-                                <p>Choose a Smoothie</p>
+                                <p>Choose a Product</p>
                             </div>
                             <div class="form-group category-scroll">
                                 <p-selectButton [options]="categoryOptions" [(ngModel)]="selectedCategory" optionLabel="label" optionValue="value"></p-selectButton>
@@ -66,18 +62,23 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="categoryInput">Category</label>
+                                <label for="categoryInput">Category Type</label>
                                 <p-autoComplete inputId="categoryInput" [(ngModel)]="category" [suggestions]="filteredCategories"
                                     (completeMethod)="filterCategories($event)" placeholder="Enter or select category"></p-autoComplete>
                             </div>
 
                             <div class="form-group">
-                                <label for="smoothieName">Smoothie Name</label>
-                                <input id="smoothieName" type="text" [(ngModel)]="smoothieName" placeholder="Enter smoothie name" />
+                                <label for="smoothieName">Smoothie Name or Raw Material Name</label>
+                                <input id="smoothieName" type="text" [(ngModel)]="smoothieName" placeholder="Enter name" />
                             </div>
 
                             <div class="form-group">
-                                <label for="itemSearch">Item</label>
+                                <label for="smoothieDesc">Description</label>
+                                <input id="smoothieDesc" type="text" [(ngModel)]="itemdesc" placeholder="Enter description" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="itemSearch">Item (Raw)</label>
                                 <p-autoComplete inputId="itemSearch" [(ngModel)]="newItem.name" [suggestions]="filteredItemNames"
                                     (completeMethod)="filterItemNames($event)" placeholder="Enter or select item"></p-autoComplete>
                             </div>
@@ -106,7 +107,7 @@
 
                         <h4>{{ detail.item_name }}</h4>
                         <p><strong>Description:</strong> {{ detail.description }}</p>
-                        <p><strong>Qty (cotton):</strong> {{ detail.qty_cotton }}</p>
+                        <p><strong>Qty (Carton):</strong> {{ detail.qty_cotton }}</p>
                         <p><strong>Qty (kg):</strong> {{ detail.qty_kg }}</p>
                         <p><strong>Qty (g):</strong> {{ detail.qty_g }}</p>
                         <p><strong>Production:</strong> {{ detail.production_date }}</p>
@@ -118,6 +119,17 @@
 
         <div *ngIf="selectedSmoothie" class="editcontainer">
             <div class="basic-table">
+                <div class="mode-toggle" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                    <strong style="min-width: 30px;">Mode:</strong>
+                    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                        <input type="radio" name="productionMode" value="sachets" [(ngModel)]="productionMode" />
+                        Sachets
+                    </label>
+                    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                        <input type="radio" name="productionMode" value="raw" [(ngModel)]="productionMode" />
+                        Raw
+                    </label>
+                </div>
                 <h3>Edit Quantities: <span class="highlight">{{ selectedSmoothie.itemname }}</span></h3>
 
                 <table>
@@ -147,34 +159,47 @@
                 <div class="icon">🎉</div>
                 <div class="content">
                     <h3>Success!</h3>
-                    <p>You can produce <strong>{{ calculateMessage }}</strong> smoothies with the current stock.</p>
+                    <p>You can produce <strong>{{ calculateMessage }}</strong> {{ productionMode === 'sachets' ? 'sachets' : 'raw item'}} with the current stock.</p>
                 </div>
             </div>
 
             <div class="createsmoothie">
                 <div class="rowform">
                     <div class="edit-group">
-                        <label for="qtyPacks">Qty (no. of sachets)</label>
+                        <label for="qtyPacks">{{ productionMode === 'raw' ? 'Qty (no in kg)' : 'Qty (no of sachets)' }}</label>
                         <input id="qtyPacks" type="number" [(ngModel)]="commonQty" placeholder="e.g., 50" />
                     </div>
                     <div class="edit-group">
                         <label for="wastageG">Wastage (g)</label>
                         <input id="wastageG" type="number" [(ngModel)]="commonWastage" placeholder="e.g., 100" />
                     </div>
+
+                    <div class="edit-group">
+                        <label for="curtainvalue">Carton value</label>
+                        <input id="curtainvalue" type="number" [(ngModel)]="curtainValue" placeholder="e.g., 15" />
+                    </div>
                 </div>
 
-                <div class="edit-group">
-                    <label for="rack">Rack</label>
-                    <input id="rack" type="text" [(ngModel)]="commonRack" placeholder="e.g., A3" />
+                <div class="rowform">
+                    <div class="edit-group">
+                        <label for="rack">LOT</label>
+                        <input id="rack" type="text" [(ngModel)]="commonRack" placeholder="e.g., A3" />
+                    </div>
+                    <div class="edit-group">
+                        <label for="prodDate">Production Date</label>
+                        <p-datepicker inputId="prodDate" [(ngModel)]="productionDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-datepicker>
+                    </div>
+                    <div class="edit-group">
+                        <label for="expDate">Expiry Date</label>
+                        <p-datepicker inputId="expDate" [(ngModel)]="expiryDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-datepicker>
+                    </div>
                 </div>
 
                 <div class="button-row">
                     <button class="icon-btn success" (click)="saveSmoothieProduction()"><i class="pi pi-check-circle"></i> Save</button>
                     <button class="icon-btn secondary" type="button"><i class="pi pi-times"></i> Cancel</button>
                 </div>
-
             </div>
-
         </div>
 
     </div>

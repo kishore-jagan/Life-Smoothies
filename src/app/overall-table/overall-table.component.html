@@ -33,6 +33,7 @@
               [(ngModel)]="selectedMonth"
               (onChange)="onFilterChange()"
               styleClass="p-inputtext-sm"
+              appendTo="body"
             ></p-dropdown>
             <p-dropdown
               [options]="yearsOptions"
@@ -42,6 +43,7 @@
               [(ngModel)]="selectedYear"
               (onChange)="onFilterChange()"
               styleClass="p-inputtext-sm"
+              appendTo="body"
             ></p-dropdown>
             </div>
 

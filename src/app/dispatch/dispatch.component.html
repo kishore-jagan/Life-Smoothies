@@ -1,8 +1,9 @@
 <div class="dispatch-main">
-    <div class="topnav">
-        <h2 class="logo">WM</h2>
-        <h2>Warehouse Manager</h2>
+     <div class="topnav">
+        <h2 class="logo">{{userInitials}}</h2>
+        <h2>{{userFullName}}</h2>
     </div>
+
 
     <div class="body">
         <div class="classbutton">
@@ -15,28 +16,28 @@
 
         <div class="overviewbox">
             <div class="overviewbox-item box-blue">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
+                <p class="view1">Production Items (filtered)</p>
+                <p class="view2">{{ totalSmoothieItems }}</p>
+                <p class="view3">Records from getSmoothieProduction()</p>
                 <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
             </div>
             <div class="overviewbox-item box-green">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-green"><i class="fas fa-box"></i></div>
+                <p class="view1">Pending Pre-Dispatch</p>
+                <p class="view2">{{ totalPreDispatchItems }}</p>
+                <p class="view3">Records from getPreDispatches()</p>
+                <div class="view-icon icon-green"><i class="fas fa-truck-loading"></i></div>
             </div>
             <div class="overviewbox-item box-yellow">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-yellow"><i class="fas fa-box"></i></div>
+                <p class="view1">Completed Dispatches</p>
+                <p class="view2">{{ totalCompletedItems }}</p>
+                <p class="view3">Status = completed</p>
+                <div class="view-icon icon-yellow"><i class="fas fa-check"></i></div>
             </div>
             <div class="overviewbox-item box-blue">
-                <p class="view1">Total Stock Items</p>
-                <p class="view2">2,378</p>
-                <p class="view3">12% from last month</p>
-                <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
+                <p class="view1">Samples</p>
+                <p class="view2">{{ totalSampleItems }}</p>
+                <p class="view3">Status = samples</p>
+                <div class="view-icon icon-blue"><i class="fas fa-vial"></i></div>
             </div>
         </div>
 
@@ -61,9 +62,12 @@
                                     (input)="onSearch($any($event).target.value, dt)" />
                             </div>
 
-                            <!-- <p-button icon="pi pi-external-link" label="Export" (click)="dt.exportCSV()" /> -->
                             <button class="export" label="Export" (click)="dt.exportCSV()"> <i
                                     class="fas fa-external-link"></i> Export</button>
+                            <input type="file" #dispatchFileInput accept=".xlsx,.xls" style="display:none" (change)="onImportDispatchFileChange($event)" />
+                            <button class="export" (click)="dispatchFileInput.click()">
+                                <i class="fas fa-file-import"></i> Import Excel
+                            </button>
                         </div>
 
                         <div class="date-range-selector">
@@ -277,9 +281,14 @@
                                   <input type="search" placeholder="Search"
                                          (input)="onSearch($any($event).target.value, cdt)" />
                               </div>
-                              <button class="export" label="Export" (click)="cdt.exportCSV()">
-                                  <i class="fas fa-external-link"></i> Export
-                              </button>
+                              <div class="export-group">
+                                  <!-- <button type="button" class="export" label="Export" (click)="cdt.exportCSV()">
+                                      <i class="fas fa-external-link"></i> Export
+                                  </button> -->
+                                  <button class="export" (click)="exportCompletedDispatches()">
+                                      <i class="fas fa-external-link"></i> Export
+                                  </button>
+                              </div>
                           </div>
 
                           <div class="date-range-selector">
@@ -290,7 +299,7 @@
                       </div>
   
                       <div class="captionrow">
-                          <div class="filter">
+                          <div class="filter1">
                               <p-multiselect display="chip" [options]="completedCols" [(ngModel)]="selectedCompletedCols"
                                              optionLabel="header" selectedItemsLabel="{0} columns selected"
                                              [style]="{ 'min-width': '200px' }" placeholder="Choose Columns" [filter]="true"
@@ -353,6 +362,7 @@
                                       <th>Smoothie</th>
                                       <th>Qty Cotton (kg)</th>
                                       <th>Location</th>
+                                      <th>Returns</th>
                                   </tr>
                               </thead>
                               <tbody>
@@ -361,6 +371,7 @@
                                       <td>{{ it.smoothie_name }}</td>
                                       <td>{{ it.transfer_qty }}</td>
                                       <td>{{ it.location }}</td>
+                                      <td>{{ it.returns || 0 }}</td>
                                   </tr>
                               </tbody>
                           </table>
@@ -376,7 +387,7 @@
 
    
 
-    <h3 class="c_dispatch">Sample Dispatches</h3>
+    <h3 class="c_dispatch">Other Dispatches</h3>
     <p-table class="tablecontainer" #sdt
              [value]="filteredSamplesDispatches"
              [columns]="selectedSamplesCols"
@@ -395,9 +406,49 @@
                             <input type="search" placeholder="Search"
                                    (input)="onSearch($any($event).target.value, sdt)" />
                         </div>
-                        <button class="export" label="Export" (click)="sdt.exportCSV()">
-                            <i class="fas fa-external-link"></i> Export
-                        </button>
+                        <div class="export-group">
+                            <button class="export" (click)="exportSamplesDispatches()">
+                                <i class="fas fa-external-link"></i> Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="date-range-selector">
+                        <p-selectButton [options]="periodOptions" [(ngModel)]="samplesSelectedPeriod"
+                                        (onChange)="setSamplesView(samplesSelectedPeriod)">
+                        </p-selectButton>
+                    </div>
+                </div>
+
+                <div class="captionrow">
+                    <div class="filter1">
+                        <p-multiselect display="chip" [options]="samplesCols" [(ngModel)]="selectedSamplesCols"
+                                       optionLabel="header" selectedItemsLabel="{0} columns selected"
+                                       [style]="{ 'min-width': '200px' }" placeholder="Choose Columns" [filter]="true"
+                                       [showToggleAll]="true" [maxSelectedLabels]="9" />
+                    </div>
+
+                    <div class="date-picker" *ngIf="samplesSelectedPeriod === 'date'">
+                        <p-datepicker class="custom-date-input" [(ngModel)]="samplesRangeDates" selectionMode="range"
+                                      [showIcon]="true" (onSelect)="setSamplesView('date')">
+                        </p-datepicker>
+                    </div>
+
+                    <div class="date-picker" *ngIf="samplesSelectedPeriod === 'week'">
+                        <p-datepicker class="custom-date-input" [(ngModel)]="samplesSelectedDate"
+                                      [showIcon]="true" (onSelect)="setSamplesView('week')"></p-datepicker>
+                    </div>
+
+                    <div class="date-picker" *ngIf="samplesSelectedPeriod === 'month'">
+                        <p-datepicker class="custom-date-input" [(ngModel)]="samplesSelectedDate" view="month"
+                                      dateFormat="MM yy" [showIcon]="true" (onSelect)="setSamplesView('month')">
+                        </p-datepicker>
+                    </div>
+
+                    <div class="date-picker" *ngIf="samplesSelectedPeriod === 'year'">
+                        <p-datepicker class="custom-date-input" [(ngModel)]="samplesSelectedDate" view="year"
+                                      dateFormat="yy" [showIcon]="true" (onSelect)="setSamplesView('year')">
+                        </p-datepicker>
                     </div>
                 </div>
             </div>

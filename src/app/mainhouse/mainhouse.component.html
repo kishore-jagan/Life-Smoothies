@@ -1,12 +1,13 @@
 <div class="smoothiemain">
-    <div class="topnav">
-        <h2 class="logo">WM</h2>
-        <h2>Warehouse Manager</h2>
+     <div class="topnav">
+        <h2 class="logo">{{userInitials}}</h2>
+        <h2>{{userFullName}}</h2>
     </div>
+
 
     <div class="body">
         <div class="classbutton">
-            <p class="text1"><i class="fas fa-box-open"></i> Life Smoothis House</p>
+            <p class="text1"><i class="fas fa-box-open"></i> Life Smoothies House</p>
             <!-- <button class="icon-btn" type="button">
                 <i class="fas fa-add"></i>
                 <span class="btn-text">List Item</span>
@@ -23,9 +24,9 @@
                 <div class="view-icon icon-blue"><i class="fas fa-box"></i></div>
             </div>
             <div class="overviewbox-item box-green">
-                <p class="view1">Total Qty (Cotton)</p>
+                <p class="view1">Total Qty (Carton)</p>
                 <p class="view2">{{ totalQtyCotton }}</p>
-                <p class="view3">Sum of qty_cotton</p>
+                <p class="view3">Sum of qty Carton</p>
                 <div class="view-icon icon-green"><i class="fas fa-boxes-stacked"></i></div>
             </div>
             <div class="overviewbox-item box-yellow">
@@ -49,7 +50,7 @@
             <p-table #dt [value]="sortedLifeSmoothieList" [columns]="selectedColumns" [tableStyle]="{ 'min-width': '50rem' }"
                 [globalFilterFields]="globalFilterFields" [paginator]="true" [rows]="10" responsiveLayout="scroll"
                 [rowsPerPageOptions]="[10,15,20]" [scrollable]="true" [resizableColumns]="true" columnResizeMode="expand"
-                [exportHeader]="'customExportHeader'" selectionMode="multiple"
+                [exportHeader]="'customExportHeader'" [exportFilename]="csvFileName" selectionMode="multiple"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
                 [tableStyle]="{'min-width': '50rem'}" responsiveLayout="stack" [breakpoint]="'960px'" stripedRows="tr"
                 rowHover="true" showCurrentPageReport="true">

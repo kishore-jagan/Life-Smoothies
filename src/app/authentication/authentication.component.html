@@ -27,16 +27,16 @@
         <div class="flyover" aria-hidden="true">
           <img src="../../assets/strawberry.png" alt="strawberry" />
           <img src="../../assets/pineapple.png" alt="pineapple" />
-          <img src="../../assets/orange.png" alt="orange" />
-          <img src="../../assets/mango1.png" alt="Mango" />
+          <!-- <img src="../../assets/orange.png" alt="orange" /> -->
+          <!-- <img src="../../assets/mango1.png" alt="Mango" /> -->
           <img src="../../assets/blueberry.png" alt="Blueberry" />
-          <img src="../../assets/guava.png" alt="Guava" />
-          <img src="../../assets/guava.png" alt="Guava" />
+          <!-- <img src="../../assets/guava.png" alt="Guava" /> -->
+          <!-- <img src="../../assets/guava.png" alt="Guava" />
           <img src="../../assets/blueberry.png" alt="Blueberry" />
-          <img src="../../assets/mango1.png" alt="Mango" />
-          <img src="../../assets/orange.png" alt="orange" />
-          <img src="../../assets/pineapple.png" alt="pineapple" />
-          <img src="../../assets/strawberry.png" alt="strawberry" />
+          <img src="../../assets/mango1.png" alt="Mango" /> -->
+          <!-- <img src="../../assets/orange.png" alt="orange" /> -->
+          <!-- <img src="../../assets/pineapple.png" alt="pineapple" /> -->
+          <!-- <img src="../../assets/strawberry.png" alt="strawberry" /> -->
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@
         
         <h2>Welcome Back</h2>
         <p class="subtext">Sign in to access your personalized smoothie experience</p>
-        <form #loginFormRef="ngForm" (ngSubmit)="login()">
+        <form #loginFormRef="ngForm" (ngSubmit)="login()" novalidate>
           <div class="form-group">
             <label for="email">User Name</label>
             <div class="input-wrapper">
@@ -73,7 +73,7 @@
               <!-- <span class="icon-right" aria-hidden="true">👁</span> -->
             </div>
           </div>
-          <button type="submit" class="sign-in-btn" [disabled]="loginFormRef.invalid || isLoading">
+          <button type="submit" class="sign-in-btn" [disabled]="isLoading">
             <span *ngIf="isLoading" class="spinner"></span>
             {{ isLoading ? 'Logging In...' : 'Login' }}
           </button>

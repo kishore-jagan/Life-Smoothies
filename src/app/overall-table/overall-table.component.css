@@ -129,6 +129,10 @@
   color: #334155;
 }
 
+.p-inputtext {
+  height: 50px;
+}
+
 .prediction-panel .p-inputtext,
 .prediction-panel ::ng-deep .p-dropdown .p-dropdown-label,
 .prediction-panel ::ng-deep .p-dropdown {
@@ -142,6 +146,11 @@
 .prediction-panel ::ng-deep .p-dropdown.p-focus {
   border-color: #6366f1 !important;
   box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
+}
+
+.export-btn{
+  height: 50px;
+  width: 100px;
 }
 
 .prediction-panel .export-btn {

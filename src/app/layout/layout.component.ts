@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
     SidebarComponent,
     DashboardComponent,
     StoragehouseComponent,
-    // Storagehouse2Component,
+    Storagehouse2Component,
     MainhouseComponent,
     DispatchComponent,
     ProductionComponent,

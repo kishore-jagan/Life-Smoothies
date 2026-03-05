@@ -21,7 +21,7 @@ export interface SimpleRole {
 })
 export class RoleService {
 
-  private apiUrl = 'http://localhost/api/index.php?action=';
+  private apiUrl = 'http://localhost:8080/api/index.php?action=';
 
   constructor(private http: HttpClient) { }
 

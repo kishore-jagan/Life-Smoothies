@@ -4,11 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { StorageItem, StorageService } from './storage.service';
+import { StorageItem, StorageService, SmoothieProduction } from './storage.service';
+import { forkJoin } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { DatePickerModule } from 'primeng/datepicker';
+import { SessionService } from '../users/session-service/session.service';
+import { DialogModule } from 'primeng/dialog';
 
 interface Column {
   field: string;
@@ -34,6 +37,7 @@ interface ExportColumn {
     MultiSelectModule,
     SelectButtonModule,
     DatePickerModule,
+    DialogModule,
   ],
   templateUrl: './storagehouse.component.html',
   styleUrl: './storagehouse.component.css',
@@ -48,7 +52,8 @@ export class StoragehouseComponent implements OnInit {
     lotno: '',
     productiondate: '',
     expirydate: '',
-    qtycotton: 0,
+    qtycotton: null,
+    addedqty: 0,
     // qtykg: 0,
     // qtyg: 0,
     supplier: '',
@@ -73,7 +78,7 @@ export class StoragehouseComponent implements OnInit {
     { label: 'Yearly', value: 'year' },
   ];
   showDate = true;
-  selectedPeriod: string = 'date';
+  selectedPeriod: string = 'month';
   selectedDate: Date = new Date(); // for week/month/year
   fromDateModel: Date = new Date(); // for date range
   toDateModel: Date = new Date(); // for date range
@@ -84,10 +89,212 @@ export class StoragehouseComponent implements OnInit {
 
   exportColumns!: ExportColumn[];
 
+  get userFullName(): string {
+    const user = this.sessionService.getUser();
+    return user?.full_name || user?.user_name || 'User';
+  }
+
+  get userInitials(): string {
+    const user = this.sessionService.getUser();
+    const name = (user?.full_name || user?.user_name || '').trim();
+    if (!name) return 'U';
+    const parts = name.split(/\s+/);
+    const first = parts[0]?.[0] ?? '';
+    const second = (parts[1]?.[0] ?? parts[0]?.[1] ?? '') as string;
+    const initials = (first + second).toUpperCase();
+    return initials || first.toUpperCase() || 'U';
+  }
+
+  
+  // Computed export filename (PrimeNG will append .csv)
+  get csvFileName(): string {
+    const now = new Date();
+    const day = now.getDate();
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    return `GSL Warehouse_${day} ${month} ${year}`;
+  }
+
+  // ---- Inline edit for Qty Curtain ----
+  startEditQty(row: any) {
+    row.editingQty = true;
+    row.editQtyCotton = Number(row.qtycotton);
+  }
+
+  cancelEditQty(row: any) {
+    row.editingQty = false;
+    row.editQtyCotton = null;
+  }
+
+  saveEditQty(row: any) {
+    const val = Number(row.editQtyCotton);
+    if (!isFinite(val) || val < 0) {
+      this.messageService.add({ severity: 'warn', summary: 'Invalid', detail: 'Enter a valid non-negative number.' });
+      return;
+    }
+
+    if (String(row.itemtype).toUpperCase() === 'FP') {
+      // Update smoothie_production cotton and recomputed fields
+      const payload = { id: row.id, cotton: val, cartonvalue: this.defaultCartonValue };
+      console.log('FP edit payload', payload, 'row', row);
+      this.storageService.updateSmoothieCotton(payload).subscribe({
+        next: (res: any) => {
+          row.qtycotton = res.cotton ?? val;
+          row.qtykg = res.slices ?? row.qtykg; // show slices in Kg column per current mapping
+          row.qtyg = res.total_qty_g ?? row.qtyg;
+          row.editingQty = false;
+          row.editQtyCotton = null;
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Quantity updated.' });
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update quantity.' });
+        }
+      });
+    } else {
+      // RAW storage update: recompute qtykg/qtyg on server
+      const payload = { id: row.id, qtycotton: val };
+      this.storageService.updateStorageQty(payload).subscribe({
+        next: (res: any) => {
+          row.qtycotton = res.qtycotton ?? val;
+          row.qtykg = res.qtykg ?? (val * 10);
+          row.qtyg = res.qtyg ?? (row.qtykg * 1000);
+          row.editingQty = false;
+          row.editQtyCotton = null;
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Quantity updated.' });
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update quantity.' });
+        }
+      });
+    }
+  }
+
+  // ---- Add Qty via Dialog ----
+  addQtyDialogVisible = false;
+  addQtyValue: number = 0;
+  addQtyRemark: string = '';
+  addQtyRowRef: any = null;
+
+  // ---- History dialog ----
+  qtyHistoryVisible = false;
+  qtyHistoryRows: Array<{ id: number; entity: string; entity_id: number; addedqty: number; remark?: string; user?: string; created_at: string }> = [];
+  qtyHistoryLoading = false;
+  qtyHistoryTitle = '';
+
+  openQtyHistory(row: any) {
+    const entity = String(row.itemtype || 'Raw').toUpperCase() === 'FP' ? 'FP' : 'RAW';
+    this.qtyHistoryTitle = `${row.itemname} - ${entity} (ID ${row.id})`;
+    this.qtyHistoryVisible = true;
+    this.qtyHistoryLoading = true;
+    this.storageService.getQtyLogs(entity, row.id).subscribe({
+      next: (rows) => {
+        this.qtyHistoryRows = rows || [];
+        this.qtyHistoryLoading = false;
+      },
+      error: () => {
+        this.qtyHistoryRows = [];
+        this.qtyHistoryLoading = false;
+      }
+    });
+  }
+
+  openAddQtyDialog(row: any) {
+    this.addQtyRowRef = row;
+    this.addQtyValue = 0;
+    this.addQtyRemark = '';
+    this.addQtyDialogVisible = true;
+  }
+
+  cancelAddQtyDialog() {
+    this.addQtyDialogVisible = false;
+    this.addQtyRowRef = null;
+    this.addQtyValue = 0;
+    this.addQtyRemark = '';
+  }
+
+  confirmAddQtyDialog() {
+    const row = this.addQtyRowRef;
+    const inc = Number(this.addQtyValue);
+    if (!row) return;
+    if (!isFinite(inc) || inc <= 0) {
+      this.messageService.add({ severity: 'warn', summary: 'Invalid', detail: 'Enter a positive quantity to add.' });
+      return;
+    }
+
+    const newTotal = (Number(row.qtycotton) || 0) + inc;
+
+    if (String(row.itemtype).toUpperCase() === 'FP') {
+      const payload = { id: row.id, cotton: newTotal, cartonvalue: this.defaultCartonValue };
+      this.storageService.updateSmoothieCotton(payload).subscribe({
+        next: (res: any) => {
+          row.qtycotton = res.cotton ?? newTotal;
+          row.qtykg = res.slices ?? row.qtykg;
+          row.qtyg = res.total_qty_g ?? row.qtyg;
+          row.addedqty = (Number(row.addedqty) || 0) + inc;
+          // Log added qty
+          this.storageService.addQtyLog({
+            entity: 'FP',
+            entity_id: row.id,
+            addedqty: inc,
+            remark: this.addQtyRemark,
+            user: this.userFullName,
+          }).subscribe({ next: () => {}, error: () => {} });
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Quantity added.' });
+          this.cancelAddQtyDialog();
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add quantity.' });
+        },
+      });
+    } else {
+      const payload: any = { id: row.id, qtycotton: newTotal };
+      // Optional: include remark if backend supports it
+      if (this.addQtyRemark) payload.remark = this.addQtyRemark;
+      this.storageService.updateStorageQty(payload).subscribe({
+        next: (res: any) => {
+          row.qtycotton = res.qtycotton ?? newTotal;
+          row.qtykg = res.qtykg ?? (row.qtycotton * 10);
+          row.qtyg = res.qtyg ?? (row.qtykg * 1000);
+          row.addedqty = (Number(row.addedqty) || 0) + inc;
+          // Log added qty
+          this.storageService.addQtyLog({
+            entity: 'RAW',
+            entity_id: row.id,
+            addedqty: inc,
+            remark: this.addQtyRemark,
+            user: this.userFullName,
+          }).subscribe({ next: () => {}, error: () => {} });
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Quantity added.' });
+          this.cancelAddQtyDialog();
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add quantity.' });
+        },
+      });
+    }
+  }
+
   constructor(
+    private sessionService: SessionService,
     private storageService: StorageService,
     private messageService: MessageService
   ) {}
+
+  private defaultCartonValue = 15;
 
   toggleForm() {
     this.showForm = !this.showForm;
@@ -156,15 +363,17 @@ export class StoragehouseComponent implements OnInit {
       { field: 'live', header: 'Live Date', type: 'shortDate' },
       { field: 'itemname', header: 'Item Name', type: 'text' },
       { field: 'description', header: 'Description', type: 'text' },
+      { field: 'itemtype', header: 'Item Type', type: 'text' },
       { field: 'lotno', header: 'Lot No', type: 'text' },
       // { field: 'location', header: 'Location', type: 'text' },
       { field: 'productiondate', header: 'Production Date', type: 'date' },
       { field: 'expirydate', header: 'Expiry Date', type: 'date' },
-      { field: 'qtycotton', header: 'Qty Cotton', type: 'text' },
+      { field: 'qtycotton', header: 'Qty Carton', type: 'text' },
+      { field: 'addedqty', header: 'Added Qty', type: 'text' },
       { field: 'qtykg', header: 'Qty Kg', type: 'text' },
-      { field: 'qtyg', header: 'Qty g', type: 'text' },
-      { field: 'supplier', header: 'Supplier', type: 'text' },
-      { field: 'truckno', header: 'Truck No', type: 'text' },
+      // { field: 'qtyg', header: 'Qty g', type: 'text' },
+      // { field: 'supplier', header: 'Supplier', type: 'text' },
+      // { field: 'truckno', header: 'Truck No', type: 'text' },
     ];
 
     this.selectedColumns = this.cols;
@@ -192,9 +401,9 @@ export class StoragehouseComponent implements OnInit {
       !item.lotno ||
       !item.productiondate ||
       !item.expirydate ||
-      !item.qtycotton ||
-      !item.supplier ||
-      !item.truckno
+      !item.qtycotton 
+      // !item.supplier ||
+      // !item.truckno
     ) {
       this.messageService.add({
         severity: 'warn',
@@ -211,8 +420,9 @@ export class StoragehouseComponent implements OnInit {
           summary: 'Added',
           detail: 'Storage item added successfully!',
         });
-        this.storageList.unshift(data);
+        this.storageList.unshift({ ...(data as any), addedqty: 0 });
         this.newItem = {}; // Clear form
+        this.getStorageByDate();
       },
       error: (err) => {
         if (err.error?.error === 'Lot No already exists') {
@@ -295,7 +505,15 @@ export class StoragehouseComponent implements OnInit {
   }
 
   formatDateTime(date: Date): string {
-    return date.toISOString().slice(0, 19).replace('T', ' '); // 'YYYY-MM-DDTHH:mm:ss'
+    // Format as local date-time to avoid UTC shifting (e.g., IST/Dubai off-by-one)
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const y = date.getFullYear();
+    const m = pad(date.getMonth() + 1);
+    const d = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    const ss = pad(date.getSeconds());
+    return `${y}-${m}-${d} ${hh}:${mm}:${ss}`; // 'YYYY-MM-DD HH:mm:ss'
   }
   formatDateTime2(date: Date): string {
     return date.toISOString().slice(0, 10);
@@ -364,17 +582,69 @@ export class StoragehouseComponent implements OnInit {
     if (!this.fromDate || !this.toDate) {
       console.warn('fromDate or toDate is missing');
     }
-    // this.fromDate = this.formatDateTime2(new Date(this.fromDate));
-    // this.toDate = this.formatDateTime2(new Date(this.toDate));
-    this.storageService.getStorageByDate(this.fromDate, this.toDate).subscribe(
-      (data) => {
-        console.log('Filtered data by date:', data);
-        this.storageList = data;
+    // Fetch both Warehouse storage and Finished Product (smoothie production) in parallel
+    forkJoin({
+      storage: this.storageService.getStorageByDate(this.fromDate, this.toDate),
+      production: this.storageService.getSmoothieProductionByDate(this.fromDate, this.toDate),
+    }).subscribe({
+      next: ({ storage, production }) => {
+        // Map SmoothieProduction -> StorageItem schema
+        const mappedProduction: StorageItem[] = (production || []).map((p: SmoothieProduction) => {
+          const qtycotton = Number(p.cotton) || 0;
+          // const qtykg = qtycotton * 10;
+          // const qtyg = qtykg * 1000;
+          return {
+            id: (p as any).id ?? 0,
+            live: p.created_at || '',
+            itemname: p.smoothie_name || '',
+            description: (p as any).itemdesc || '',
+            itemtype: 'FP',
+            lotno: p.rack || '',
+            productiondate: (p as any).production_date || '',
+            expirydate: (p as any).expiry_date || '',
+            qtycotton,
+            qtykg: Number(p.slices) || 0,
+            qtyg: Number(p.total_qty_g) || 0,
+            supplier: '',
+            truckno: '',
+            location: '',
+            addedqty: 0,
+          } as StorageItem;
+        });
+
+        // Merge both datasets
+        const storageWithAdded = ((storage as StorageItem[]) || []).map((s: any) => ({ ...s, addedqty: s.addedqty ?? 0 }));
+        this.storageList = [
+          ...storageWithAdded,
+          ...mappedProduction,
+        ];
+
+        // Populate cumulative addedqty from logs for both RAW and FP
+        forkJoin({
+          raw: this.storageService.getQtyLogsSum('RAW'),
+          fp: this.storageService.getQtyLogsSum('FP'),
+        }).subscribe({
+          next: ({ raw, fp }) => {
+            const sumMap = new Map<string, number>();
+            (raw || []).forEach((l: any) => sumMap.set(`RAW-${l.entity_id}`, Number(l.total_added) || 0));
+            (fp || []).forEach((l: any) => sumMap.set(`FP-${l.entity_id}`, Number(l.total_added) || 0));
+            this.storageList = this.storageList.map((row: any) => {
+              const key = `${String(row.itemtype || 'Raw').toUpperCase()==='FP' ? 'FP' : 'RAW'}-${row.id}`;
+              const val = sumMap.get(key);
+              return { ...row, addedqty: val !== undefined ? val : (row.addedqty ?? 0) } as any;
+            });
+          },
+          error: () => {
+            // Ignore log fetch errors; keep default 0
+          }
+        });
+
+        console.log('Merged storage + production:', this.storageList);
       },
-      (error) => {
+      error: (error) => {
         console.error('Error fetching data by date:', error);
-      }
-    );
+      },
+    });
   }
 
   getWeekEndDate(startDate: Date): Date {

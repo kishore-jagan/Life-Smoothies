@@ -11,13 +11,14 @@ export interface Smoothie {
   itemname: string;
   ingredients: Ingredient[];
   category?: string | null;
+  itemdesc?: string | null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class IngredientService {
-  private apiUrl = 'http://localhost/api/index.php?action=';
+  private apiUrl = 'http://localhost:8080/api/index.php?action=';
   constructor(private http: HttpClient) {}
   saveSmoothie(smoothie: Smoothie): Observable<any> {
     return this.http.post(`${this.apiUrl}postSmoothie`, smoothie);

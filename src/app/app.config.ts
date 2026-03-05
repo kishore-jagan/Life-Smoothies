@@ -12,6 +12,7 @@ import {
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withFetch } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
+    MessageService,
     providePrimeNG({
       theme: {
         preset: Aura,
